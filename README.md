@@ -26,3 +26,6 @@
     └── config/                  # 설정 관련 폴더
         ├── env/                 # 환경 변수 관련 (예: dev, prod 설정)
         └── firebase_options.dart # Firebase 초기화 및 설정
+
+
+ - 스플레시 화면, 로그인 화면 구현 완료
