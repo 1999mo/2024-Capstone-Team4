@@ -1,3 +1,5 @@
+import 'package:catculator/screens/login_screen.dart';
+import 'package:catculator/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -13,6 +15,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: "축제 도우미",
       debugShowCheckedModeBanner: false,
+      initialRoute: '/',
+      routes: {
+        '/':(context)=>SplashScreen(),
+        '/login':(context)=>LoginScreen(),
+      },
     );
 
 
