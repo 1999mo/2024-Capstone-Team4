@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -10,6 +12,23 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  Future<void> _signInWithGoogle() async {
+    try {
+      final UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: _usernameController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      print("Log in as: ${userCredential.user?.email}");
+    } catch (e) {
+      print("Error: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Login failed: $e")),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +69,16 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 20), // 위젯 간격 조정
 
+                //로그인
+                TextButton(
+                  onPressed: () {
+                    _signInWithGoogle();
+                  },
+                  child: const Text(
+                    '로그인',
+                    style: TextStyle(color: Colors.green),
+                  ),
+                ),
                 // 회원가입 버튼
                 TextButton(
                   onPressed: () {
