@@ -1,8 +1,9 @@
-import 'package:catculator/screens/login_screen.dart';
-import 'package:catculator/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+
+import 'package:catculator/screens/splash.dart';
+import 'package:catculator/screens/user_auth/auth_screen_export.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,13 +20,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: "축제 도우미",
       debugShowCheckedModeBanner: false,
-      initialRoute: '/',
+      initialRoute: '/splash',
       routes: {
-        '/':(context)=>SplashScreen(),
-        '/login':(context)=>LoginScreen(),
+        '/splash':(context)=>Splash(),
+        '/user_auth/login_screen':(context)=>LoginScreen(),
       },
     );
-
-
   }
 }
