@@ -38,12 +38,12 @@ class Scripts {
   //note. this logs in the user as the password 'password'
   Future<String> sendEmailVerification(String email) async {
     try {
+      /*
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: 'password',
       );
 
-      String verificationCode = generateVerificationCode();
 
       await sendVerificationEmail(email, verificationCode);
 
@@ -57,7 +57,12 @@ class Scripts {
       });
 
       return userCredential.user!.uid;
-      print('Sign up : ${userCredential.user?.uid}');
+      print('Sign up : ${userCredential.user?.uid}');*/
+
+      String verificationCode = generateVerificationCode();
+      await sendVerificationEmail(email, verificationCode);
+      print(verificationCode);
+      return verificationCode;
     } catch (e) {
       print("Error : $e");
       return '';
@@ -88,17 +93,14 @@ class Scripts {
     }
   }
 
-  Future<bool> verifyCode(String uid, String codeEntered) async {
-    DocumentSnapshot userDoc = await _firestore.collection('users').doc(uid).get();
+  Future<bool> verifyCode(String email, String codeEntered) async {
+    DocumentSnapshot userDoc = await _firestore.collection('email_verify').doc(email).get();
     Map<String, dynamic>? userData = userDoc.data() as Map<String, dynamic>?;
 
     if (userData != null) {
       String? storedCode = userData['verificationCode'];
 
       if(storedCode != null && storedCode == codeEntered) {
-        await _firestore.collection('users').doc(uid).update({
-          'emailVerified': true,
-        });
         return true;
       }
     }

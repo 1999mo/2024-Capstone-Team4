@@ -16,13 +16,13 @@ class _SignupState extends State<Signup> {
   bool phoneAuth = false; // 전화번호 인증 여부
 
   String email = '';
+  String emailAuthCorrect = '';
   String emailAuthNum = '';
   String phone = '';
   String phoneId = '';
   String phoneAuthNum = '';
   String password = '';
   String confirmPassword = '';
-  String userUid = '';
 
   Scripts script = new Scripts();
 
@@ -61,12 +61,11 @@ class _SignupState extends State<Signup> {
                         // 이메일 중복 확인 및 인증 번호 발송 로직
                         bool check = await script.checkEmailDuplicate(email);
                         if(check) {
-                          print("Email Duplicate");
-                        } else {
-                          userUid = await script.sendEmailVerification(email);
-                          print(userUid);
+                          print("Duplicate email");
+                          //Happens if duplicate email
+                          return;
                         }
-                        //
+                        emailAuthCorrect = await script.sendEmailVerification(email);
                       },
                       child: Text('인증하기'),
                     ),
@@ -100,7 +99,7 @@ class _SignupState extends State<Signup> {
                       onPressed: () async{
                         _formKey.currentState!.save();
                         // 이메일 인증 확인 로직
-                        emailAuth = await script.verifyCode(userUid, emailAuthNum);
+                        emailAuth = (emailAuthCorrect == emailAuthNum);
                         //
                       },
                       child: Text('인증 확인'),
@@ -121,7 +120,13 @@ class _SignupState extends State<Signup> {
                           border: OutlineInputBorder(),
                           labelText: '전화번호를 입력하세요',
                         ),
-                        onSaved: (newValue) => phone = newValue ?? '',
+                        onSaved: (newValue) {
+                          if (newValue != null && newValue.startsWith('0')){
+                            phone = '+82${newValue.substring(1)}'; // Remove the leading '0' and prepend '+82'
+                          } else {
+                            phone = '+82${newValue ?? ''}'; // Default behavior for other cases
+                          };
+                        }
                       ),
                     ),
                     SizedBox(width: 10),
@@ -129,6 +134,8 @@ class _SignupState extends State<Signup> {
                       onPressed: () async{
                         _formKey.currentState!.save();
                         //전화 번호 중복 확인 및 인증 번호 발송 로직
+                        print("A");
+                        print(phone);
                         script.verifyPhone(phone,
                             (String verificationId) {
                               setState(() {
@@ -210,7 +217,6 @@ class _SignupState extends State<Signup> {
                   children: [
                     ElevatedButton(
                         onPressed: () {
-                          script.deleteUser(userUid);
                           Navigator.pop(context);
                         },
                         child: Text('뒤로가기')),
@@ -218,7 +224,9 @@ class _SignupState extends State<Signup> {
                       _formKey.currentState!.save();
                       final _authentication=FirebaseAuth.instance;
                       try{
-                        final newUser=await _authentication.createUserWithEmailAndPassword(email: email, password: password);
+                        if(password != confirmPassword || !emailAuth)
+                          return;
+                        final newUser = await _authentication.createUserWithEmailAndPassword(email: email, password: password);
                         if(!mounted) return;
                         Navigator.pop(context);
                       } catch(e) {

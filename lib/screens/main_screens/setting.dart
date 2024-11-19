@@ -21,7 +21,7 @@ class _SettingState extends State<Setting> {
           children: [
             TextButton(onPressed: () {
               FirebaseAuth.instance.signOut();
-              Navigator.pushNamed(context, '/splash');
+              Navigator.pushReplacementNamed(context, '/splash');
             }, child: Text('로그아웃'))
           ],
         ),
