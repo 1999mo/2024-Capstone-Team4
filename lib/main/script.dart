@@ -60,6 +60,7 @@ class Scripts {
       print('Sign up : ${userCredential.user?.uid}');
     } catch (e) {
       print("Error : $e");
+      return '';
     }
   }
 

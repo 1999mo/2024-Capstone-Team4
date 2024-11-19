@@ -152,6 +152,8 @@ class _LoginScreenState extends State<LoginScreen> {
               ElevatedButton(
                 onPressed: () {
                   // 구글 간편 로그인 구현 로직
+                  script.signInWithGoogle();
+                  Navigator.pushReplacementNamed(context, '/main_screens/main_screen');
                 },
                 child: Text('구글 간편로그인'),
               ),

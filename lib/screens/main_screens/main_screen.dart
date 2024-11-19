@@ -120,6 +120,9 @@ class BuyerMainScreen extends StatelessWidget {
       body: Center(
         child: Text('구매자 메인 화면'),
       ),
+      floatingActionButton:FloatingActionButton(onPressed: () {
+      Navigator.pushNamed(context, '/main_screens.setting');
+    }, child: Icon(Icons.settings),)
     );
   }
 }

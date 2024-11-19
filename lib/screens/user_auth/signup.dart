@@ -64,6 +64,7 @@ class _SignupState extends State<Signup> {
                           print("Email Duplicate");
                         } else {
                           userUid = await script.sendEmailVerification(email);
+                          print(userUid);
                         }
                         //
                       },
