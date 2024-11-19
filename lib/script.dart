@@ -5,6 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'dart:io';
 import 'dart:math';
+import 'package:mailer/mailer.dart';
+import 'package:mailer/smtp_server.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -45,7 +47,27 @@ class Scripts {
   }
 
   Future<void> sendVerificationEmail(String email, String verificationCode) async {
-    //Send verification email
+    String username = 'lapuliachloros@gmail.com';
+    String password = 'mwje memm ogrt htqk';
+
+    final smtpServer = SmtpServer('smtp.gmail.com',
+        username: username,
+        password: password,
+        port: 587,
+        ssl: false);
+
+    final message = Message()
+      ..from = Address(username)
+      ..recipients.add(email)
+      ..subject = 'Email Verification Code'
+      ..text = 'Your verification code is: $verificationCode';
+
+    try {
+      final sendReport = await send(message, smtpServer);
+      print('Message sent: ' + sendReport.toString());
+    } catch (e) {
+      print('Message not sent. $e');
+    }
   }
 
   Future<bool> verifyCode(String uid, String codeEntered) async {
@@ -63,6 +85,42 @@ class Scripts {
       }
     }
     return false;
+  }
+
+  Future<void> verifyPhone(String phoneNumber, Function(String) code, Function(String) error, ) async {
+    try {
+      await _auth.verifyPhoneNumber(
+        phoneNumber: phoneNumber,
+        timeout: const Duration(seconds: 60),
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          await _auth.signInWithCredential(credential);
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          error(e.message ?? 'Verification fail');
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          code(verificationId);
+      },
+        codeAutoRetrievalTimeout:  (String verificationId) {
+          error('Verification time out');
+          //when timed out
+      },
+      );
+    } catch (e) {
+      error('Error: $e');
+    }
+  }
+
+  Future<void> smsCode(String verificationId, String smsCode) async {
+    try {
+      final AuthCredential credential = PhoneAuthProvider.credential(
+        verificationId: verificationId,
+        smsCode: smsCode, //The code we need from the user
+      );
+      await FirebaseAuth.instance.signInWithCredential(credential);
+    } catch(e) {
+      print("Error phone verification: $e");
+    }
   }
 
   //This can be used in the signup process to cancle it

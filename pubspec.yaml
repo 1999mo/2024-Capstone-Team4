@@ -19,6 +19,7 @@ dependencies:
   cloud_firestore: ^5.3.0
   firebase_storage: ^12.3.4
   image_picker: ^1.0.0
+  mailer: ^6.0.0
 
 
   cupertino_icons: ^1.0.8
