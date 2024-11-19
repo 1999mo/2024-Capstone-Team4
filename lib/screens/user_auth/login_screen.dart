@@ -18,33 +18,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Scripts script = new Scripts();
 
-  Future<void> _checkUserDocument(BuildContext context) async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        throw Exception('로그인된 사용자가 없습니다.');
-      }
-
-      final email = user.email!;
-      final doc = await FirebaseFirestore.instance.collection('Users').doc(email).get();
-
-      if (doc.exists) {
-        // 문서가 존재하면 /main_screens/main_screen으로 이동
-        Navigator.pushReplacementNamed(context, '/main_screens/main_screen');
-      } else {
-        // 문서가 없으면 /main_screens/make_profile로 이동
-        Navigator.pushReplacementNamed(context, '/main_screens/make_profile');
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('사용자 데이터 확인 중 오류가 발생했습니다: $e'),
-          duration: Duration(seconds: 3),
-        ),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,15 +33,20 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(
-                'assets/catcul_w.jpg',
-                width: 120,
-                height: 120,
+              ClipRRect(
+                borderRadius: BorderRadius.circular(60),
+                child: Image.asset(
+                  'assets/catcul_w.jpg',
+                  width: 120,
+                  height: 120,
+                  fit: BoxFit.cover,
+                ),
               ),
               Container(
                 width: 320,
                 height: 44,
-                margin: EdgeInsets.all(10),
+                margin:
+                    EdgeInsets.only(left: 10, right: 10, top: 10, bottom: 5),
                 child: TextFormField(
                   decoration: InputDecoration(
                     labelText: '이메일',
@@ -82,7 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
               Container(
                 width: 320,
                 height: 44,
-                margin: EdgeInsets.all(10),
+                margin: EdgeInsets.only(left: 10, right: 10, top: 5, bottom: 5),
                 child: TextFormField(
                   decoration: InputDecoration(
                     labelText: '비밀번호',
@@ -94,26 +72,26 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               Container(
-                color: Color(0xfffdbe85),
                 width: 320,
                 height: 44,
+                margin:
+                    EdgeInsets.only(left: 10, right: 10, top: 5, bottom: 10),
+                decoration: BoxDecoration(
+                  color: Color(0xfffdbe85),
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 child: TextButton(
                   onPressed: () async {
                     try {
                       _formKey.currentState!.save();
-
-                      final currentUser = await _authentication.signInWithEmailAndPassword(
+                      final currentUser =
+                          await _authentication.signInWithEmailAndPassword(
                         email: email,
                         password: password,
                       );
-
+                      Navigator.pushReplacementNamed(
+                          context, '/main_screens/make_profile');
                       // 로그인 성공 여부 확인
-                      if (currentUser.user != null) {
-                        if (!mounted) return;
-
-                        // Firestore에서 사용자 문서 확인
-                        await _checkUserDocument(context);
-                      }
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -126,36 +104,65 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Center(child: Text('로그인')),
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/user_auth/signup');
-                    },
-                    child: Text('회원가입'),
-                  ),
-                  Container(
-                    height: 20, // 경계선 높이
-                    width: 1, // 경계선 두께
-                    color: Colors.grey, // 경계선 색상
-                    margin: EdgeInsets.symmetric(horizontal: 8), // 버튼 간 여백
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/user_auth/find_id');
-                    },
-                    child: Text('아이디/비밀번호 찾기'),
-                  ),
-                ],
+              Container(
+                width: 320,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/user_auth/signup');
+                      },
+                      child: Text('회원가입'),
+                    ),
+                    Container(
+                      height: 20, // 경계선 높이
+                      width: 1, // 경계선 두께
+                      color: Colors.grey, // 경계선 색상
+                      margin: EdgeInsets.symmetric(horizontal: 8), // 버튼 간 여백
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/user_auth/find_id');
+                      },
+                      child: Text('비밀번호 찾기'),
+                    ),
+                  ],
+                ),
               ),
-              ElevatedButton(
-                onPressed: () {
+
+              GestureDetector(
+                child: Container(
+                  width: 320,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: Colors.black, // 외곽선 색상
+                      width: 1.0,       // 외곽선 두께
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset('assets/google_logo.png', width: 22, height: 22,),
+                      Text('구글 계정으로 계속'),
+                    ],
+                  ),
+                ),
+                onTap: () async {
                   // 구글 간편 로그인 구현 로직
-                  script.signInWithGoogle();
-                  Navigator.pushReplacementNamed(context, '/main_screens/main_screen');
+                  final user = await script.signInWithGoogle();
+                  if (user != null) {
+                    Navigator.pushReplacementNamed(
+                        context, '/main_screens/make_profile');
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text('구글로그인 실패'),
+                      duration: Duration(seconds: 1),
+                    ));
+                  }
                 },
-                child: Text('구글 간편로그인'),
               ),
             ],
           ),

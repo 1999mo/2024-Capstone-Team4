@@ -19,9 +19,9 @@ class _MainScreenState extends State<MainScreen> {
         return false; // 기본값으로 false 반환
       }
 
-      final email = user.email!;
+      final uid = user.uid;
       final doc =
-          await FirebaseFirestore.instance.collection('Users').doc(email).get();
+          await FirebaseFirestore.instance.collection('Users').doc(uid).get();
 
       if (doc.exists) {
         final isSeller = doc.data()?['isSeller'];
@@ -106,7 +106,7 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
         ],
       )),
       floatingActionButton:FloatingActionButton(onPressed: () {
-        Navigator.pushNamed(context, '/main_screens.setting');
+        Navigator.pushNamed(context, '/main_screens/setting');
       }, child: Icon(Icons.settings),)
     );
   }
@@ -121,7 +121,7 @@ class BuyerMainScreen extends StatelessWidget {
         child: Text('구매자 메인 화면'),
       ),
       floatingActionButton:FloatingActionButton(onPressed: () {
-      Navigator.pushNamed(context, '/main_screens.setting');
+      Navigator.pushNamed(context, '/main_screens/setting');
     }, child: Icon(Icons.settings),)
     );
   }

@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
             if(snapshot.hasData) {
               return MainScreen();
             }
-            return LoginScreen();
+            return Splash();
           },),
       routes: {
         '/splash': (context) => Splash(),
@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
         '/user_auth/find_id': (context) => FindId(),
         '/main_screens/make_profile': (context) => MakeProfile(),
         '/main_screens/main_screen': (context) => MainScreen(),
-        '/main_screens.setting': (context) => Setting(),
+        '/main_screens/setting': (context) => Setting(),
       },
     );
   }
