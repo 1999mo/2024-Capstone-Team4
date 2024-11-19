@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:catculator/main/script.dart';
 
 class Signup extends StatefulWidget {
   const Signup({super.key});
@@ -17,9 +18,13 @@ class _SignupState extends State<Signup> {
   String email = '';
   String emailAuthNum = '';
   String phone = '';
+  String phoneId = '';
   String phoneAuthNum = '';
   String password = '';
   String confirmPassword = '';
+  String userUid = '';
+
+  Scripts script = new Scripts();
 
   @override
   Widget build(BuildContext context) {
@@ -51,11 +56,15 @@ class _SignupState extends State<Signup> {
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async{
                         _formKey.currentState!.save();
                         // 이메일 중복 확인 및 인증 번호 발송 로직
-                        //
-                        //
+                        bool check = await script.checkEmailDuplicate(email);
+                        if(check) {
+                          print("Email Duplicate");
+                        } else {
+                          userUid = await script.sendEmailVerification(email);
+                        }
                         //
                       },
                       child: Text('인증하기'),
@@ -87,12 +96,10 @@ class _SignupState extends State<Signup> {
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async{
                         _formKey.currentState!.save();
                         // 이메일 인증 확인 로직
-                        //
-                        //
-                        //
+                        emailAuth = await script.verifyCode(userUid, emailAuthNum);
                         //
                       },
                       child: Text('인증 확인'),
@@ -118,11 +125,19 @@ class _SignupState extends State<Signup> {
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async{
                         _formKey.currentState!.save();
                         //전화 번호 중복 확인 및 인증 번호 발송 로직
-                        //
-                        //
+                        script.verifyPhone(phone,
+                            (String verificationId) {
+                              setState(() {
+                                phoneId = verificationId;
+                              });
+                            },
+                            (errorMessage) {
+                              print(errorMessage);
+                            },
+                        );
                         //
                       },
                       child: Text('인증하기'),
@@ -157,9 +172,7 @@ class _SignupState extends State<Signup> {
                       onPressed: () {
                         _formKey.currentState!.save();
                         // 전화번호 인증 확인 로직
-                        //
-                        //
-                        //
+                        script.smsCode(phoneId ,phoneAuthNum);
                         //
                       },
                       child: Text('인증 확인'),
@@ -196,6 +209,7 @@ class _SignupState extends State<Signup> {
                   children: [
                     ElevatedButton(
                         onPressed: () {
+                          script.deleteUser(userUid);
                           Navigator.pop(context);
                         },
                         child: Text('뒤로가기')),

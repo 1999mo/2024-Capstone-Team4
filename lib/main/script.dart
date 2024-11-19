@@ -19,8 +19,24 @@ class Scripts {
     return (Random().nextInt(900000) + 100000).toString();
   }
 
+  Future<bool> checkEmailDuplicate(String email) async {
+    try {
+      // Fetch sign-in methods for the given email
+      List<String> signInMethods = await FirebaseAuth.instance.fetchSignInMethodsForEmail(email);
+
+      if (signInMethods.isNotEmpty) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print("Error checking email: $e");
+      return false;
+    }
+  }
+
   //note. this logs in the user as the password 'password'
-  Future<void> sendEmailVerification(String email) async {
+  Future<String> sendEmailVerification(String email) async {
     try {
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
@@ -40,6 +56,7 @@ class Scripts {
         'emailVerified': false,
       });
 
+      return userCredential.user!.uid;
       print('Sign up : ${userCredential.user?.uid}');
     } catch (e) {
       print("Error : $e");
@@ -125,6 +142,9 @@ class Scripts {
 
   //This can be used in the signup process to cancle it
   Future<void> deleteUser(String uid) async {
+    if(uid == '') {
+      return;
+    }
     await FirebaseAuth.instance.currentUser?.delete();
     await FirebaseFirestore.instance.collection('users').doc(uid).delete();
     print("Cleaned up the process");
