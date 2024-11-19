@@ -62,51 +62,66 @@ class _LoginScreenState extends State<LoginScreen> {
                 width: 120,
                 height: 120,
               ),
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: '이메일',
-                  border: OutlineInputBorder(),
+              Container(
+                width: 320,
+                height: 44,
+                margin: EdgeInsets.all(10),
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    labelText: '이메일',
+                    border: OutlineInputBorder(),
+                  ),
+                  onSaved: (newValue) {
+                    email = newValue!;
+                  },
                 ),
-                onSaved: (newValue) {
-                  email = newValue!;
-                },
               ),
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: '비밀번호',
-                  border: OutlineInputBorder(),
+              Container(
+                width: 320,
+                height: 44,
+                margin: EdgeInsets.all(10),
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    labelText: '비밀번호',
+                    border: OutlineInputBorder(),
+                  ),
+                  onSaved: (newValue) {
+                    password = newValue!;
+                  },
                 ),
-                onSaved: (newValue) {
-                  password = newValue!;
-                },
               ),
-              ElevatedButton(
-                onPressed: () async {
-                  try {
-                    _formKey.currentState!.save();
+              Container(
+                color: Color(0xfffdbe85),
+                width: 320,
+                height: 44,
+                child: TextButton(
+                  onPressed: () async {
+                    try {
+                      _formKey.currentState!.save();
 
-                    final currentUser = await _authentication.signInWithEmailAndPassword(
-                      email: email,
-                      password: password,
-                    );
+                      final currentUser = await _authentication.signInWithEmailAndPassword(
+                        email: email,
+                        password: password,
+                      );
 
-                    // 로그인 성공 여부 확인
-                    if (currentUser.user != null) {
-                      if (!mounted) return;
+                      // 로그인 성공 여부 확인
+                      if (currentUser.user != null) {
+                        if (!mounted) return;
 
-                      // Firestore에서 사용자 문서 확인
-                      await _checkUserDocument(context);
+                        // Firestore에서 사용자 문서 확인
+                        await _checkUserDocument(context);
+                      }
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('아이디 혹은 비밀번호가 일치하지 않습니다.'),
+                          duration: Duration(seconds: 2), // 스낵바 표시 시간
+                        ),
+                      );
                     }
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('아이디 혹은 비밀번호가 일치하지 않습니다.'),
-                        duration: Duration(seconds: 2), // 스낵바 표시 시간
-                      ),
-                    );
-                  }
-                },
-                child: Text('로그인'),
+                  },
+                  child: Center(child: Text('로그인')),
+                ),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
