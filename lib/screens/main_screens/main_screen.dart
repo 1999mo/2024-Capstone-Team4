@@ -20,7 +20,8 @@ class _MainScreenState extends State<MainScreen> {
       }
 
       final email = user.email!;
-      final doc = await FirebaseFirestore.instance.collection('Users').doc(email).get();
+      final doc =
+          await FirebaseFirestore.instance.collection('Users').doc(email).get();
 
       if (doc.exists) {
         final isSeller = doc.data()?['isSeller'];
@@ -75,19 +76,42 @@ class _MainScreenState extends State<MainScreen> {
   }
 }
 
-// SellerMainScreen 예제
-class SellerMainScreen extends StatelessWidget {
+// SellerMainScreen
+class SellerMainScreen extends StatefulWidget {
+  @override
+  State<SellerMainScreen> createState() => _SellerMainScreenState();
+}
+
+class _SellerMainScreenState extends State<SellerMainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(),
       body: Center(
-        child: Text('판매자 메인 화면'),
-      ),
+          child: Column(
+        children: [
+          Container(
+            alignment: Alignment.center,
+            color: Colors.lightBlue,
+            margin: EdgeInsets.all(15),
+            width: 320,
+            height: 197,
+            child: Text('공지사항 자리'),
+          ),
+          ElevatedButton(onPressed: () {}, child: Text('부스 판매하기')),
+          ElevatedButton(onPressed: () {}, child: Text('부스 둘러보기')),
+          ElevatedButton(onPressed: () {}, child: Text('온라인 물품 팔기')),
+          ElevatedButton(onPressed: () {}, child: Text('온라인 물품 둘러보기'))
+        ],
+      )),
+      floatingActionButton:FloatingActionButton(onPressed: () {
+        Navigator.pushNamed(context, '/main_screens.setting');
+      }, child: Icon(Icons.settings),)
     );
   }
 }
 
-// BuyerMainScreen 예제
+// BuyerMainScreen
 class BuyerMainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
