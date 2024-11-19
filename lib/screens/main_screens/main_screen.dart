@@ -60,9 +60,10 @@ class _MainScreenState extends State<MainScreen> {
           );
         } else if (snapshot.hasError) {
           // 오류 발생 시 처리
-          return Center(
-            child: Text('오류가 발생했습니다.'),
-          );
+          //return Center(
+          //  child: Text('오류가 발생했습니다.'),
+          //);
+          return BuyerMainScreen();
         } else if (snapshot.hasData) {
           // isSeller 값에 따라 화면 반환
           final isSeller = snapshot.data!;
