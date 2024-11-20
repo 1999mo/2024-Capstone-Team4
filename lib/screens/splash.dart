@@ -18,29 +18,12 @@ class _SplashState extends State<Splash> {
   }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset('assets/catcul_w.jpg', height: 150, width: 150,),
-            Text(
-                "축제 필수템!",
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w400,
-                )
-            ),
-            Text(
-                "축제 도우미 앱",
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                )
-            ),
-
-          ],
-        ),
+    return Center(
+      child: Image.asset(
+        'assets/splash.png',
+        fit: BoxFit.cover, // 화면에 꽉 채움
+        width: double.infinity, // 가로 크기를 화면에 맞춤
+        height: double.infinity, // 세로 크기를 화면에 맞춤
       ),
     );
   }

@@ -18,6 +18,7 @@ class _MakeProfileState extends State<MakeProfile> {
   bool isSeller = false; // 판매자 여부
   File? _profileImage; // 선택된 이미지 파일
   String userName = ''; // 입력받은 사용자 이름
+  bool _isLoading = true;
 
   // 이미지 선택
   Future<void> _pickImage() async {
@@ -33,8 +34,36 @@ class _MakeProfileState extends State<MakeProfile> {
     }
   }
 
+  Future<void> _checkUserDocument() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        throw Exception('로그인된 사용자가 없습니다.');
+      }
+
+      final uid = user.uid;
+
+      // Firestore에서 문서 존재 여부 확인
+      final doc = await FirebaseFirestore.instance.collection('Users').doc(uid).get();
+      if (doc.exists) {
+        if (!mounted) return;
+        Navigator.pushReplacementNamed(context, '/main_screens/main_screen');
+        return;
+      }
+    } catch (e) {
+      _showSnackbar('사용자 데이터 확인 중 오류가 발생했습니다: $e');
+    } finally {
+      // 로딩 완료 상태로 변경
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
   // Firebase Storage에 이미지 업로드
-  Future<String?> _uploadImageToFirebase(String userEmail) async {
+  Future<String?> _uploadImageToFirebase(String uid) async {
     try {
       // 업로드할 파일이 없으면 기본 이미지 업로드
       File imageToUpload;
@@ -49,7 +78,7 @@ class _MakeProfileState extends State<MakeProfile> {
 
       // Firebase Storage 경로 설정
       final storageRef = FirebaseStorage.instance.ref();
-      final profileImageRef = storageRef.child('$userEmail/profile_image.jpg');
+      final profileImageRef = storageRef.child('$uid/profile_image.jpg');
 
       // 이미지 업로드
       await profileImageRef.putFile(imageToUpload);
@@ -63,14 +92,15 @@ class _MakeProfileState extends State<MakeProfile> {
   }
 
   // Firebase Firestore에 사용자 데이터 저장
-  Future<void> _saveUserData(String userEmail, String userName, bool isSeller) async {
+  Future<void> _saveUserData(String uid, String userName, bool isSeller, String? email) async {
     try {
       final firestore = FirebaseFirestore.instance;
 
       // Users 컬렉션에 사용자 문서 추가
-      await firestore.collection('Users').doc(userEmail).set({
+      await firestore.collection('Users').doc(uid).set({
         'name': userName,
         'isSeller': isSeller,
+        'email': email, // 이메일 필드 추가
       });
 
       _showSnackbar('사용자 데이터 저장 완료');
@@ -84,7 +114,7 @@ class _MakeProfileState extends State<MakeProfile> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        duration: Duration(seconds: 2),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -97,24 +127,42 @@ class _MakeProfileState extends State<MakeProfile> {
       return;
     }
 
-    final userEmail = user.email!;
+    final uid = user.uid;
+    final email = user.email; // 이메일 가져오기
+
     if (userName.isEmpty) {
       _showSnackbar('사용자 이름을 입력하세요.');
       return;
     }
 
     // Firebase Storage에 이미지 업로드
-    final imageUrl = await _uploadImageToFirebase(userEmail);
+    final imageUrl = await _uploadImageToFirebase(uid);
 
     if (imageUrl != null) {
       // Firestore에 사용자 데이터 저장
-      await _saveUserData(userEmail, userName, isSeller);
+      await _saveUserData(uid, userName, isSeller, email);
       Navigator.pushReplacementNamed(context, '/main_screens/main_screen');
     }
   }
 
   @override
+  void initState()  {
+    super.initState();
+    _checkUserDocument(); // initState에서 비동기 작업 시작
+  }
+
+  @override
   Widget build(BuildContext context) {
+
+    if (_isLoading) {
+      // 로딩 상태일 때 로딩 화면 표시
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(), // 로딩 인디케이터
+        ),
+      );
+    }
+
     return Scaffold(
       body: Center(
         child: Column(
@@ -124,14 +172,14 @@ class _MakeProfileState extends State<MakeProfile> {
               radius: 50, // 원 크기
               backgroundImage: _profileImage != null
                   ? FileImage(_profileImage!) // 선택한 이미지로 변경
-                  : AssetImage('assets/profile_placeholder.png') as ImageProvider, // 기본 이미지
+                  : const AssetImage('assets/profile_placeholder.png') as ImageProvider, // 기본 이미지
             ),
-            ElevatedButton(
+            TextButton(
               onPressed: _pickImage, // 이미지 선택
-              child: Text('프로필 사진 업로드'),
+              child: const Text('프로필 사진 업로드'),
             ),
             TextFormField(
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: '사용할 이름 입력',
                 border: OutlineInputBorder(),
               ),
@@ -152,12 +200,12 @@ class _MakeProfileState extends State<MakeProfile> {
                     });
                   },
                 ),
-                Text('판매자 여부'),
+                const Text('판매자 여부'),
               ],
             ),
-            ElevatedButton(
+            TextButton(
               onPressed: _onComplete, // 완료 버튼 동작
-              child: Text('완료'),
+              child: const Text('완료'),
             ),
           ],
         ),

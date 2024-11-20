@@ -19,9 +19,9 @@ class _MainScreenState extends State<MainScreen> {
         return false; // 기본값으로 false 반환
       }
 
-      final email = user.email!;
+      final uid = user.uid;
       final doc =
-          await FirebaseFirestore.instance.collection('Users').doc(email).get();
+          await FirebaseFirestore.instance.collection('Users').doc(uid).get();
 
       if (doc.exists) {
         final isSeller = doc.data()?['isSeller'];
@@ -43,7 +43,7 @@ class _MainScreenState extends State<MainScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        duration: Duration(seconds: 3),
+        duration: const Duration(seconds: 3),
       ),
     );
   }
@@ -55,21 +55,22 @@ class _MainScreenState extends State<MainScreen> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           // 로딩 상태 표시
-          return Center(
+          return const Center(
             child: CircularProgressIndicator(),
           );
         } else if (snapshot.hasError) {
           // 오류 발생 시 처리
-          return Center(
-            child: Text('오류가 발생했습니다.'),
-          );
+          //return Center(
+          //  child: Text('오류가 발생했습니다.'),
+          //);
+          return const BuyerMainScreen();
         } else if (snapshot.hasData) {
           // isSeller 값에 따라 화면 반환
           final isSeller = snapshot.data!;
-          return isSeller ? SellerMainScreen() : BuyerMainScreen();
+          return isSeller ? const SellerMainScreen() : const BuyerMainScreen();
         } else {
           // null 케이스가 없으므로 여기는 실행되지 않음
-          return SizedBox();
+          return const SizedBox();
         }
       },
     );
@@ -78,6 +79,8 @@ class _MainScreenState extends State<MainScreen> {
 
 // SellerMainScreen
 class SellerMainScreen extends StatefulWidget {
+  const SellerMainScreen({super.key});
+
   @override
   State<SellerMainScreen> createState() => _SellerMainScreenState();
 }
@@ -93,32 +96,37 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
           Container(
             alignment: Alignment.center,
             color: Colors.lightBlue,
-            margin: EdgeInsets.all(15),
+            margin: const EdgeInsets.all(15),
             width: 320,
             height: 197,
-            child: Text('공지사항 자리'),
+            child: const Text('공지사항 자리'),
           ),
-          ElevatedButton(onPressed: () {}, child: Text('부스 판매하기')),
-          ElevatedButton(onPressed: () {}, child: Text('부스 둘러보기')),
-          ElevatedButton(onPressed: () {}, child: Text('온라인 물품 팔기')),
-          ElevatedButton(onPressed: () {}, child: Text('온라인 물품 둘러보기'))
+          ElevatedButton(onPressed: () {}, child: const Text('부스 판매하기')),
+          ElevatedButton(onPressed: () {}, child: const Text('부스 둘러보기')),
+          ElevatedButton(onPressed: () {}, child: const Text('온라인 물품 팔기')),
+          ElevatedButton(onPressed: () {}, child: const Text('온라인 물품 둘러보기'))
         ],
       )),
       floatingActionButton:FloatingActionButton(onPressed: () {
-        Navigator.pushNamed(context, '/main_screens.setting');
-      }, child: Icon(Icons.settings),)
+        Navigator.pushNamed(context, '/main_screens/setting');
+      }, child: const Icon(Icons.settings),)
     );
   }
 }
 
 // BuyerMainScreen
 class BuyerMainScreen extends StatelessWidget {
+  const BuyerMainScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
+      body: const Center(
         child: Text('구매자 메인 화면'),
       ),
+      floatingActionButton:FloatingActionButton(onPressed: () {
+      Navigator.pushNamed(context, '/main_screens/setting');
+    }, child: const Icon(Icons.settings),)
     );
   }
 }

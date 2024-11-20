@@ -23,18 +23,18 @@ class MyApp extends StatelessWidget {
       home: StreamBuilder<User?>(
           stream: FirebaseAuth.instance.authStateChanges(), builder: (context, snapshot) {
             if(snapshot.hasData) {
-              return MainScreen();
+              return const MainScreen();
             }
-            return LoginScreen();
+            return const Splash();
           },),
       routes: {
-        '/splash': (context) => Splash(),
-        '/user_auth/login_screen': (context) => LoginScreen(),
-        '/user_auth/signup': (context) => Signup(),
-        '/user_auth/find_id': (context) => FindId(),
-        '/main_screens/make_profile': (context) => MakeProfile(),
-        '/main_screens/main_screen': (context) => MainScreen(),
-        '/main_screens.setting': (context) => Setting(),
+        '/splash': (context) => const Splash(),
+        '/user_auth/login_screen': (context) => const LoginScreen(),
+        '/user_auth/signup': (context) => const Signup(),
+        '/user_auth/find_id': (context) => const FindId(),
+        '/main_screens/make_profile': (context) => const MakeProfile(),
+        '/main_screens/main_screen': (context) => const MainScreen(),
+        '/main_screens/setting': (context) => const Setting(),
       },
     );
   }
