@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'dart:io';
 import 'dart:math';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
+import 'package:flutter/material.dart';
+import 'package:uni_links/uni_links.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -87,7 +88,7 @@ class Scripts {
 
     try {
       final sendReport = await send(message, smtpServer);
-      print('Message sent: ' + sendReport.toString());
+      print('Message sent: $sendReport');
     } catch (e) {
       print('Message not sent. $e');
     }
@@ -207,7 +208,7 @@ class Scripts {
 
         final String? photoURL = user.photoURL;
 
-        await FirebaseFirestore.instance.collection('users').doc(user?.uid).set(
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set(
             {
               'userName': user.displayName ?? '',
               'emailType': 'Google',
@@ -232,6 +233,7 @@ class Scripts {
         'error': e.toString(),
       };
     }
+    return null;
   }
 
 //Mabye add the userDoc check function
@@ -293,7 +295,7 @@ class Scripts {
       return '';
     }
 
-    final String fileName = 'item_images/${user.uid}/${imageName}-${DateTime
+    final String fileName = 'item_images/${user.uid}/$imageName-${DateTime
         .now()
         .millisecondsSinceEpoch}.jpg';
 
@@ -386,5 +388,45 @@ class Scripts {
     }
 
     return itemsList;
+  }
+
+  Future<void> sendPasswordResetEmail(String email) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+    } catch (e) {
+    }
+  }
+
+  void resetPasswordByLink(BuildContext context, String email, String newPassword) async {
+    try {
+      final initialLink = await getInitialLink();
+
+      if (initialLink != null) {
+        Uri link = Uri.parse(initialLink);
+
+        if (FirebaseAuth.instance.isSignInWithEmailLink(link.toString())) {
+
+          // Call the password reset method
+          await resetPassword(link, email, newPassword, context);
+        } else {
+          print("Invalid reset link.");
+        }
+      }
+    } catch (e) {
+      print("Error handling deep link: $e");
+    }
+  }
+  }
+
+Future<void> resetPassword(Uri link, String email, String newPassword, BuildContext context) async {
+  try {
+    await FirebaseAuth.instance.confirmPasswordReset(
+      code: link.toString(),
+      newPassword: newPassword,
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("비밀번호가 변경되었습니다.")));
+    Navigator.pop(context);
+  } catch (e) {
   }
 }

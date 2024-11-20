@@ -13,7 +13,7 @@ class _SettingState extends State<Setting> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('설정'),
+        title: const Text('설정'),
       ),
       body: Center(
         child: Column(
@@ -22,7 +22,7 @@ class _SettingState extends State<Setting> {
             TextButton(onPressed: () {
               FirebaseAuth.instance.signOut();
               Navigator.pushReplacementNamed(context, '/splash');
-            }, child: Text('로그아웃'))
+            }, child: const Text('로그아웃'))
           ],
         ),
       ),

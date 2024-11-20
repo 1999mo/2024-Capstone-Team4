@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:catculator/main/script.dart';
 
 class FindId extends StatefulWidget {
+  const FindId({super.key});
+
   @override
   _FindIdState createState() => _FindIdState();
 }
@@ -15,12 +18,12 @@ class _FindIdState extends State<FindId> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('비밀번호 찾기'),
+          title: const Text('비밀번호 변경'),
           centerTitle: true,
         ),
         body: Form(
           key: _findIdKey,
-          child: FindPassword(),
+          child: const FindPassword(),
         ));
   }
 }
@@ -41,6 +44,9 @@ class _FindPasswordState extends State<FindPassword> {
   String email = '';
   String emailAuthCorrect = '';
   String emailAuthNum = '';
+  String newPassword = '';
+
+  Scripts script = Scripts();
 
   @override
   Widget build(BuildContext context) {
@@ -51,12 +57,12 @@ class _FindPasswordState extends State<FindPassword> {
         child: Column(
           children: [
             // 이메일 입력란
-            Text('이메일'),
+            const Text('이메일'),
             Row(
               children: [
                 Expanded(
                   child: TextFormField(
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: '이메일을 입력하세요',
                     ),
@@ -71,61 +77,63 @@ class _FindPasswordState extends State<FindPassword> {
                       context: context,
                       builder: (BuildContext context) {
                         return AlertDialog(
-                          title: Text('인증번호 발송'),
-                          content: Text('인증번호가 발송되었습니다.'),
+                          title: const Text('비밀번호 변경'),
+                          content: const Text('입력하신 이메일로 비밀번호 변경 메일이 발송되었습니다.'),
                           actions: [
                             TextButton(
-                              onPressed: () {
+                              onPressed: () async {
+                                await script.sendPasswordResetEmail(email);
                                 Navigator.of(context).pop(); // 팝업 닫기
                               },
-                              child: Text('확인'),
+                              child: const Text('확인'),
                             ),
                           ],
                         );
                       },
                     );
                   },
-                  child: Text('인증번호 보내기'),
+                  child: const Text('비밀번호 변경하기'),
                 ),
               ],
             ),
-
-            SizedBox(height: 20),
+            /*
+            const SizedBox(height: 20),
 
             // 전화번호 입력란과 인증번호 보내기 버튼
-            Text('이메일 인증번호'),
+            const Text('이메일 인증번호'),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Expanded(
                   child: TextFormField(
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: '인증번호를 입력하세요',
                     ),
-                    onSaved: (newValue) => emailAuthNum = newValue ?? '',
+                    onSaved: (newValue) => newPassword = newValue ?? '',
                   ),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 TextButton(
                   onPressed: () async {
                     _findPwKey.currentState!.save();
                     // 이메일 인증 확인 로직
+                    script.resetPasswordByLink(context, email, newPassword);
                     setState(() {
                       emailAuth = (emailAuthCorrect == emailAuthNum);
                     });
                   },
-                  child: Text('인증 확인'),
+                  child: const Text('인증 확인'),
                 ),
               ],
             ),
-            SizedBox(height: 20),
-
+            const SizedBox(height: 20),
+            */
             TextButton(
                 onPressed: () {
                   // 완료 버튼
                 },
-                child: Text('완료'))
+                child: const Text('완료'))
           ],
         ),
       ),

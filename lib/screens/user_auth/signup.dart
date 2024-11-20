@@ -24,13 +24,13 @@ class _SignupState extends State<Signup> {
   String password = '';
   String confirmPassword = '';
 
-  Scripts script = new Scripts();
+  Scripts script = Scripts();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('회원가입'),
+        title: const Text('회원가입'),
         centerTitle: true,
       ),
       body: Form(
@@ -41,20 +41,20 @@ class _SignupState extends State<Signup> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // 이메일
-                Text('이메일'),
+                const Text('이메일'),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Expanded(
                       child: TextFormField(
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                           labelText: '이메일을 입력하세요',
                         ),
                         onSaved: (newValue) => email = newValue ?? '',
                       ),
                     ),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     TextButton(
                       onPressed: () async {
                         _formKey.currentState!.save();
@@ -75,36 +75,36 @@ class _SignupState extends State<Signup> {
                           context: context,
                           builder: (BuildContext context) {
                             return AlertDialog(
-                              title: Text('인증번호 발송'),
-                              content: Text('인증번호가 발송되었습니다.'),
+                              title: const Text('인증번호 발송'),
+                              content: const Text('인증번호가 발송되었습니다.'),
                               actions: [
                                 TextButton(
                                   onPressed: () {
                                     Navigator.of(context).pop(); // 팝업 닫기
                                   },
-                                  child: Text('확인'),
+                                  child: const Text('확인'),
                                 ),
                               ],
                             );
                           },
                         );
                       },
-                      child: Text('인증하기'),
+                      child: const Text('인증하기'),
                     ),
                   ],
                 ),
 
                 if (emailDuplicate == false)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.0),
                     child: Text(
                       '사용 가능한 이메일 주소입니다.',
                       style: TextStyle(color: Colors.green),
                     ),
                   ),
                 if (emailDuplicate == true)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.0),
                     child: Text(
                       '이미 가입된 이메일 주소입니다.',
                       style: TextStyle(color: Colors.red),
@@ -112,20 +112,20 @@ class _SignupState extends State<Signup> {
                   ),
 
                 // 이메일 인증번호
-                Text('이메일 인증번호'),
+                const Text('이메일 인증번호'),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Expanded(
                       child: TextFormField(
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                           labelText: '인증번호를 입력하세요',
                         ),
                         onSaved: (newValue) => emailAuthNum = newValue ?? '',
                       ),
                     ),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     TextButton(
                       onPressed: () async {
                         _formKey.currentState!.save();
@@ -134,34 +134,34 @@ class _SignupState extends State<Signup> {
                           emailAuth = (emailAuthCorrect == emailAuthNum);
                         });
                       },
-                      child: Text('인증 확인'),
+                      child: const Text('인증 확인'),
                     ),
                   ],
                 ),
 
                 if (emailAuth == true)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.0),
                     child: Text(
                       '인증이 완료되었습니다.',
                       style: TextStyle(color: Colors.green),
                     ),
                   ),
                 if (emailAuth == false)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.0),
                     child: Text(
                       '인증번호가 일치하지 않습니다.',
                       style: TextStyle(color: Colors.red),
                     ),
                   ),
 
-                SizedBox(height: 20), //공백주기
+                const SizedBox(height: 20), //공백주기
 
                 // 비밀번호
-                Text('비밀번호'),
+                const Text('비밀번호'),
                 TextFormField(
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: '비밀번호를 입력하세요',
                   ),
@@ -169,12 +169,12 @@ class _SignupState extends State<Signup> {
                   onSaved: (newValue) => password = newValue ?? '',
                 ),
 
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
 
                 // 비밀번호 확인
-                Text('비밀번호 확인'),
+                const Text('비밀번호 확인'),
                 TextFormField(
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: '비밀번호를 다시 입력하세요',
                   ),
@@ -182,8 +182,8 @@ class _SignupState extends State<Signup> {
                   onSaved: (newValue) => confirmPassword = newValue ?? '',
                 ),
                 if (passwordSame == false)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.0),
                     child: Text(
                       '비밀번호가 일치하지 않습니다.',
                       style: TextStyle(color: Colors.red),
@@ -195,11 +195,11 @@ class _SignupState extends State<Signup> {
                         onPressed: () {
                           Navigator.pop(context);
                         },
-                        child: Text('뒤로가기')),
+                        child: const Text('뒤로가기')),
                     TextButton(
                         onPressed: () async {
                           _formKey.currentState!.save();
-                          final _authentication = FirebaseAuth.instance;
+                          final authentication = FirebaseAuth.instance;
                           try {
                             if (password != confirmPassword) {
                               setState(() {
@@ -215,7 +215,7 @@ class _SignupState extends State<Signup> {
                             if(emailDuplicate==true) return;
                             if(emailAuth==false) return;
 
-                            final newUser = await _authentication
+                            final newUser = await authentication
                                 .createUserWithEmailAndPassword(
                                     email: email, password: password);
                             if (!mounted) return;
@@ -223,14 +223,14 @@ class _SignupState extends State<Signup> {
                               context: context,
                               builder: (BuildContext context) {
                                 return AlertDialog(
-                                  title: Text('회원가입 완료'),
-                                  content: Text('회원가입이 완료되었습니다!'),
+                                  title: const Text('회원가입 완료'),
+                                  content: const Text('회원가입이 완료되었습니다!'),
                                   actions: [
                                     TextButton(
                                       onPressed: () {
                                         Navigator.of(context).pop(); // 팝업 닫기
                                       },
-                                      child: Text('확인'),
+                                      child: const Text('확인'),
                                     ),
                                   ],
                                 );
@@ -241,12 +241,12 @@ class _SignupState extends State<Signup> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text('오류 : $e'),
-                                duration: Duration(seconds: 2), // 표시 시간
+                                duration: const Duration(seconds: 2), // 표시 시간
                               ),
                             );
                           }
                         },
-                        child: Text('완료'))
+                        child: const Text('완료'))
                   ],
                 )
               ],
