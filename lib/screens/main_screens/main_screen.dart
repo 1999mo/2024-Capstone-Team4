@@ -94,17 +94,29 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
           child: Column(
         children: [
           Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.grey,
+                width: 1.0
+              )
+            ),
             alignment: Alignment.center,
-            color: Colors.lightBlue,
             margin: const EdgeInsets.all(15),
             width: 320,
-            height: 197,
-            child: const Text('공지사항 자리'),
+            child: Column(
+              children: [
+                Image.asset('assets/catcul_w.jpg', width: 128, height: 128,),
+                Text('우리를 위한 축제 필수템!', style: TextStyle(fontSize: 18, color: Colors.pinkAccent),),
+                Text('좋은 앱 이름 추천 받아요... \n아이디어 있으면 연락주세요 (제발)'),
+                Text('\n부스 판매하기, 부스 추가 구현 완료')
+              ]
+            )
           ),
-          ElevatedButton(onPressed: () {}, child: const Text('부스 판매하기')),
-          ElevatedButton(onPressed: () {}, child: const Text('부스 둘러보기')),
-          ElevatedButton(onPressed: () {}, child: const Text('온라인 물품 팔기')),
-          ElevatedButton(onPressed: () {}, child: const Text('온라인 물품 둘러보기'))
+          TextButton(onPressed: () {
+            Navigator.pushNamed(context, '/seller_screens/my_booth');
+          }, child: const Text('부스 판매하기')),
+          TextButton(onPressed: () {}, child: const Text('부스 둘러보기')),
+          TextButton(onPressed: () {}, child: const Text('커뮤니티 게시판'))
         ],
       )),
       floatingActionButton:FloatingActionButton(onPressed: () {

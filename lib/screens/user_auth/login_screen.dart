@@ -154,8 +154,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   // 구글 간편 로그인 구현 로직
                   final user = await script.signInWithGoogle();
                   if (user != null) {
-                    Navigator.pushReplacementNamed(
-                        context, '/main_screens/make_profile');
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                       content: Text('구글로그인 실패'),
