@@ -168,7 +168,7 @@ class Scripts {
     }
   }
 
-  Future<Map<String, dynamic>?> signInWithGoogle() async {
+  Future<User?> signInWithGoogle() async {
     //The idType means if it is a buyer or Artist, 0 is buyer, 1 is Artist
     try {
       //Login using google
@@ -191,7 +191,9 @@ class Scripts {
       final UserCredential userCredential = await FirebaseAuth.instance
           .signInWithCredential(credential);
       final User? user = userCredential.user;
+      return user;
 
+      /*
       //Make userdata if there is none
       if (user != null) {
         final DocumentSnapshot userDoc = await FirebaseFirestore.instance
@@ -225,15 +227,13 @@ class Scripts {
             'photoURL': photoURL ?? '',
           },
         };
+
       }
+      */
     } catch (e) {
       print("Error : $e");
-      return {
-        'success': false,
-        'error': e.toString(),
-      };
+      return null;
     }
-    return null;
   }
 
 //Mabye add the userDoc check function
