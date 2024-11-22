@@ -94,17 +94,116 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
           child: Column(
         children: [
           Container(
-            alignment: Alignment.center,
-            color: Colors.lightBlue,
+            // alignment: Alignment.center,
+            // color: Colors.lightBlue,
             margin: const EdgeInsets.all(15),
             width: 320,
             height: 197,
-            child: const Text('공지사항 자리'),
+            decoration: ShapeDecoration(
+              shape: RoundedRectangleBorder(
+                side: BorderSide(width: 1, color: Color(0xFFD1D1D1)),
+                borderRadius: BorderRadius.circular(12)
+              )
+            ),
+            child: Column(
+              children: [
+                Container(
+                  width: 275,
+                  height: 24,
+                  margin: const EdgeInsets.symmetric(vertical: 12),
+                  child: Text(
+                    '공지사항',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      height: 1
+                    ),
+                  ),
+                ),
+                Container(
+                  width: 280,
+                  height: 1.5,
+                  decoration: ShapeDecoration(
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(width: 1, color: Color(0xFFD1D1D1)),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+                const Text('공지사항 자리')
+              ],
+            )
+            // child: const Text('공지사항 자리'),
           ),
-          ElevatedButton(onPressed: () {}, child: const Text('부스 판매하기')),
-          ElevatedButton(onPressed: () {}, child: const Text('부스 둘러보기')),
-          ElevatedButton(onPressed: () {}, child: const Text('온라인 물품 팔기')),
-          ElevatedButton(onPressed: () {}, child: const Text('온라인 물품 둘러보기'))
+          const SizedBox(height: 50),
+          Container(
+            width: 320,
+              height: 48,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: ShapeDecoration(
+                color: Color(0xFFEBEBEB),
+                shape: RoundedRectangleBorder(
+                  side: BorderSide(width: 1, color: Color(0xFFD1D1D1)),
+                  borderRadius: BorderRadius.circular(8)
+                )
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                      onPressed: () {},
+                      child: const Text(
+                          '부스 판매하기',
+                        style: TextStyle(
+                            color: Colors.black,
+                          fontWeight: FontWeight.w500
+                        ),
+                      )
+                  ),
+                  IconButton(
+                      onPressed: (){},
+                      icon: const Icon(Icons.chevron_right)
+                  )
+                ],
+              ),
+          ),
+          const SizedBox(height: 20),
+          Container(
+              width: 320,
+              height: 48,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: ShapeDecoration(
+                  color: Color(0xFFEBEBEB),
+                  shape: RoundedRectangleBorder(
+                      side: BorderSide(width: 1, color: Color(0xFFD1D1D1)),
+                      borderRadius: BorderRadius.circular(8)
+                  )
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    child: TextButton(
+                        onPressed: () {},
+                        child: const Text(
+                            '부스 둘러보기',
+                          style: TextStyle(
+                            color: Colors.black,
+                              fontWeight: FontWeight.w500
+                          ),
+                        )
+                    ),
+                  ),
+                  IconButton(
+                      onPressed: (){},
+                      icon: const Icon(Icons.chevron_right)
+                  )
+                ],
+              )
+          ),
+          ElevatedButton(onPressed: () {}, child: const Text('커뮤니티')),
+          // ElevatedButton(onPressed: () {}, child: const Text('온라인 물품 둘러보기'))
         ],
       )),
       floatingActionButton:FloatingActionButton(onPressed: () {

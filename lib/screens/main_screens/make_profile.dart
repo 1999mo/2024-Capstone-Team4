@@ -164,52 +164,104 @@ class _MakeProfileState extends State<MakeProfile> {
     }
 
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircleAvatar(
-              radius: 50, // 원 크기
-              backgroundImage: _profileImage != null
-                  ? FileImage(_profileImage!) // 선택한 이미지로 변경
-                  : const AssetImage('assets/profile_placeholder.png') as ImageProvider, // 기본 이미지
-            ),
-            TextButton(
-              onPressed: _pickImage, // 이미지 선택
-              child: const Text('프로필 사진 업로드'),
-            ),
-            TextFormField(
-              decoration: const InputDecoration(
-                labelText: '사용할 이름 입력',
-                border: OutlineInputBorder(),
+      body: Column(
+        children: [
+          Expanded(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircleAvatar(
+                    radius: 50, // 원 크기
+                    backgroundImage: _profileImage != null
+                        ? FileImage(_profileImage!) // 선택한 이미지로 변경
+                        : const AssetImage('assets/profile_placeholder.png') as ImageProvider, // 기본 이미지
+                  ),
+                  TextButton(
+                    onPressed: _pickImage, // 이미지 선택
+                    child: const Text(
+                        '프로필 사진 업로드',
+                      style: TextStyle(
+                        color: Colors.black,
+                      )
+                    ),
+                  ),
+                  const SizedBox(height: 24), // 프로필 사진과 텍스트 필드 사이 간격
+                  Container(
+                    width: 320,
+                    height: 44,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: ShapeDecoration(
+                      shape: RoundedRectangleBorder(
+                        side: const BorderSide(
+                          width: 1,
+                          strokeAlign: BorderSide.strokeAlignCenter,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: TextFormField(
+                      decoration: const InputDecoration(
+                        labelText: '사용할 이름 입력',
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          userName = value; // 사용자 이름 저장
+                        });
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 12), // 텍스트 필드와 체크박스 사이 간격
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Checkbox(
+                        value: isSeller,
+                        onChanged: (value) {
+                          setState(() {
+                            isSeller = value ?? false;
+                          });
+                        },
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(100),
+                        ),
+                        activeColor: Color(0xFF525252)
+                      ),
+                      const Text(
+                        '판매자 여부',
+                        style: TextStyle(
+                          color: Color(0xFF777777),
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              onChanged: (value) {
-                setState(() {
-                  userName = value; // 사용자 이름 저장
-                });
-              },
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Checkbox(
-                  value: isSeller,
-                  onChanged: (value) {
-                    setState(() {
-                      isSeller = value ?? false;
-                    });
-                  },
-                ),
-                const Text('판매자 여부'),
-              ],
+          ),
+          Container(
+            width: 320,
+            height: 48,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: ShapeDecoration(
+              color: Color(0xFFFDBE85),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
-            TextButton(
+            child: TextButton(
               onPressed: _onComplete, // 완료 버튼 동작
-              child: const Text('완료'),
+              child: const Text(
+                '완료',
+                style: TextStyle(
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 24), // 하단 여백
+        ],
       ),
     );
+
   }
 }

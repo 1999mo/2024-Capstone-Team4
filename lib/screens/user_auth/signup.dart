@@ -40,59 +40,60 @@ class _SignupState extends State<Signup> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                
                 // 이메일
                 const Text('이메일'),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: '이메일을 입력하세요',
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: '이메일을 입력하세요',
+                          ),
+                          onSaved: (newValue) => email = newValue ?? '',
                         ),
-                        onSaved: (newValue) => email = newValue ?? '',
                       ),
-                    ),
-                    const SizedBox(width: 10),
-                    TextButton(
-                      onPressed: () async {
-                        _formKey.currentState!.save();
-                        // 이메일 중복 확인 및 인증 번호 발송 로직
-                        bool check = await script.checkEmailDuplicate(email);
-                        if (check) {
+                      const SizedBox(width: 10),
+                      TextButton(
+                        onPressed: () async {
+                          _formKey.currentState!.save();
+                          // 이메일 중복 확인 및 인증 번호 발송 로직
+                          bool check = await script.checkEmailDuplicate(email);
+                          if (check) {
+                            setState(() {
+                              emailDuplicate = true;
+                            });
+                            return;
+                          }
+                          emailAuthCorrect =
+                              await script.sendEmailVerification(email);
                           setState(() {
-                            emailDuplicate = true;
+                            emailDuplicate = false;
                           });
-                          return;
-                        }
-                        emailAuthCorrect =
-                            await script.sendEmailVerification(email);
-                        setState(() {
-                          emailDuplicate = false;
-                        });
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text('인증번호 발송'),
-                              content: const Text('인증번호가 발송되었습니다.'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop(); // 팝업 닫기
-                                  },
-                                  child: const Text('확인'),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      },
-                      child: const Text('인증하기'),
-                    ),
-                  ],
-                ),
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('인증번호 발송'),
+                                content: const Text('인증번호가 발송되었습니다.'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop(); // 팝업 닫기
+                                    },
+                                    child: const Text('확인'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        child: const Text('인증하기'),
+                      ),
+                    ],
+                  ),
 
                 if (emailDuplicate == false)
                   const Padding(
