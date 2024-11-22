@@ -94,17 +94,32 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
           child: Column(
         children: [
           Container(
-            // alignment: Alignment.center,
-            // color: Colors.lightBlue,
-            margin: const EdgeInsets.all(15),
-            width: 320,
-            height: 197,
-            decoration: ShapeDecoration(
-              shape: RoundedRectangleBorder(
-                side: BorderSide(width: 1, color: Color(0xFFD1D1D1)),
-                borderRadius: BorderRadius.circular(12)
-              )
-            ),
+          decoration: BoxDecoration(
+          border: Border.all(
+              color: Colors.grey,
+              width: 1.0
+          )
+      ),
+        alignment: Alignment.center,
+        margin: const EdgeInsets.all(15),
+        width: 320,
+        // child: Column(
+        //     children: [
+        //       Image.asset('assets/catcul_w.jpg', width: 128, height: 128,),
+        //       Text('우리를 위한 축제 필수템!', style: TextStyle(fontSize: 18, color: Colors.pinkAccent),),
+        //       Text('좋은 앱 이름 추천 받아요... \n아이디어 있으면 연락주세요 (제발)'),
+        //       Text('\n부스 판매하기, 부스 추가 구현 완료')
+        //     ]
+        // )
+            // margin: const EdgeInsets.all(15),
+            // width: 320,
+            // height: 197,
+            // decoration: ShapeDecoration(
+            //   shape: RoundedRectangleBorder(
+            //     side: BorderSide(width: 1, color: Color(0xFFD1D1D1)),
+            //     borderRadius: BorderRadius.circular(12)
+            //   )
+            // ),
             child: Column(
               children: [
                 Container(
@@ -131,10 +146,16 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
                     ),
                   ),
                 ),
-                const Text('공지사항 자리')
+                Column(
+                    children: [
+                      Image.asset('assets/catcul_w.jpg', width: 128, height: 128,),
+                      Text('우리를 위한 축제 필수템!', style: TextStyle(fontSize: 18, color: Colors.pinkAccent),),
+                      Text('좋은 앱 이름 추천 받아요... \n아이디어 있으면 연락주세요 (제발)'),
+                      Text('\n부스 판매하기, 부스 추가 구현 완료')
+                    ]
+                )
               ],
             )
-            // child: const Text('공지사항 자리'),
           ),
           const SizedBox(height: 50),
           Container(
@@ -152,7 +173,9 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/seller_screens/my_booth');
+                      },
                       child: const Text(
                           '부스 판매하기',
                         style: TextStyle(
@@ -202,8 +225,40 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
                 ],
               )
           ),
-          ElevatedButton(onPressed: () {}, child: const Text('커뮤니티')),
-          // ElevatedButton(onPressed: () {}, child: const Text('온라인 물품 둘러보기'))
+          const SizedBox(height: 20),
+          Container(
+              width: 320,
+              height: 48,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: ShapeDecoration(
+                  color: Color(0xFFEBEBEB),
+                  shape: RoundedRectangleBorder(
+                      side: BorderSide(width: 1, color: Color(0xFFD1D1D1)),
+                      borderRadius: BorderRadius.circular(8)
+                  )
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    child: TextButton(
+                        onPressed: () {},
+                        child: const Text(
+                          '커뮤니티 게시판',
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.w500
+                          ),
+                        )
+                    ),
+                  ),
+                  IconButton(
+                      onPressed: (){},
+                      icon: const Icon(Icons.chevron_right)
+                  )
+                ],
+              )
+          ),
         ],
       )),
       floatingActionButton:FloatingActionButton(onPressed: () {
