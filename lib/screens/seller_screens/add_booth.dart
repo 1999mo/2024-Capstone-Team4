@@ -223,100 +223,103 @@ class _AddBoothState extends State<AddBooth> {
                       },
                       child: Text('뒤로')),
                   TextButton(
-                      onPressed: () async {
-                        final uid = FirebaseAuth.instance.currentUser?.uid;
-                        final userDocRef = FirebaseFirestore.instance
-                            .collection('Users')
-                            .doc(uid);
-                        final boothsCollectionRef =
-                        userDocRef.collection('booths');
-                        final existingDoc = await boothsCollectionRef
-                            .doc(selectedFestival)
-                            .get();
-                        if (existingDoc.exists) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                '이미 추가된 축제입니다. 부스 목록화면에서 해당 부스를 길게 클릭하여 삭제한 후 다시 시도해주세요.',
-                              ),
+                    onPressed: () async {
+                      final uid = FirebaseAuth.instance.currentUser?.uid;
+                      if (uid == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text('사용자 인증에 문제가 발생했습니다. 다시 로그인해주세요.')),
+                        );
+                        return;
+                      }
+
+                      final userDocRef = FirebaseFirestore.instance
+                          .collection('Users')
+                          .doc(uid);
+                      final boothsCollectionRef = userDocRef.collection('booths');
+                      final existingDoc = await boothsCollectionRef
+                          .doc(selectedFestival)
+                          .get();
+                      if (existingDoc.exists) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              '이미 추가된 축제입니다. 부스 목록화면에서 해당 부스를 길게 클릭하여 삭제한 후 다시 시도해주세요.',
                             ),
-                          );
-                          return; // 중복된 문서가 있으면 저장 작업 중단
-                        }
-                        if (isPreSell == true) {
-                          if (preSellStart == null || preSellEnd == null) {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                content:
-                                    Text('사전 판매 시작 날짜와 종료 날짜를 모두 입력해주세요.')));
-                            return;
-                          }
-                          if (preSellStart!.isAfter(preSellEnd!)) {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                content: Text('사전판매 종료기간이 시작기간보다 앞섭니다.')));
-                            return;
-                          }
-                        }
-                        if (painters.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('참여 작가를 1명 이상 입력해주세요.')));
+                          ),
+                        );
+                        return; // 중복된 문서가 있으면 저장 작업 중단
+                      }
+                      if (isPreSell == true) {
+                        if (preSellStart == null || preSellEnd == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content:
+                              Text('사전 판매 시작 날짜와 종료 날짜를 모두 입력해주세요.')));
                           return;
                         }
-                        // Firestore 참조
-
-                        if (_formKey.currentState!.validate()) {
-                          _formKey.currentState!.save();
-
-                          final uid = FirebaseAuth
-                              .instance.currentUser?.uid; // 현재 유저의 UID 가져오기
-                          if (uid == null) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content:
-                                      Text('사용자 인증에 문제가 발생했습니다. 다시 로그인해주세요.')),
-                            );
-                            return;
-                          }
-
-                          try {
-                            // Firestore 참조
-                            final userDocRef = FirebaseFirestore.instance
-                                .collection('Users')
-                                .doc(uid);
-                            final boothsCollectionRef =
-                                userDocRef.collection('booths');
-
-                            // 고유 ID 생성
-                            final newBoothDoc = boothsCollectionRef
-                                .doc(selectedFestival); // Firestore가 고유 ID 생성
-
-                            // Firestore에 데이터 추가
-                            await newBoothDoc.set({
-                              'FestivalName': selectedFestival,
-                              'boothName': boothName,
-                              'painters': painters,
-                              'location': location,
-                              'isPreSell': isPreSell,
-                              'preSellStart':
-                                  preSellStart, // DateTime 객체 그대로 저장
-                              'preSellEnd': preSellEnd, // DateTime 객체 그대로 저장
-                            });
-
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('부스 정보가 성공적으로 저장되었습니다.')),
-                            );
-                            setState(() {
-                              Navigator.pop(context); // 저장 후 이전 화면으로 이동
-                            });
-                          } catch (e) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content:
-                                      Text('부스 정보를 저장하는 중 오류가 발생했습니다: $e')),
-                            );
-                          }
+                        if (preSellStart!.isAfter(preSellEnd!)) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text('사전판매 종료기간이 시작기간보다 앞섭니다.')));
+                          return;
                         }
-                      },
-                      child: Text('확인'))
+                      }
+                      if (painters.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('참여 작가를 1명 이상 입력해주세요.')));
+                        return;
+                      }
+
+                      if (_formKey.currentState!.validate()) {
+                        _formKey.currentState!.save();
+
+                        try {
+                          // Firestore 참조
+                          final userDocRef = FirebaseFirestore.instance
+                              .collection('Users')
+                              .doc(uid);
+                          final boothsCollectionRef = userDocRef.collection('booths');
+
+                          // 고유 ID 생성
+                          final newBoothDoc = boothsCollectionRef
+                              .doc(selectedFestival);
+
+                          // Firestore에 데이터 추가
+                          await newBoothDoc.set({
+                            'FestivalName': selectedFestival,
+                            'boothName': boothName,
+                            'painters': painters,
+                            'location': location,
+                            'isPreSell': isPreSell,
+                            'preSellStart':
+                            preSellStart, // DateTime 객체 그대로 저장
+                            'preSellEnd': preSellEnd, // DateTime 객체 그대로 저장
+                          });
+
+                          // `Festival` 컬렉션의 `sellers` 필드에 UID 추가
+                          final festivalDocRef = FirebaseFirestore.instance
+                              .collection('Festivals')
+                              .doc(selectedFestival);
+                          await festivalDocRef.update({
+                            'sellers': FieldValue.arrayUnion([uid]) // UID를 배열에 추가
+                          });
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('부스 정보가 성공적으로 저장되었습니다.')),
+                          );
+                          setState(() {
+                            Navigator.pop(context); // 저장 후 이전 화면으로 이동
+                          });
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content:
+                                Text('부스 정보를 저장하는 중 오류가 발생했습니다: $e')),
+                          );
+                        }
+                      }
+                    },
+                    child: Text('확인'),
+                  )
                 ],
               )
             ],
