@@ -52,7 +52,7 @@ class _MyBoothState extends State<MyBooth> {
                           Navigator.pushNamed(
                             context,
                             '/seller_screens/selling',
-                            arguments: {'id': booths[index].id},
+                            arguments: booths[index].id,
                           );
                         },
                         onLongPress: () {

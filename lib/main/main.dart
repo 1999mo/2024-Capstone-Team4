@@ -1,4 +1,5 @@
 import 'package:catculator/screens/seller_screens/add_booth.dart';
+import 'package:catculator/screens/seller_screens/edit_selling_items.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -42,6 +43,12 @@ class MyApp extends StatelessWidget {
         '/seller_screens/my_booth': (context) => const MyBooth(),
         '/seller_screens/add_booth': (context) => const AddBooth(),
         '/seller_screens/selling': (context) => const Selling(),
+        '/seller_screens/edit_selling_items': (context)=>const EditSellingItems(),
+        '/seller_screens/add_item':(context)=>const AddItem(),
+        '/seller_screens/edit_item':(context)=>const EditItem(),
+        '/seller_screens/adjustment':(context)=>const Adjustment(),
+        '/seller_screens/pre_buy':(context)=>const PreBuy(),
+
       },
     );
   }
