@@ -39,9 +39,15 @@ class _MyBoothState extends State<MyBooth> {
                     return Center(child: CircularProgressIndicator());
                   }
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return Center(child: Text('부스 목록이 없습니다.'));
+                    return Center(child: Text('아직 추가된 부스가 없습니다.'));
                   }
                   final booths = snapshot.data!.docs;
+
+                  // default 부스만 있을 때 처리
+                  if (booths.length == 1 && booths[0].id == 'default') {
+                    return Center(child: Text('아직 추가된 부스가 없습니다.'));
+                  }
+
                   return ListView.builder(
                     itemCount: booths.length,
                     itemBuilder: (context, index) {
@@ -89,7 +95,7 @@ class _MyBoothState extends State<MyBooth> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('부스를 삭제하겠습니까?', style: TextStyle(fontSize: 15),),
+          title: const Text('부스를 삭제하겠습니까?', style: TextStyle(fontSize: 15)),
           actions: [
             TextButton(
               onPressed: () {
@@ -122,6 +128,14 @@ class _MyBoothState extends State<MyBooth> {
       final userDocRef = FirebaseFirestore.instance.collection('Users').doc(uid);
       final boothsCollectionRef = userDocRef.collection('booths');
 
+      // Festival 컬렉션에서 UID 제거
+      final festivalDocRef =
+      FirebaseFirestore.instance.collection('Festivals').doc(boothId);
+      await festivalDocRef.update({
+        'sellers': FieldValue.arrayRemove([uid]), // UID 제거
+      });
+
+      // 사용자의 부스 문서 삭제
       await boothsCollectionRef.doc(boothId).delete();
 
       ScaffoldMessenger.of(context).showSnackBar(
