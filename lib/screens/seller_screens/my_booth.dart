@@ -125,12 +125,13 @@ class _MyBoothState extends State<MyBooth> {
       final uid = FirebaseAuth.instance.currentUser?.uid;
       if (uid == null) throw Exception("로그인된 유저가 없습니다.");
 
-      final userDocRef = FirebaseFirestore.instance.collection('Users').doc(uid);
+      final userDocRef =
+          FirebaseFirestore.instance.collection('Users').doc(uid);
       final boothsCollectionRef = userDocRef.collection('booths');
 
       // Festival 컬렉션에서 UID 제거
       final festivalDocRef =
-      FirebaseFirestore.instance.collection('Festivals').doc(boothId);
+          FirebaseFirestore.instance.collection('Festivals').doc(boothId);
       await festivalDocRef.update({
         'sellers': FieldValue.arrayRemove([uid]), // UID 제거
       });
@@ -139,7 +140,10 @@ class _MyBoothState extends State<MyBooth> {
       await boothsCollectionRef.doc(boothId).delete();
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('부스가 성공적으로 삭제되었습니다.')),
+        const SnackBar(
+          content: Text('부스가 성공적으로 삭제되었습니다.'),
+          duration: Duration(seconds: 1),
+        ),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

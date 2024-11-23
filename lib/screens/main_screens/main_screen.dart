@@ -158,38 +158,37 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
             )
           ),
           const SizedBox(height: 50),
-          Container(
-            width: 320,
-              height: 48,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: ShapeDecoration(
-                color: Color(0xFFEBEBEB),
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(width: 1, color: Color(0xFFD1D1D1)),
-                  borderRadius: BorderRadius.circular(8)
-                )
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/seller_screens/my_booth');
-                      },
-                      child: const Text(
-                          '부스 판매하기',
-                        style: TextStyle(
-                            color: Colors.black,
-                          fontWeight: FontWeight.w500
-                        ),
-                      )
-                  ),
-                  IconButton(
-                      onPressed: (){},
-                      icon: const Icon(Icons.chevron_right)
+
+          GestureDetector(
+            child: Container(
+              width: 320,
+                height: 48,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: ShapeDecoration(
+                  color: Color(0xFFEBEBEB),
+                  shape: RoundedRectangleBorder(
+                    side: BorderSide(width: 1, color: Color(0xFFD1D1D1)),
+                    borderRadius: BorderRadius.circular(8)
                   )
-                ],
-              ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                        '부스 판매하기',
+                      style: TextStyle(
+                          color: Colors.black,
+                        fontWeight: FontWeight.w500
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right)
+
+                  ],
+                ),
+            ),
+            onTap: () {
+              Navigator.pushNamed(context, '/seller_screens/my_booth');
+            },
           ),
           const SizedBox(height: 20),
           Container(

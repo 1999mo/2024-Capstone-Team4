@@ -13,6 +13,7 @@ class _EditSellingItemsState extends State<EditSellingItems> {
   String? boothId;
   List<String> painters = [];
   String selectedPainter = '작가 전체';
+  String searchKeyword = ''; // 검색어 상태 추가
 
   @override
   void didChangeDependencies() {
@@ -164,6 +165,24 @@ class _EditSellingItemsState extends State<EditSellingItems> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // 검색 필드 추가
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              onChanged: (value) {
+                setState(() {
+                  searchKeyword = value.trim(); // 검색어 상태 업데이트
+                });
+              },
+              decoration: InputDecoration(
+                labelText: '상품 검색',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ),
+
           // 드롭다운 버튼
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -207,13 +226,17 @@ class _EditSellingItemsState extends State<EditSellingItems> {
                   return const Center(child: Text('등록된 상품이 없습니다.'));
                 }
                 final items = snapshot.data!.docs
-                    .where((doc) =>
-                selectedPainter == '작가 전체' ||
-                    (doc['artist'] ?? '') == selectedPainter)
+                    .where((doc) {
+                  final docData = doc.data() as Map<String, dynamic>;
+                  final itemName = docData['itemName']?.toLowerCase() ?? '';
+                  return (selectedPainter == '작가 전체' ||
+                      (docData['artist'] ?? '') == selectedPainter) &&
+                      itemName.contains(searchKeyword.toLowerCase());
+                })
                     .toList();
 
                 if (items.isEmpty) {
-                  return const Center(child: Text('선택한 작가의 상품이 없습니다.'));
+                  return const Center(child: Text('검색 결과가 없습니다.'));
                 }
 
                 return GridView.builder(

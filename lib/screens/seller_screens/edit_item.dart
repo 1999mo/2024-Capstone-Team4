@@ -17,16 +17,27 @@ class _EditItemState extends State<EditItem> {
   String? boothId;
   String? itemId;
 
-  String itemName = '';
+  late TextEditingController itemNameController;
+  late TextEditingController costPriceController;
+  late TextEditingController sellingPriceController;
+  late TextEditingController stockQuantityController;
+  late TextEditingController itemTypeController;
+
   String selectedPainter = '판매 작가명';
-  String itemType = '';
-  int? costPrice;
-  int? sellingPrice;
-  int? stockQuantity;
   File? imageFile;
-  String? imageUrl; // Firebase Storage에서 가져온 이미지 URL
+  String? imageUrl;
 
   List<String> painters = ['판매 작가명'];
+
+  @override
+  void initState() {
+    super.initState();
+    itemNameController = TextEditingController();
+    costPriceController = TextEditingController();
+    sellingPriceController = TextEditingController();
+    stockQuantityController = TextEditingController();
+    itemTypeController = TextEditingController();
+  }
 
   @override
   void didChangeDependencies() {
@@ -55,31 +66,37 @@ class _EditItemState extends State<EditItem> {
     final boothDoc = await boothRef.get();
     final itemDoc = await itemRef.get();
 
-    setState(() {
-      // Load painters
+    if (boothDoc.exists) {
       final boothData = boothDoc.data() as Map<String, dynamic>?;
       if (boothData != null && boothData['painters'] is List) {
-        painters = [
-          '판매 작가명',
-          ...boothData['painters']
-              .where((painter) => painter != null)
-              .map((painter) => painter.toString())
-        ];
+        setState(() {
+          painters = [
+            '판매 작가명',
+            ...boothData['painters']
+                .where((painter) => painter != null)
+                .map((painter) => painter.toString())
+          ];
+        });
       }
+    }
 
-      // Load item data
+    if (itemDoc.exists) {
       final itemData = itemDoc.data() as Map<String, dynamic>?;
       if (itemData != null) {
-        itemName = itemData['itemName'] ?? '';
-        selectedPainter = itemData['artist'] ?? '판매 작가명';
-        itemType = itemData['itemType'] ?? '';
-        costPrice = itemData['costPrice'];
-        sellingPrice = itemData['sellingPrice'];
-        stockQuantity = itemData['stockQuantity'];
+        setState(() {
+          itemNameController.text = itemData['itemName'] ?? '';
+          costPriceController.text =
+              itemData['costPrice']?.toString() ?? '';
+          sellingPriceController.text =
+              itemData['sellingPrice']?.toString() ?? '';
+          stockQuantityController.text =
+              itemData['stockQuantity']?.toString() ?? '';
+          itemTypeController.text = itemData['itemType'] ?? '';
+          selectedPainter = itemData['artist'] ?? '판매 작가명';
+        });
       }
-    });
+    }
 
-    // Load image from Firebase Storage
     imageUrl = await FirebaseStorage.instance
         .ref()
         .child('$uid/${itemId?.replaceAll(' ', '_')}.jpg')
@@ -117,17 +134,18 @@ class _EditItemState extends State<EditItem> {
     final updatedImageUrl = await _uploadImage();
 
     await itemRef.update({
-      'itemName': itemName,
+      'itemName': itemNameController.text.trim(),
       'artist': selectedPainter,
-      'costPrice': costPrice,
-      'sellingPrice': sellingPrice,
-      'stockQuantity': stockQuantity,
-      'itemType': itemType,
+      'costPrice': int.tryParse(costPriceController.text),
+      'sellingPrice': int.tryParse(sellingPriceController.text),
+      'stockQuantity': int.tryParse(stockQuantityController.text),
+      'itemType': itemTypeController.text.trim(),
       'imagePath': updatedImageUrl,
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('상품 정보가 성공적으로 수정되었습니다.')),
+      const SnackBar(content: Text('상품 정보가 성공적으로 수정되었습니다.'), duration: Duration(seconds: 1),),
+
     );
 
     Navigator.pop(context);
@@ -148,7 +166,7 @@ class _EditItemState extends State<EditItem> {
             children: [
               const Text('상품명', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               TextFormField(
-                initialValue: itemName,
+                controller: itemNameController,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                 ),
@@ -158,7 +176,6 @@ class _EditItemState extends State<EditItem> {
                   }
                   return null;
                 },
-                onSaved: (value) => itemName = value!.trim(),
               ),
               const SizedBox(height: 16),
               const Text('작가 선택', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
@@ -183,7 +200,7 @@ class _EditItemState extends State<EditItem> {
               const SizedBox(height: 16),
               const Text('원가', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               TextFormField(
-                initialValue: costPrice?.toString(),
+                controller: costPriceController,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                 ),
@@ -197,12 +214,11 @@ class _EditItemState extends State<EditItem> {
                   }
                   return null;
                 },
-                onSaved: (value) => costPrice = int.parse(value!),
               ),
               const SizedBox(height: 16),
               const Text('판매가', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               TextFormField(
-                initialValue: sellingPrice?.toString(),
+                controller: sellingPriceController,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                 ),
@@ -216,12 +232,11 @@ class _EditItemState extends State<EditItem> {
                   }
                   return null;
                 },
-                onSaved: (value) => sellingPrice = int.parse(value!),
               ),
               const SizedBox(height: 16),
               const Text('재고 수량', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               TextFormField(
-                initialValue: stockQuantity?.toString(),
+                controller: stockQuantityController,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                 ),
@@ -235,15 +250,13 @@ class _EditItemState extends State<EditItem> {
                   }
                   return null;
                 },
-                onSaved: (value) => stockQuantity = int.parse(value!),
               ),
               const SizedBox(height: 16),
               const Text('상품 종류', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               TextFormField(
-                initialValue: itemType,
+                controller: itemTypeController,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
-                  labelText: '상품 종류를 입력하세요',
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -251,7 +264,6 @@ class _EditItemState extends State<EditItem> {
                   }
                   return null;
                 },
-                onSaved: (value) => itemType = value!.trim(),
               ),
               const SizedBox(height: 16),
               const Text('이미지 미리보기', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
@@ -266,9 +278,9 @@ class _EditItemState extends State<EditItem> {
                   child: Image.network(imageUrl!, height: 150),
                 )
               else
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  child: const Text('이미지를 불러오는 중입니다.'),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16.0),
+                  child: Text('이미지를 불러오는 중입니다.'),
                 ),
               TextButton(
                 onPressed: () async {
@@ -295,7 +307,6 @@ class _EditItemState extends State<EditItem> {
                   TextButton(
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
-                        _formKey.currentState!.save();
                         _updateItem();
                       }
                     },

@@ -183,8 +183,10 @@ class _AddItemState extends State<AddItem> {
               const SizedBox(height: 16),
               const Text('원가', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               TextFormField(
+
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
+                  hintText: '상품을 만드는데 들어간 비용'
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
@@ -203,6 +205,7 @@ class _AddItemState extends State<AddItem> {
               TextFormField(
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
+                  hintText: '실제로 판매할 가격'
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
@@ -221,6 +224,7 @@ class _AddItemState extends State<AddItem> {
               TextFormField(
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
+                  hintText: '상품의 총 수량'
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
@@ -238,8 +242,8 @@ class _AddItemState extends State<AddItem> {
               const Text('상품 종류', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               TextFormField(
                 decoration: const InputDecoration(
+                  hintText: 'ex) 아크릴 키링, 포토 카드 등',
                   border: OutlineInputBorder(),
-                  labelText: '상품 종류를 입력하세요',
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {

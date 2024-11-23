@@ -21,7 +21,10 @@
 7. 글꼴 꾸미는법 Text('예시')  =>  Text('예시', style: TextStyle(fontSize: 글씨크기, color:... 등등))
 8. 곤란한 상황엔 새벽이라도 괜찮으니 언제든 연락할 것 어차피 새벽에 자고 있을리가 전무함
 
+TODO
+ - my_booth.dart
+ - selling.dart
+ - edit_selling)
 
 김준모님 공지사항
-2. 결제 시스템 혹은 가상계좌 결제 시스템 또는 무통장 입금 넣는 방법 조사
-3. 커뮤니티 기능 구현
+1. 구매하 화면 구성
