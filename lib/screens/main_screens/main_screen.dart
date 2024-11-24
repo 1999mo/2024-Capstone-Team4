@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '/screens/buyer_screens/booth_list_screen.dart';
+
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -264,18 +266,98 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
 }
 
 // BuyerMainScreen
-class BuyerMainScreen extends StatelessWidget {
+class BuyerMainScreen extends StatefulWidget {
   const BuyerMainScreen({super.key});
+
+  @override
+  State<BuyerMainScreen> createState() => _BuyerMainScreenState();
+}
+
+class _BuyerMainScreenState extends State<BuyerMainScreen> {
+  int _selectedIndex = 0;
+  final TextEditingController _controller = TextEditingController();
+
+  // Initialize _screens with the first state of screens
+  late List<Widget> _screens;
+
+  @override
+  void initState() {
+    super.initState();
+    _screens = [
+      Center(child: Text('지도 화면')), // 지도
+      BoothListScreen(painter: _controller.text), // 부스
+      Center(child: Text('사전 구매 화면')), // 사전 구매
+      Center(child: Text('장바구니 화면')), // 장바구니
+    ];
+  }
+
+  void _onTabSelect(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  void _updateBoothScreen() {
+    // Only update the second screen (BoothListScreen)
+    setState(() {
+      _screens[1] = BoothListScreen(painter: _controller.text);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: const Center(
-        child: Text('구매자 메인 화면'),
+      appBar: AppBar(
+        title: TextField(
+          controller: _controller,
+          decoration: InputDecoration(
+            hintText: '작가명 또는 캐릭터명으로 검색',
+            suffixIcon: const Icon(Icons.search),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+              borderSide: BorderSide.none,
+            ),
+            filled: true,
+            fillColor: Colors.white,
+          ),
+          onChanged: (value) {
+            _updateBoothScreen();
+          },
+        ),
+        backgroundColor: Colors.blue,
       ),
-      floatingActionButton:FloatingActionButton(onPressed: () {
-      Navigator.pushNamed(context, '/main_screens/setting');
-    }, child: const Icon(Icons.settings),)
+      body: _screens[_selectedIndex], // Display selected screen
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pushNamed(context, '/main_screens/setting');
+        },
+        child: const Icon(Icons.settings),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.blue,
+        items: const [
+          BottomNavigationBarItem(
+            label: '지도',
+            icon: Icon(Icons.map),
+          ),
+          BottomNavigationBarItem(
+            label: '부스 목록',
+            icon: Icon(Icons.list),
+          ),
+          BottomNavigationBarItem(
+            label: '사전 구매',
+            icon: Icon(Icons.shopping_cart),
+          ),
+          BottomNavigationBarItem(
+            label: '장바구니',
+            icon: Icon(Icons.shopping_bag),
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        onTap: _onTabSelect,
+      ),
     );
   }
 }
