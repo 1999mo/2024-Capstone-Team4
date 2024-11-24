@@ -91,160 +91,163 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
-      body: Center(
-          child: Column(
-        children: [
-          Container(
-          decoration: BoxDecoration(
-          border: Border.all(
-              color: Colors.grey,
-              width: 1.0
-          )
-      ),
-        alignment: Alignment.center,
-        margin: const EdgeInsets.all(15),
-        width: 320,
+        appBar: AppBar(),
+        body: Center(
             child: Column(
-              children: [
-                Container(
-                  width: 275,
-                  height: 24,
-                  margin: const EdgeInsets.symmetric(vertical: 12),
-                  child: const Text(
-                    '공지사항',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      height: 1
+          children: [
+            Container(
+                decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey, width: 1.0)),
+                alignment: Alignment.center,
+                margin: const EdgeInsets.all(15),
+                width: 320,
+                child: Column(
+                  children: [
+                    Container(
+                      width: 275,
+                      height: 24,
+                      margin: const EdgeInsets.symmetric(vertical: 12),
+                      child: const Text(
+                        '공지사항',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            height: 1),
+                      ),
                     ),
-                  ),
-                ),
-                const Divider(
-                  color: Colors.grey,
-                  thickness: 1, // 두께
-                  indent: 20, // 왼쪽 여백
-                  endIndent: 20, // 오른쪽 여백
-                ),
-                Column(
-                    children: [
-                      Image.asset('assets/catcul_w.jpg', width: 128, height: 128,),
-                      Text('우리를 위한 축제 필수템!', style: TextStyle(fontSize: 18, color: Colors.pinkAccent),),
+                    const Divider(
+                      color: Colors.grey,
+                      thickness: 1, // 두께
+                      indent: 20, // 왼쪽 여백
+                      endIndent: 20, // 오른쪽 여백
+                    ),
+                    Column(children: [
+                      Image.asset(
+                        'assets/catcul_w.jpg',
+                        width: 128,
+                        height: 128,
+                      ),
+                      Text(
+                        '우리를 위한 축제 필수템!',
+                        style:
+                            TextStyle(fontSize: 18, color: Colors.pinkAccent),
+                      ),
                       Text('좋은 앱 이름 추천 받아요... \n아이디어 있으면 연락주세요 (제발)'),
                       Text('\n부스 판매하기, 부스 추가 구현 완료')
-                    ]
-                )
-              ],
-            )
-          ),
-          const SizedBox(height: 50),
-
-          GestureDetector(
-            child: Container(
-              width: 320,
+                    ])
+                  ],
+                )),
+            const SizedBox(height: 50),
+            GestureDetector(
+              child: Container(
+                width: 320,
                 height: 48,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: ShapeDecoration(
-                  color: Color(0xFFEBEBEB),
-                  shape: RoundedRectangleBorder(
-                    side: BorderSide(width: 1, color: Color(0xFFD1D1D1)),
-                    borderRadius: BorderRadius.circular(8)
-                  )
-                ),
+                    color: Color(0xFFEBEBEB),
+                    shape: RoundedRectangleBorder(
+                        side: BorderSide(width: 1, color: Color(0xFFD1D1D1)),
+                        borderRadius: BorderRadius.circular(8))),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                        '부스 판매하기',
+                      '부스 판매하기',
                       style: TextStyle(
-                          color: Colors.black,
-                        fontWeight: FontWeight.w500
-                      ),
+                          color: Colors.black, fontWeight: FontWeight.w500),
                     ),
                     const Icon(Icons.chevron_right)
-
                   ],
                 ),
+              ),
+              onTap: () {
+                Navigator.pushNamed(context, '/seller_screens/my_booth');
+              },
             ),
-            onTap: () {
-              Navigator.pushNamed(context, '/seller_screens/my_booth');
-            },
-          ),
-          const SizedBox(height: 20),
-          Container(
-              width: 320,
-              height: 48,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: ShapeDecoration(
-                  color: Color(0xFFEBEBEB),
-                  shape: RoundedRectangleBorder(
-                      side: BorderSide(width: 1, color: Color(0xFFD1D1D1)),
-                      borderRadius: BorderRadius.circular(8)
-                  )
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    child: TextButton(
-                        onPressed: () {},
-                        child: const Text(
-                            '부스 둘러보기',
+            const SizedBox(height: 20),
+            GestureDetector(
+              child: Container(
+                  width: 320,
+                  height: 48,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: ShapeDecoration(
+                      color: Color(0xFFEBEBEB),
+                      shape: RoundedRectangleBorder(
+                          side: BorderSide(width: 1, color: Color(0xFFD1D1D1)),
+                          borderRadius: BorderRadius.circular(8))),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        child: Text(
+                          '부스 둘러보기',
                           style: TextStyle(
-                            color: Colors.black,
-                              fontWeight: FontWeight.w500
-                          ),
-                        )
-                    ),
-                  ),
-                  IconButton(
-                      onPressed: (){},
-                      icon: const Icon(Icons.chevron_right)
-                  )
-                ],
-              )
-          ),
-          const SizedBox(height: 20),
-          Container(
-              width: 320,
-              height: 48,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: ShapeDecoration(
-                  color: Color(0xFFEBEBEB),
-                  shape: RoundedRectangleBorder(
-                      side: BorderSide(width: 1, color: Color(0xFFD1D1D1)),
-                      borderRadius: BorderRadius.circular(8)
-                  )
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    child: TextButton(
-                        onPressed: () {},
-                        child: const Text(
-                          '커뮤니티 게시판',
+                              color: Colors.black, fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                      Icon(Icons.chevron_right)
+                    ],
+                  )),
+            ),
+            const SizedBox(height: 20),
+            GestureDetector(
+              child: Container(
+                  width: 320,
+                  height: 48,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: ShapeDecoration(
+                      color: Color(0xFFEBEBEB),
+                      shape: RoundedRectangleBorder(
+                          side: BorderSide(width: 1, color: Color(0xFFD1D1D1)),
+                          borderRadius: BorderRadius.circular(8))),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        child: Text(
+                          '온라인 판매하기',
                           style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.w500
-                          ),
-                        )
-                    ),
-                  ),
-                  IconButton(
-                      onPressed: (){},
-                      icon: const Icon(Icons.chevron_right)
-                  )
-                ],
-              )
-          ),
-        ],
-      )),
-      floatingActionButton:FloatingActionButton(onPressed: () {
-        Navigator.pushNamed(context, '/main_screens/setting');
-      }, child: const Icon(Icons.settings),)
-    );
+                              color: Colors.black, fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                      Icon(Icons.chevron_right)
+                    ],
+                  )),
+            ),
+            const SizedBox(height: 20),
+            GestureDetector(
+              child: Container(
+                  width: 320,
+                  height: 48,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: ShapeDecoration(
+                      color: Color(0xFFEBEBEB),
+                      shape: RoundedRectangleBorder(
+                          side: BorderSide(width: 1, color: Color(0xFFD1D1D1)),
+                          borderRadius: BorderRadius.circular(8))),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        child: Text(
+                          '온라인 판매 둘러보기',
+                          style: TextStyle(
+                              color: Colors.black, fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                      Icon(Icons.chevron_right)
+                    ],
+                  )),
+            ),
+          ],
+        )),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.pushNamed(context, '/main_screens/setting');
+          },
+          child: const Icon(Icons.settings),
+        ));
   }
 }
 
