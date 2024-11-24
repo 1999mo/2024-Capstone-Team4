@@ -51,8 +51,7 @@ class _AddBoothState extends State<AddBooth> {
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: ListView( // ListView로 변경하여 스크롤 가능하게 함
               children: [
                 Text(
                   '축제명',
@@ -73,7 +72,7 @@ class _AddBoothState extends State<AddBooth> {
                     ),
                     ...festivalNames
                         .map((name) =>
-                            DropdownMenuItem(value: name, child: Text(name)))
+                        DropdownMenuItem(value: name, child: Text(name)))
                         .toList(), // 축제 목록 추가
                   ],
                   onChanged: (value) {
@@ -119,8 +118,8 @@ class _AddBoothState extends State<AddBooth> {
                             // 텍스트 필드
                             Expanded(
                               child: TextFormField(
-                                decoration: InputDecoration(
-                                    border: OutlineInputBorder()),
+                                decoration:
+                                InputDecoration(border: OutlineInputBorder()),
                                 initialValue: value, // 기존 입력값 유지
                                 onChanged: (newValue) {
                                   painters[index] = newValue; // 입력값 변경 시 업데이트
@@ -201,7 +200,7 @@ class _AddBoothState extends State<AddBooth> {
                         value: isPreSell,
                         shape: RoundedRectangleBorder(
                           borderRadius:
-                              BorderRadius.circular(100), // 체크박스 모양을 둥글게
+                          BorderRadius.circular(100), // 체크박스 모양을 둥글게
                         ),
                         activeColor: Color(0xFF525252), // 체크박스 활성 색상
                         onChanged: (value) {
@@ -256,7 +255,7 @@ class _AddBoothState extends State<AddBooth> {
                                     final pickedDate = await showDatePicker(
                                       context: context,
                                       initialDate:
-                                          preSellStart ?? DateTime.now(),
+                                      preSellStart ?? DateTime.now(),
                                       firstDate: DateTime(2000),
                                       lastDate: DateTime(2100),
                                     );
@@ -268,7 +267,7 @@ class _AddBoothState extends State<AddBooth> {
                                   },
                                   style: TextButton.styleFrom(
                                     backgroundColor:
-                                        Colors.grey[200], // 버튼 배경색 회색 설정
+                                    Colors.grey[200], // 버튼 배경색 회색 설정
                                     padding: EdgeInsets.symmetric(
                                         horizontal: 16,
                                         vertical: 8), // 버튼 내부 여백
@@ -286,7 +285,8 @@ class _AddBoothState extends State<AddBooth> {
                                   onPressed: () async {
                                     final pickedDate = await showDatePicker(
                                       context: context,
-                                      initialDate: preSellEnd ?? DateTime.now(),
+                                      initialDate:
+                                      preSellEnd ?? DateTime.now(),
                                       firstDate: DateTime(2000),
                                       lastDate: DateTime(2100),
                                     );
@@ -298,7 +298,7 @@ class _AddBoothState extends State<AddBooth> {
                                   },
                                   style: TextButton.styleFrom(
                                     backgroundColor:
-                                        Colors.grey[200], // 버튼 배경색 회색 설정
+                                    Colors.grey[200], // 버튼 배경색 회색 설정
                                     padding: EdgeInsets.symmetric(
                                         horizontal: 16,
                                         vertical: 8), // 버튼 내부 여백
@@ -314,7 +314,6 @@ class _AddBoothState extends State<AddBooth> {
                       ],
                     ),
                   ),
-
                 const SizedBox(height: 16),
                 Row(
                   //버튼들
@@ -332,8 +331,7 @@ class _AddBoothState extends State<AddBooth> {
                             },
                             child: Text(
                               '뒤로가기',
-                              style:
-                                  TextStyle(fontSize: 14, color: Colors.black),
+                              style: TextStyle(fontSize: 14, color: Colors.black),
                             )),
                       ),
                     ),
@@ -348,7 +346,8 @@ class _AddBoothState extends State<AddBooth> {
                         ),
                         child: TextButton(
                           onPressed: () async {
-                            final uid = FirebaseAuth.instance.currentUser?.uid;
+                            final uid =
+                                FirebaseAuth.instance.currentUser?.uid;
                             if (uid == null) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
@@ -362,10 +361,12 @@ class _AddBoothState extends State<AddBooth> {
                                 .collection('Users')
                                 .doc(uid);
                             final boothsCollectionRef =
-                                userDocRef.collection('booths');
-                            final existingDoc = await boothsCollectionRef
+                            userDocRef.collection('booths');
+                            final existingDoc =
+                            await boothsCollectionRef
                                 .doc(selectedFestival)
                                 .get();
+
                             if (existingDoc.exists) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
@@ -387,8 +388,8 @@ class _AddBoothState extends State<AddBooth> {
                               if (preSellStart!.isAfter(preSellEnd!)) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                        content:
-                                            Text('사전판매 종료기간이 시작기간보다 앞섭니다.')));
+                                        content: Text(
+                                            '사전판매 종료기간이 시작기간보다 앞섭니다.')));
                                 return;
                               }
                             }
@@ -404,15 +405,17 @@ class _AddBoothState extends State<AddBooth> {
 
                               try {
                                 // Firestore 참조
-                                final userDocRef = FirebaseFirestore.instance
+                                final userDocRef =
+                                FirebaseFirestore.instance
                                     .collection('Users')
                                     .doc(uid);
                                 final boothsCollectionRef =
-                                    userDocRef.collection('booths');
+                                userDocRef.collection('booths');
 
                                 // 고유 ID 생성
                                 final newBoothDoc =
-                                    boothsCollectionRef.doc(selectedFestival);
+                                boothsCollectionRef.doc(
+                                    selectedFestival);
 
                                 // Firestore에 데이터 추가
                                 await newBoothDoc.set({
@@ -422,14 +425,14 @@ class _AddBoothState extends State<AddBooth> {
                                   'location': location,
                                   'isPreSell': isPreSell,
                                   'preSellStart':
-                                      preSellStart, // DateTime 객체 그대로 저장
+                                  preSellStart, // DateTime 객체 그대로 저장
                                   'preSellEnd':
-                                      preSellEnd, // DateTime 객체 그대로 저장
+                                  preSellEnd, // DateTime 객체 그대로 저장
                                 });
 
                                 // `Festival` 컬렉션의 `sellers` 필드에 UID 추가
-                                final festivalDocRef = FirebaseFirestore
-                                    .instance
+                                final festivalDocRef =
+                                FirebaseFirestore.instance
                                     .collection('Festivals')
                                     .doc(selectedFestival);
                                 await festivalDocRef.update({
@@ -447,8 +450,8 @@ class _AddBoothState extends State<AddBooth> {
                               } catch (e) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                      content:
-                                          Text('부스 정보를 저장하는 중 오류가 발생했습니다: $e')),
+                                      content: Text(
+                                          '부스 정보를 저장하는 중 오류가 발생했습니다: $e')),
                                 );
                               }
                             }

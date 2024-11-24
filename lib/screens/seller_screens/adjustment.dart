@@ -57,7 +57,7 @@ class _AdjustmentState extends State<Adjustment> {
             );
           } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return const Center(
-              child: Text('No data available'),
+              child: Text('아직 판매된 상품이 없습니다.'),
             );
           }
 

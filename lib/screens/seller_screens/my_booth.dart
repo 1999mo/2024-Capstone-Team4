@@ -14,89 +14,105 @@ class _MyBoothState extends State<MyBooth> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('내 부스')),
-      body: Column(
-        children: [
-          const Text('내 부스 목록', style: TextStyle(fontSize: 18)),
-
-          // 회색 경계선
-          Container(
-            color: Colors.grey,
-            height: 1,
-          ),
-
-          // 부스 목록을 일반 ListView로 표시
-          Expanded(
-            child: Container(
-              color: Colors.grey[200],
-              child: StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('Users')
-                    .doc(FirebaseAuth.instance.currentUser?.uid)
-                    .collection('booths')
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return Center(child: Text('아직 추가된 부스가 없습니다.'));
-                  }
-                  final booths = snapshot.data!.docs;
-
-                  // default 부스만 있을 때 처리
-                  if (booths.length == 1 && booths[0].id == 'default') {
-                    return Center(child: Text('아직 추가된 부스가 없습니다.'));
-                  }
-
-                  return ListView.builder(
-                    itemCount: booths.length,
-                    itemBuilder: (context, index) {
-                      final data = booths[index].data() as Map<String, dynamic>;
-                      return ListTile(
-                        title: Text(data['FestivalName'] ?? ''),
-                        onTap: () {
-                          Navigator.pushNamed(
-                            context,
-                            '/seller_screens/selling',
-                            arguments: booths[index].id,
-                          );
-                        },
-                        onLongPress: () {
-                          _showDeleteDialog(context, booths[index].id);
-                        },
-                      );
-                    },
-                  );
-                },
-              ),
+      body: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey, width: 1),
+          borderRadius: BorderRadius.circular(12)
+        ),
+        margin: EdgeInsets.all(15),
+        child: Column(
+          children: [
+            SizedBox(height: 15,),
+            const Text('내 부스 목록', style: TextStyle(fontSize: 18)),
+            SizedBox(height: 15,),
+            // 회색 경계선
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 16),
+              color: Colors.grey,
+              height: 1,
             ),
-          ),
-
-          const SizedBox(height: 20), // 리스트와 버튼 사이 간격
-
-          // "부스 새로 추가하기" 버튼
-
-          Container(
-            width: 320,
-            height: 48,
-            decoration: ShapeDecoration(
-              color: const Color(0xFFFDBE85),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            margin: const EdgeInsets.all(15),
-            child: TextButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/seller_screens/add_booth');
-              },
-              child: const Text(
-                  '부스 새로 추가하기',
-                style: TextStyle(
-                    fontSize: 14, color: Colors.black
+        
+            // 부스 목록을 일반 ListView로 표시
+            Expanded(
+              child: Container(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('Users')
+                      .doc(FirebaseAuth.instance.currentUser?.uid)
+                      .collection('booths')
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                      return Center(child: Text('아직 추가된 부스가 없습니다.'));
+                    }
+                    final booths = snapshot.data!.docs;
+        
+                    // default 부스만 있을 때 처리
+                    if (booths.length == 1 && booths[0].id == 'default') {
+                      return Center(child: Text('아직 추가된 부스가 없습니다.'));
+                    }
+        
+                    return ListView.builder(
+                      itemCount: booths.length,
+                      itemBuilder: (context, index) {
+                        final data = booths[index].data() as Map<String, dynamic>;
+                        return ListTile(
+                          title: Container(
+                            padding: EdgeInsets.all(12),
+                            alignment: Alignment.centerLeft,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                border: Border.all(color: Colors.grey, width: 1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(data['FestivalName'] ?? '')),
+                          onTap: () {
+                            Navigator.pushNamed(
+                              context,
+                              '/seller_screens/selling',
+                              arguments: booths[index].id,
+                            );
+                          },
+                          onLongPress: () {
+                            _showDeleteDialog(context, booths[index].id);
+                          },
+                        );
+                      },
+                    );
+                  },
                 ),
               ),
             ),
-          ),
-        ],
+        
+            const SizedBox(height: 20), // 리스트와 버튼 사이 간격
+        
+            // "부스 새로 추가하기" 버튼
+        
+            Container(
+              width: 320,
+              height: 48,
+              decoration: ShapeDecoration(
+                color: const Color(0xFFFDBE85),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              margin: const EdgeInsets.all(15),
+              child: TextButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/seller_screens/add_booth');
+                },
+                child: const Text(
+                    '부스 새로 추가하기',
+                  style: TextStyle(
+                      fontSize: 14, color: Colors.black
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

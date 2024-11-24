@@ -251,7 +251,7 @@ class _SellingState extends State<Selling> {
                         context, '/seller_screens/edit_selling_items',
                         arguments: boothId);
                   },
-                  child: const Text('편집'),
+                  child: const Text('상품편집'),
                 ),
               ],
             ),
