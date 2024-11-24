@@ -253,7 +253,7 @@ class _SignupState extends State<Signup> {
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.grey,
+                        color: const Color(0xFFD1D1D1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: TextButton(

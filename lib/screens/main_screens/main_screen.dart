@@ -126,7 +126,7 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
                   width: 275,
                   height: 24,
                   margin: const EdgeInsets.symmetric(vertical: 12),
-                  child: Text(
+                  child: const Text(
                     '공지사항',
                     textAlign: TextAlign.center,
                     style: TextStyle(
@@ -136,15 +136,11 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
                     ),
                   ),
                 ),
-                Container(
-                  width: 280,
-                  height: 1.5,
-                  decoration: ShapeDecoration(
-                    shape: RoundedRectangleBorder(
-                      side: BorderSide(width: 1, color: Color(0xFFD1D1D1)),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
+                const Divider(
+                  color: Colors.grey,
+                  thickness: 1, // 두께
+                  indent: 20, // 왼쪽 여백
+                  endIndent: 20, // 오른쪽 여백
                 ),
                 Column(
                     children: [

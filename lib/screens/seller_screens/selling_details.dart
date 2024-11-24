@@ -19,7 +19,9 @@ class _SellingDetailsState extends State<SellingDetails> {
     super.didChangeDependencies();
 
     // 넘겨받은 판매 정보
-    final arguments = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ?? {};
+    final arguments =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ??
+            {};
     soldItems = arguments.map((key, value) => MapEntry(key, {...value}));
     _calculateTotalAmount();
   }
@@ -28,7 +30,7 @@ class _SellingDetailsState extends State<SellingDetails> {
   void _calculateTotalAmount() {
     totalAmount = soldItems.entries.fold(
       0,
-          (sum, entry) {
+      (sum, entry) {
         final price = entry.value['sellingPrice'] as int? ?? 0;
         final quantity = entry.value['quantity'] as int? ?? 0;
         return sum + (price * quantity);
@@ -63,28 +65,48 @@ class _SellingDetailsState extends State<SellingDetails> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text(
-                        '주문 목록',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          '주문 목록',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
-                    const Divider(color: Colors.grey), // 회색 구분선
+
+                    //회색 구분선
+                    const Divider(
+                      color: Colors.grey,
+                      thickness: 1, // 두께
+                      indent: 20, // 왼쪽 여백
+                      endIndent: 20, // 오른쪽 여백
+                    ),
+
 
                     // 스크롤 가능한 상품 리스트
                     Expanded(
                       child: SingleChildScrollView(
                         child: Column(
                           children: soldItems.entries.map((entry) {
-                            final productName = entry.value['itemName'] ?? '알 수 없음';
-                            final sellingPrice = entry.value['sellingPrice'] as int? ?? 0;
-                            final quantity = entry.value['quantity'] as int? ?? 0;
-                            final stockQuantity = entry.value['stockQuantity'] as int? ?? 0;
+                            final productName =
+                                entry.value['itemName'] ?? '알 수 없음';
+                            final sellingPrice =
+                                entry.value['sellingPrice'] as int? ?? 0;
+                            final quantity =
+                                entry.value['quantity'] as int? ?? 0;
+                            final stockQuantity =
+                                entry.value['stockQuantity'] as int? ?? 0;
 
                             return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8.0, vertical: 4.0),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     productName,
@@ -101,19 +123,22 @@ class _SellingDetailsState extends State<SellingDetails> {
                                         onPressed: () {
                                           if (quantity < stockQuantity) {
                                             setState(() {
-                                              soldItems[entry.key]!['quantity'] = quantity + 1;
+                                              soldItems[entry.key]![
+                                                  'quantity'] = quantity + 1;
                                             });
                                             _calculateTotalAmount();
                                           }
                                         },
                                       ),
-                                      Text('$quantity', style: const TextStyle(fontSize: 16)),
+                                      Text('$quantity',
+                                          style: const TextStyle(fontSize: 16)),
                                       IconButton(
                                         icon: const Icon(Icons.remove),
                                         onPressed: () {
                                           if (quantity > 0) {
                                             setState(() {
-                                              soldItems[entry.key]!['quantity'] = quantity - 1;
+                                              soldItems[entry.key]![
+                                                  'quantity'] = quantity - 1;
                                             });
                                             _calculateTotalAmount();
                                           }
@@ -129,25 +154,38 @@ class _SellingDetailsState extends State<SellingDetails> {
                       ),
                     ),
 
-                    const Divider(color: Colors.grey), // 회색 구분선
+                    // 회색 구분선
+                    const Divider(
+                      color: Colors.grey,
+                      thickness: 1, // 두께
+                      indent: 20, // 왼쪽 여백
+                      endIndent: 20, // 오른쪽 여백
+                    ),
 
                     // 총 가격
                     Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            '총 가격',
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 16.0), // '총 가격' 텍스트에 오른쪽 여백 추가
+                            child: const Text(
+                              '총 가격',
+                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
                           ),
-                          Text(
-                            '${NumberFormat('#,###').format(totalAmount)}원',
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 16.0), // '0원' 텍스트에 왼쪽 여백 추가
+                            child: Text(
+                              '${NumberFormat('#,###').format(totalAmount)}원',
+                              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
                           ),
                         ],
                       ),
                     ),
+
                   ],
                 ),
               ),
@@ -159,20 +197,39 @@ class _SellingDetailsState extends State<SellingDetails> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context); // 뒤로가기
-                  },
-                  child: const Text(
-                    '뒤로가기',
-                    style: TextStyle(fontSize: 16),
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFD1D1D1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.pop(context); // 뒤로가기
+                      },
+                      child: const Text(
+                        '뒤로가기',
+                        style: TextStyle(fontSize: 14, color: Colors.black),
+                      ),
+                    ),
                   ),
                 ),
-                TextButton(
-                  onPressed: _showPaymentSheet,
-                  child: const Text(
-                    '결제하기',
-                    style: TextStyle(fontSize: 16),
+                SizedBox(
+                  width: 10,
+                ),
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFDBE85),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: TextButton(
+                      onPressed: _showPaymentSheet,
+                      child: const Text(
+                        '결제하기',
+                        style: TextStyle(fontSize: 14, color: Colors.black),
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -186,7 +243,8 @@ class _SellingDetailsState extends State<SellingDetails> {
 
 // 결제 시트
 class PaymentSheet {
-  static void show(BuildContext context, int totalAmount, Map<String, Map<String, dynamic>> soldItems) {
+  static void show(BuildContext context, int totalAmount,
+      Map<String, Map<String, dynamic>> soldItems) {
     final numberFormat = NumberFormat('#,###');
     int receivedAmount = 0;
 
@@ -198,7 +256,9 @@ class PaymentSheet {
           builder: (BuildContext context, StateSetter setState) {
             final next5000 = ((totalAmount / 5000).ceil()) * 5000;
             final next10000 = ((totalAmount / 10000).ceil()) * 10000;
-            final change = (receivedAmount - totalAmount).clamp(0, double.infinity).toInt();
+            final change = (receivedAmount - totalAmount)
+                .clamp(0, double.infinity)
+                .toInt();
 
             return Padding(
               padding: const EdgeInsets.all(16.0),
@@ -211,7 +271,9 @@ class PaymentSheet {
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: receivedAmount < totalAmount ? Colors.red : Colors.black,
+                      color: receivedAmount < totalAmount
+                          ? Colors.red
+                          : Colors.black,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -261,10 +323,12 @@ class PaymentSheet {
                         return TextButton(
                           onPressed: () {
                             setState(() {
-                              receivedAmount = int.parse('$receivedAmount$number');
+                              receivedAmount =
+                                  int.parse('$receivedAmount$number');
                             });
                           },
-                          child: Text(number, style: const TextStyle(fontSize: 24)),
+                          child: Text(number,
+                              style: const TextStyle(fontSize: 24)),
                         );
                       }),
                       TextButton(
@@ -303,13 +367,15 @@ class PaymentSheet {
                         onPressed: () {
                           Navigator.pop(context);
                         },
-                        child: const Text('뒤로가기', style: TextStyle(fontSize: 16)),
+                        child:
+                            const Text('뒤로가기', style: TextStyle(fontSize: 16)),
                       ),
                       TextButton(
                         onPressed: () {
                           // 결제 완료 로직 추가
                         },
-                        child: const Text('결제하기', style: TextStyle(fontSize: 16)),
+                        child:
+                            const Text('결제하기', style: TextStyle(fontSize: 16)),
                       ),
                     ],
                   ),
