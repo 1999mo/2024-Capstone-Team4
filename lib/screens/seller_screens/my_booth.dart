@@ -23,15 +23,19 @@ class _MyBoothState extends State<MyBooth> {
         child: Column(
           children: [
             SizedBox(height: 15,),
-            const Text('내 부스 목록', style: TextStyle(fontSize: 18)),
-            SizedBox(height: 15,),
+            const Text('내 부스 목록',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)
+            ),
+            SizedBox(height: 15),
             // 회색 경계선
             Container(
               margin: EdgeInsets.symmetric(horizontal: 16),
               color: Colors.grey,
               height: 1,
             ),
-        
+
+            const SizedBox(height: 4),
+
             // 부스 목록을 일반 ListView로 표시
             Expanded(
               child: Container(
@@ -49,26 +53,33 @@ class _MyBoothState extends State<MyBooth> {
                       return Center(child: Text('아직 추가된 부스가 없습니다.'));
                     }
                     final booths = snapshot.data!.docs;
-        
+
                     // default 부스만 있을 때 처리
                     if (booths.length == 1 && booths[0].id == 'default') {
                       return Center(child: Text('아직 추가된 부스가 없습니다.'));
                     }
-        
+
                     return ListView.builder(
                       itemCount: booths.length,
                       itemBuilder: (context, index) {
                         final data = booths[index].data() as Map<String, dynamic>;
                         return ListTile(
                           title: Container(
-                            padding: EdgeInsets.all(12),
+                            padding: EdgeInsets.all(16),
                             alignment: Alignment.centerLeft,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[300],
-                                border: Border.all(color: Colors.grey, width: 1),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(data['FestivalName'] ?? '')),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFECECEC),
+                              border: Border.all(color: const Color(0xFFD1D1D1), width: 1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(data['FestivalName'] ?? ''), // 부스명
+                                Icon(Icons.chevron_right), // 꺽쇠 아이콘
+                              ],
+                            ),
+                          ),
                           onTap: () {
                             Navigator.pushNamed(
                               context,
@@ -86,11 +97,10 @@ class _MyBoothState extends State<MyBooth> {
                 ),
               ),
             ),
-        
+
             const SizedBox(height: 20), // 리스트와 버튼 사이 간격
-        
+
             // "부스 새로 추가하기" 버튼
-        
             Container(
               width: 320,
               height: 48,

@@ -105,23 +105,6 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
         alignment: Alignment.center,
         margin: const EdgeInsets.all(15),
         width: 320,
-        // child: Column(
-        //     children: [
-        //       Image.asset('assets/catcul_w.jpg', width: 128, height: 128,),
-        //       Text('우리를 위한 축제 필수템!', style: TextStyle(fontSize: 18, color: Colors.pinkAccent),),
-        //       Text('좋은 앱 이름 추천 받아요... \n아이디어 있으면 연락주세요 (제발)'),
-        //       Text('\n부스 판매하기, 부스 추가 구현 완료')
-        //     ]
-        // )
-            // margin: const EdgeInsets.all(15),
-            // width: 320,
-            // height: 197,
-            // decoration: ShapeDecoration(
-            //   shape: RoundedRectangleBorder(
-            //     side: BorderSide(width: 1, color: Color(0xFFD1D1D1)),
-            //     borderRadius: BorderRadius.circular(12)
-            //   )
-            // ),
             child: Column(
               children: [
                 Container(

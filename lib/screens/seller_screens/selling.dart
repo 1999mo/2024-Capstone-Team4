@@ -207,6 +207,8 @@ class _SellingState extends State<Selling> {
             ),
           ),
 
+          const SizedBox(height: 8),
+
           // 검색 필드
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -221,18 +223,24 @@ class _SellingState extends State<Selling> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
+                suffixIcon: IconButton(
+                  icon: Icon(Icons.search), // 돋보기 아이콘
+                  onPressed: () {},
+                ),
               ),
             ),
           ),
 
-          const SizedBox(height: 8),
+          const SizedBox(height: 30),
 
           // 드롭다운 버튼과 편집 버튼
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 DropdownButton<String>(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
                   value: selectedPainter,
                   onChanged: (value) {
                     setState(() {
@@ -244,14 +252,23 @@ class _SellingState extends State<Selling> {
                       value: painter, child: Text(painter)))
                       .toList(),
                 ),
-                const SizedBox(width: 8),
+
                 TextButton(
                   onPressed: () {
                     Navigator.pushNamed(
                         context, '/seller_screens/edit_selling_items',
                         arguments: boothId);
                   },
-                  child: const Text('상품편집'),
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    backgroundColor: const Color(0xFF434355),
+                  ),
+                  child: const Text(
+                      '상품편집',
+                    style: TextStyle(
+                        color: Colors.white
+                    ),
+                  ),
                 ),
               ],
             ),

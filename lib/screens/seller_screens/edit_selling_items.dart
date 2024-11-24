@@ -97,54 +97,119 @@ class _EditSellingItemsState extends State<EditSellingItems> {
                     },
                   ),
                 ),
-                const SizedBox(height: 16),
-                Text('상품명: ${itemData['itemName'] ?? ''}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                Text('작가정보: ${itemData['artist'] ?? ''}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 16),
-                Text('원가: ${itemData['costPrice'] ?? ''}'),
-                Text('판매가: ${itemData['sellingPrice'] ?? ''}'),
-                Text('재고수: ${itemData['stockQuantity'] ?? ''}'),
-                Text('상품종류: ${itemData['itemType'] ?? ''}'),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
+                Container(
+                  padding: EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('상품명: ${itemData['itemName'] ?? ''}',
+                                  style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold)),
+                              Text('작가정보: ${itemData['artist'] ?? ''}',
+                                  style: const TextStyle(fontSize: 16)),
+                            ],
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text('재고수: ${itemData['stockQuantity'] ?? ''}',
+                                  style: const TextStyle(fontSize: 12)),
+                              Text('상품종류: ${itemData['itemType'] ?? ''}',
+                                  style: const TextStyle(
+                                      fontSize: 12, color: Colors.grey)),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('원가: ${itemData['costPrice'] ?? ''}',
+                              style: const TextStyle(
+                                  fontSize: 14, color: Colors.grey)),
+                          Text('판매가: ${itemData['sellingPrice'] ?? ''}',
+                              style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFFFF5353))),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text('상품 삭제'),
-                              content: const Text('정말 삭제하시겠습니까?'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context); // 팝업 닫기
-                                  },
-                                  child: const Text('취소'),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    _deleteItem(itemId);
-                                    Navigator.pop(context); // 삭제 확인 팝업 닫기
-                                    Navigator.pop(context); // 상세보기 팝업 닫기
-                                  },
-                                  child: const Text('삭제'),
-                                ),
-                              ],
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFD1D1D1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: TextButton(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('상품 삭제'),
+                                  content: const Text('정말 삭제하시겠습니까?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context); // 팝업 닫기
+                                      },
+                                      child: const Text('취소'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        _deleteItem(itemId);
+                                        Navigator.pop(context); // 삭제 확인 팝업 닫기
+                                        Navigator.pop(context); // 상세보기 팝업 닫기
+                                      },
+                                      child: const Text('삭제'),
+                                    ),
+                                  ],
+                                );
+                              },
                             );
                           },
-                        );
-                      },
-                      child: const Text('삭제'),
+                          child: const Text('삭제',
+                              style:
+                                  TextStyle(fontSize: 14, color: Colors.black)),
+                        ),
+                      ),
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        Navigator.pushNamed(context, '/seller_screens/edit_item', arguments: [boothId, itemId]);
-                      },
-                      child: const Text('수정'),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFDBE85),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            Navigator.pushNamed(
+                                context, '/seller_screens/edit_item',
+                                arguments: [boothId, itemId]);
+                          },
+                          child: const Text('수정',
+                              style:
+                                  TextStyle(fontSize: 14, color: Colors.black)),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -181,7 +246,7 @@ class _EditSellingItemsState extends State<EditSellingItems> {
                 ),
                 suffixIcon: IconButton(
                   icon: Icon(Icons.search), // 돋보기
-                  onPressed: () {},//돋보기 버튼 눌렀을 때 동작
+                  onPressed: () {},
                 ),
               ),
             ),
@@ -197,6 +262,7 @@ class _EditSellingItemsState extends State<EditSellingItems> {
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 DropdownButton<String>(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
                   value: selectedPainter,
                   onChanged: (value) {
                     setState(() {
@@ -204,8 +270,8 @@ class _EditSellingItemsState extends State<EditSellingItems> {
                     });
                   },
                   items: painters
-                      .map((painter) =>
-                      DropdownMenuItem(value: painter, child: Text(painter)))
+                      .map((painter) => DropdownMenuItem(
+                          value: painter, child: Text(painter)))
                       .toList(),
                 ),
               ],
@@ -229,15 +295,13 @@ class _EditSellingItemsState extends State<EditSellingItems> {
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                   return const Center(child: Text('등록된 상품이 없습니다.'));
                 }
-                final items = snapshot.data!.docs
-                    .where((doc) {
+                final items = snapshot.data!.docs.where((doc) {
                   final docData = doc.data() as Map<String, dynamic>;
                   final itemName = docData['itemName']?.toLowerCase() ?? '';
                   return (selectedPainter == '작가 전체' ||
-                      (docData['artist'] ?? '') == selectedPainter) &&
+                          (docData['artist'] ?? '') == selectedPainter) &&
                       itemName.contains(searchKeyword.toLowerCase());
-                })
-                    .toList();
+                }).toList();
 
                 if (items.isEmpty) {
                   return const Center(child: Text('검색 결과가 없습니다.'));
@@ -252,7 +316,7 @@ class _EditSellingItemsState extends State<EditSellingItems> {
                   itemCount: items.length,
                   itemBuilder: (context, index) {
                     final itemData =
-                    items[index].data() as Map<String, dynamic>;
+                        items[index].data() as Map<String, dynamic>;
                     final itemId = items[index].id;
 
                     return GestureDetector(

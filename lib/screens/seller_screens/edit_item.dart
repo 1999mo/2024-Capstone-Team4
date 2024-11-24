@@ -85,8 +85,7 @@ class _EditItemState extends State<EditItem> {
       if (itemData != null) {
         setState(() {
           itemNameController.text = itemData['itemName'] ?? '';
-          costPriceController.text =
-              itemData['costPrice']?.toString() ?? '';
+          costPriceController.text = itemData['costPrice']?.toString() ?? '';
           sellingPriceController.text =
               itemData['sellingPrice']?.toString() ?? '';
           stockQuantityController.text =
@@ -144,8 +143,10 @@ class _EditItemState extends State<EditItem> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('상품 정보가 성공적으로 수정되었습니다.'), duration: Duration(seconds: 1),),
-
+      const SnackBar(
+        content: Text('상품 정보가 성공적으로 수정되었습니다.'),
+        duration: Duration(seconds: 1),
+      ),
     );
 
     Navigator.pop(context);
@@ -164,7 +165,9 @@ class _EditItemState extends State<EditItem> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('상품명', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const Text('상품명',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: itemNameController,
                 decoration: const InputDecoration(
@@ -178,12 +181,15 @@ class _EditItemState extends State<EditItem> {
                 },
               ),
               const SizedBox(height: 16),
-              const Text('작가 선택', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const Text('작가 선택',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
               DropdownButtonFormField<String>(
+                decoration: InputDecoration(border: OutlineInputBorder()),
                 value: selectedPainter,
                 items: painters
                     .map((painter) =>
-                    DropdownMenuItem(value: painter, child: Text(painter)))
+                        DropdownMenuItem(value: painter, child: Text(painter)))
                     .toList(),
                 onChanged: (value) {
                   setState(() {
@@ -198,7 +204,9 @@ class _EditItemState extends State<EditItem> {
                 },
               ),
               const SizedBox(height: 16),
-              const Text('원가', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const Text('원가',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: costPriceController,
                 decoration: const InputDecoration(
@@ -216,7 +224,9 @@ class _EditItemState extends State<EditItem> {
                 },
               ),
               const SizedBox(height: 16),
-              const Text('판매가', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const Text('판매가',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: sellingPriceController,
                 decoration: const InputDecoration(
@@ -234,7 +244,8 @@ class _EditItemState extends State<EditItem> {
                 },
               ),
               const SizedBox(height: 16),
-              const Text('재고 수량', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const Text('재고 수량',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               TextFormField(
                 controller: stockQuantityController,
                 decoration: const InputDecoration(
@@ -252,7 +263,9 @@ class _EditItemState extends State<EditItem> {
                 },
               ),
               const SizedBox(height: 16),
-              const Text('상품 종류', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const Text('상품 종류',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: itemTypeController,
                 decoration: const InputDecoration(
@@ -266,7 +279,8 @@ class _EditItemState extends State<EditItem> {
                 },
               ),
               const SizedBox(height: 16),
-              const Text('이미지 미리보기', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const Text('이미지 미리보기',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               if (imageFile != null)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -284,33 +298,70 @@ class _EditItemState extends State<EditItem> {
                 ),
               TextButton(
                 onPressed: () async {
-                  final pickedFile =
-                  await ImagePicker().pickImage(source: ImageSource.gallery);
+                  final pickedFile = await ImagePicker()
+                      .pickImage(source: ImageSource.gallery);
                   if (pickedFile != null) {
                     setState(() {
                       imageFile = File(pickedFile.path);
                     });
                   }
                 },
-                child: const Text('이미지 선택'),
+                style: TextButton.styleFrom(
+                  side: BorderSide(color: Colors.grey), // 아웃라인 추가
+                  minimumSize: Size(320, 56), // 너비와 높이 설정
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: Center(
+                  child: const Text(
+                    '사진 업로드 +',
+                    style: TextStyle(
+                      color: Colors.black, // 텍스트 색상 검은색
+                    ),
+                  ),
+                ),
               ),
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text('수정 취소'),
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFD1D1D1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text('수정 취소',
+                            style:
+                                TextStyle(fontSize: 14, color: Colors.black)),
+                      ),
+                    ),
                   ),
-                  TextButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        _updateItem();
-                      }
-                    },
-                    child: const Text('수정 완료'),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFDBE85),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: TextButton(
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            _updateItem();
+                          }
+                        },
+                        child: const Text('수정 완료',
+                            style:
+                                TextStyle(fontSize: 14, color: Colors.black)),
+                      ),
+                    ),
                   ),
                 ],
               ),
