@@ -68,13 +68,24 @@ class _SellingState extends State<Selling> {
         duration: const Duration(days: 365), // 무한 지속
         backgroundColor: const Color(0xFFFDBE85), // 배경색 설정
         content: GestureDetector(
-          onTap: () {
+          onTap: () async {
+            snackBarController?.close();
+            snackBarController = null; // 스낵바 상태 초기화
             // 클릭 시 '/seller_screens/selling_details'로 이동
-            Navigator.pushNamed(
+            await Navigator.pushNamed(
               context,
               '/seller_screens/selling_details',
-              arguments: soldItems,
+              arguments: {
+                'boothId': boothId,
+                'soldItems': soldItems,
+              },
             );
+
+            setState(() {
+              totalPrice = 0;
+              totalSoldItems = 0;
+              soldItems.clear();
+            });
           },
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -121,11 +132,9 @@ class _SellingState extends State<Selling> {
   void _onItemCardClicked(Map<String, dynamic> itemData, String itemId) {
     setState(() {
       final sellingPrice = itemData['sellingPrice'] ?? 0;
-
       // 상품별 판매 개수 및 총 가격 증가
       soldItems[itemId] = (soldItems[itemId] ?? 0) + 1;
       totalPrice += sellingPrice;
-
       // 총 상품 수 증가
       totalSoldItems = soldItems.values.reduce((sum, count) => sum + count);
     });
@@ -133,7 +142,6 @@ class _SellingState extends State<Selling> {
     // 스낵바를 업데이트처럼 보이게 처리
     _showSnackBar();
   }
-
 
   @override
   Widget build(BuildContext context) {
