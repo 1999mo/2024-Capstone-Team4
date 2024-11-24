@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import 'package:catculator/screens/seller_screens/calculator.dart';
 
 class SellingDetails extends StatefulWidget {
   const SellingDetails({super.key});
@@ -11,36 +12,70 @@ class SellingDetails extends StatefulWidget {
 }
 
 class _SellingDetailsState extends State<SellingDetails> {
-  Map<String, Map<String, dynamic>> soldItems = {}; // 판매된 상품 정보
-  int totalAmount = 0; // 총 가격
+  Map<String, int> soldItems = {};
+  Map<String, Map<String, dynamic>> itemDetails = {};
+  int totalAmount = 0;
+  String? boothId;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    // 넘겨받은 판매 정보
     final arguments =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ??
             {};
-    soldItems = arguments.map((key, value) => MapEntry(key, {...value}));
-    _calculateTotalAmount();
+    boothId = arguments['boothId'] as String? ?? 'Unknown';
+    if (soldItems.isEmpty) {
+      soldItems = Map<String, int>.from(arguments['soldItems'] ?? {});
+      _fetchItemDetails();
+    }
   }
 
-  // 총 가격 계산
+  Future<void> _fetchItemDetails() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+
+    if (uid == null) return;
+    final boothRef = FirebaseFirestore.instance
+        .collection('Users')
+        .doc(uid)
+        .collection('booths')
+        .doc(boothId);
+
+    Map<String, Map<String, dynamic>> details = {};
+    int total = 0;
+
+    for (String itemId in soldItems.keys) {
+      final doc = await boothRef.collection('items').doc(itemId).get();
+      if (doc.exists) {
+        final data = doc.data()!;
+        final quantity = soldItems[itemId]!;
+        final price = data['sellingPrice'] ?? 0;
+
+        details[itemId] = {
+          'itemName': data['itemName'] ?? '알 수 없음',
+          'sellingPrice': price,
+          'stockQuantity': data['stockQuantity'] ?? 0,
+          'quantity': quantity,
+          'painter': data['painter'] ?? 'Unknown', // 작가 이름 추가
+        };
+
+        total += (price as int) * quantity;
+      }
+    }
+
+    setState(() {
+      itemDetails = details;
+      totalAmount = total;
+    });
+  }
+
   void _calculateTotalAmount() {
-    totalAmount = soldItems.entries.fold(
+    totalAmount = itemDetails.values.fold(
       0,
-      (sum, entry) {
-        final price = entry.value['sellingPrice'] as int? ?? 0;
-        final quantity = entry.value['quantity'] as int? ?? 0;
-        return sum + (price * quantity);
-      },
+      (sum, item) =>
+          sum + (item['sellingPrice'] as int) * (item['quantity'] as int),
     );
     setState(() {});
-  }
-
-  void _showPaymentSheet() {
-    PaymentSheet.show(context, totalAmount, soldItems);
   }
 
   @override
@@ -54,7 +89,6 @@ class _SellingDetailsState extends State<SellingDetails> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 주문 목록 컨테이너
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
@@ -65,7 +99,8 @@ class _SellingDetailsState extends State<SellingDetails> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
                       child: Align(
                         alignment: Alignment.center,
                         child: Text(
@@ -86,20 +121,17 @@ class _SellingDetailsState extends State<SellingDetails> {
                       endIndent: 20, // 오른쪽 여백
                     ),
 
-
-                    // 스크롤 가능한 상품 리스트
                     Expanded(
                       child: SingleChildScrollView(
                         child: Column(
-                          children: soldItems.entries.map((entry) {
-                            final productName =
-                                entry.value['itemName'] ?? '알 수 없음';
+                          children: itemDetails.entries.map((entry) {
+                            final item = entry.value;
+                            final productName = item['itemName'] ?? '알 수 없음';
                             final sellingPrice =
-                                entry.value['sellingPrice'] as int? ?? 0;
-                            final quantity =
-                                entry.value['quantity'] as int? ?? 0;
+                                item['sellingPrice'] as int? ?? 0;
+                            final quantity = item['quantity'] as int? ?? 0;
                             final stockQuantity =
-                                entry.value['stockQuantity'] as int? ?? 0;
+                                item['stockQuantity'] as int? ?? 0;
 
                             return Padding(
                               padding: const EdgeInsets.symmetric(
@@ -123,10 +155,32 @@ class _SellingDetailsState extends State<SellingDetails> {
                                         onPressed: () {
                                           if (quantity < stockQuantity) {
                                             setState(() {
-                                              soldItems[entry.key]![
-                                                  'quantity'] = quantity + 1;
+                                              item['quantity'] = quantity + 1;
+                                              soldItems[entry.key] =
+                                                  item['quantity']!;
                                             });
                                             _calculateTotalAmount();
+                                          } else {
+                                            // 재고 초과 팝업
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                  title: const Text('재고 초과'),
+                                                  content:
+                                                      const Text('재고가 모자랍니다'),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        Navigator.pop(
+                                                            context); // 팝업 닫기
+                                                      },
+                                                      child: const Text('확인'),
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            );
                                           }
                                         },
                                       ),
@@ -137,8 +191,9 @@ class _SellingDetailsState extends State<SellingDetails> {
                                         onPressed: () {
                                           if (quantity > 0) {
                                             setState(() {
-                                              soldItems[entry.key]![
-                                                  'quantity'] = quantity - 1;
+                                              item['quantity'] = quantity - 1;
+                                              soldItems[entry.key] =
+                                                  item['quantity']!;
                                             });
                                             _calculateTotalAmount();
                                           }
@@ -162,38 +217,38 @@ class _SellingDetailsState extends State<SellingDetails> {
                       endIndent: 20, // 오른쪽 여백
                     ),
 
-                    // 총 가격
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8.0, vertical: 16.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Padding(
-                            padding: const EdgeInsets.only(left: 16.0), // '총 가격' 텍스트에 오른쪽 여백 추가
+                            padding:
+                                const EdgeInsets.only(left: 16.0), // 오른쪽 여백 추가
                             child: const Text(
                               '총 가격',
-                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(right: 16.0), // '0원' 텍스트에 왼쪽 여백 추가
+                            padding:
+                                const EdgeInsets.only(right: 16.0), // 왼쪽 여백 추가
                             child: Text(
                               '${NumberFormat('#,###').format(totalAmount)}원',
-                              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
                             ),
                           ),
                         ],
                       ),
                     ),
-
                   ],
                 ),
               ),
             ),
-
             const SizedBox(height: 16),
-
-            // 뒤로가기 & 결제하기 버튼
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -214,9 +269,11 @@ class _SellingDetailsState extends State<SellingDetails> {
                     ),
                   ),
                 ),
+
                 SizedBox(
                   width: 10,
                 ),
+
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
@@ -224,7 +281,24 @@ class _SellingDetailsState extends State<SellingDetails> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: TextButton(
-                      onPressed: _showPaymentSheet,
+                      onPressed: () async {
+                        final result = await showCalculatorBottomSheet(
+                          context: context,
+                          soldItems: soldItems,
+                          itemDetails: itemDetails,
+                          totalAmount: totalAmount,
+                          boothId: boothId!,
+                        );
+
+                        // 결과를 받아 상태를 갱신
+                        if (result != null) {
+                          setState(() {
+                            soldItems = result['soldItems'] ?? soldItems;
+                            itemDetails = result['itemDetails'] ?? itemDetails;
+                            totalAmount = result['totalAmount'] ?? totalAmount;
+                          });
+                        }
+                      },
                       child: const Text(
                         '결제하기',
                         style: TextStyle(fontSize: 14, color: Colors.black),
@@ -237,154 +311,6 @@ class _SellingDetailsState extends State<SellingDetails> {
           ],
         ),
       ),
-    );
-  }
-}
-
-// 결제 시트
-class PaymentSheet {
-  static void show(BuildContext context, int totalAmount,
-      Map<String, Map<String, dynamic>> soldItems) {
-    final numberFormat = NumberFormat('#,###');
-    int receivedAmount = 0;
-
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            final next5000 = ((totalAmount / 5000).ceil()) * 5000;
-            final next10000 = ((totalAmount / 10000).ceil()) * 10000;
-            final change = (receivedAmount - totalAmount)
-                .clamp(0, double.infinity)
-                .toInt();
-
-            return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // 받은 금액
-                  Text(
-                    '받은 금액 ${numberFormat.format(receivedAmount)}원',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: receivedAmount < totalAmount
-                          ? Colors.red
-                          : Colors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '결제해야할 금액 ${numberFormat.format(totalAmount)}원 / 거스름 돈: ${numberFormat.format(change)}원',
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-                  const SizedBox(height: 16),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            receivedAmount += totalAmount;
-                          });
-                        },
-                        child: Text(numberFormat.format(totalAmount)),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            receivedAmount += next5000;
-                          });
-                        },
-                        child: Text(numberFormat.format(next5000)),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            receivedAmount += next10000;
-                          });
-                        },
-                        child: Text(numberFormat.format(next10000)),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  GridView.count(
-                    crossAxisCount: 3,
-                    shrinkWrap: true,
-                    children: [
-                      ...List.generate(9, (index) {
-                        final number = (index + 1).toString();
-                        return TextButton(
-                          onPressed: () {
-                            setState(() {
-                              receivedAmount =
-                                  int.parse('$receivedAmount$number');
-                            });
-                          },
-                          child: Text(number,
-                              style: const TextStyle(fontSize: 24)),
-                        );
-                      }),
-                      TextButton(
-                        onPressed: () {
-                          setState(() {
-                            receivedAmount = 0;
-                          });
-                        },
-                        child: const Text('C', style: TextStyle(fontSize: 24)),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          setState(() {
-                            receivedAmount = int.parse('${receivedAmount}0');
-                          });
-                        },
-                        child: const Text('0', style: TextStyle(fontSize: 24)),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          setState(() {
-                            if (receivedAmount > 0) {
-                              receivedAmount ~/= 10;
-                            }
-                          });
-                        },
-                        child: const Text('<=', style: TextStyle(fontSize: 24)),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child:
-                            const Text('뒤로가기', style: TextStyle(fontSize: 16)),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          // 결제 완료 로직 추가
-                        },
-                        child:
-                            const Text('결제하기', style: TextStyle(fontSize: 16)),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
     );
   }
 }
