@@ -75,13 +75,25 @@ class _MyBoothState extends State<MyBooth> {
           const SizedBox(height: 20), // 리스트와 버튼 사이 간격
 
           // "부스 새로 추가하기" 버튼
+
           Container(
+            width: 320,
+            height: 48,
+            decoration: ShapeDecoration(
+              color: const Color(0xFFFDBE85),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
             margin: const EdgeInsets.all(15),
             child: TextButton(
               onPressed: () {
                 Navigator.pushNamed(context, '/seller_screens/add_booth');
               },
-              child: const Text('부스 새로 추가하기'),
+              child: const Text(
+                  '부스 새로 추가하기',
+                style: TextStyle(
+                    fontSize: 14, color: Colors.black
+                ),
+              ),
             ),
           ),
         ],

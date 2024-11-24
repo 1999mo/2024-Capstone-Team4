@@ -179,6 +179,10 @@ class _EditSellingItemsState extends State<EditSellingItems> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
+                suffixIcon: IconButton(
+                  icon: Icon(Icons.search), // 돋보기
+                  onPressed: () {},//돋보기 버튼 눌렀을 때 동작
+                ),
               ),
             ),
           ),

@@ -22,7 +22,8 @@ class _SellingDetailsState extends State<SellingDetails> {
     super.didChangeDependencies();
 
     final arguments =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ?? {};
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ??
+            {};
     boothId = arguments['boothId'] as String? ?? 'Unknown';
     if (soldItems.isEmpty) {
       soldItems = Map<String, int>.from(arguments['soldItems'] ?? {});
@@ -71,8 +72,8 @@ class _SellingDetailsState extends State<SellingDetails> {
   void _calculateTotalAmount() {
     totalAmount = itemDetails.values.fold(
       0,
-          (sum, item) =>
-      sum + (item['sellingPrice'] as int) * (item['quantity'] as int),
+      (sum, item) =>
+          sum + (item['sellingPrice'] as int) * (item['quantity'] as int),
     );
     setState(() {});
   }
@@ -98,14 +99,28 @@ class _SellingDetailsState extends State<SellingDetails> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text(
-                        '주문 목록',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          '주문 목록',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
-                    const Divider(color: Colors.grey),
+
+                    //회색 구분선
+                    const Divider(
+                      color: Colors.grey,
+                      thickness: 1, // 두께
+                      indent: 20, // 왼쪽 여백
+                      endIndent: 20, // 오른쪽 여백
+                    ),
+
                     Expanded(
                       child: SingleChildScrollView(
                         child: Column(
@@ -123,7 +138,7 @@ class _SellingDetailsState extends State<SellingDetails> {
                                   horizontal: 8.0, vertical: 4.0),
                               child: Row(
                                 mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     productName,
@@ -142,7 +157,7 @@ class _SellingDetailsState extends State<SellingDetails> {
                                             setState(() {
                                               item['quantity'] = quantity + 1;
                                               soldItems[entry.key] =
-                                              item['quantity']!;
+                                                  item['quantity']!;
                                             });
                                             _calculateTotalAmount();
                                           } else {
@@ -152,16 +167,15 @@ class _SellingDetailsState extends State<SellingDetails> {
                                               builder: (BuildContext context) {
                                                 return AlertDialog(
                                                   title: const Text('재고 초과'),
-                                                  content: const Text(
-                                                      '재고가 모자랍니다'),
+                                                  content:
+                                                      const Text('재고가 모자랍니다'),
                                                   actions: [
                                                     TextButton(
                                                       onPressed: () {
                                                         Navigator.pop(
                                                             context); // 팝업 닫기
                                                       },
-                                                      child:
-                                                      const Text('확인'),
+                                                      child: const Text('확인'),
                                                     ),
                                                   ],
                                                 );
@@ -179,7 +193,7 @@ class _SellingDetailsState extends State<SellingDetails> {
                                             setState(() {
                                               item['quantity'] = quantity - 1;
                                               soldItems[entry.key] =
-                                              item['quantity']!;
+                                                  item['quantity']!;
                                             });
                                             _calculateTotalAmount();
                                           }
@@ -194,21 +208,38 @@ class _SellingDetailsState extends State<SellingDetails> {
                         ),
                       ),
                     ),
-                    const Divider(color: Colors.grey),
+
+                    // 회색 구분선
+                    const Divider(
+                      color: Colors.grey,
+                      thickness: 1, // 두께
+                      indent: 20, // 왼쪽 여백
+                      endIndent: 20, // 오른쪽 여백
+                    ),
+
                     Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8.0, vertical: 16.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            '총 가격',
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(left: 16.0), // 오른쪽 여백 추가
+                            child: const Text(
+                              '총 가격',
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
                           ),
-                          Text(
-                            '${NumberFormat('#,###').format(totalAmount)}원',
-                            style: const TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(right: 16.0), // 왼쪽 여백 추가
+                            child: Text(
+                              '${NumberFormat('#,###').format(totalAmount)}원',
+                              style: const TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
                           ),
                         ],
                       ),
@@ -221,37 +252,58 @@ class _SellingDetailsState extends State<SellingDetails> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text(
-                    '뒤로가기',
-                    style: TextStyle(fontSize: 16),
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFD1D1D1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.pop(context); // 뒤로가기
+                      },
+                      child: const Text(
+                        '뒤로가기',
+                        style: TextStyle(fontSize: 14, color: Colors.black),
+                      ),
+                    ),
                   ),
                 ),
-                TextButton(
-                  onPressed: () async {
-                    final result = await showCalculatorBottomSheet(
-                      context: context,
-                      soldItems: soldItems,
-                      itemDetails: itemDetails,
-                      totalAmount: totalAmount,
-                      boothId: boothId!,
-                    );
 
-                    // 결과를 받아 상태를 갱신
-                    if (result != null) {
-                      setState(() {
-                        soldItems = result['soldItems'] ?? soldItems;
-                        itemDetails = result['itemDetails'] ?? itemDetails;
-                        totalAmount = result['totalAmount'] ?? totalAmount;
-                      });
-                    }
-                  },
-                  child: const Text(
-                    '결제하기',
-                    style: TextStyle(fontSize: 16),
+                SizedBox(
+                  width: 10,
+                ),
+
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFDBE85),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: TextButton(
+                      onPressed: () async {
+                        final result = await showCalculatorBottomSheet(
+                          context: context,
+                          soldItems: soldItems,
+                          itemDetails: itemDetails,
+                          totalAmount: totalAmount,
+                          boothId: boothId!,
+                        );
+
+                        // 결과를 받아 상태를 갱신
+                        if (result != null) {
+                          setState(() {
+                            soldItems = result['soldItems'] ?? soldItems;
+                            itemDetails = result['itemDetails'] ?? itemDetails;
+                            totalAmount = result['totalAmount'] ?? totalAmount;
+                          });
+                        }
+                      },
+                      child: const Text(
+                        '결제하기',
+                        style: TextStyle(fontSize: 14, color: Colors.black),
+                      ),
+                    ),
                   ),
                 ),
               ],

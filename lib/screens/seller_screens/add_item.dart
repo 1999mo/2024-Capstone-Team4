@@ -65,7 +65,8 @@ class _AddItemState extends State<AddItem> {
 
       // 사용자가 이미지를 선택하지 않았다면 기본 이미지 업로드
       if (imageFile == null) {
-        final byteData = await rootBundle.load('assets/catcul_w.jpg'); // Asset 이미지를 로드
+        final byteData =
+            await rootBundle.load('assets/catcul_w.jpg'); // Asset 이미지를 로드
         final tempDir = Directory.systemTemp;
         final tempFile = File('${tempDir.path}/catcul_w.jpg');
         await tempFile.writeAsBytes(byteData.buffer.asUint8List());
@@ -148,7 +149,10 @@ class _AddItemState extends State<AddItem> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('상품명', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const Text('상품명',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)
+              ),
+              const SizedBox(height: 8),
               TextFormField(
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
@@ -162,12 +166,16 @@ class _AddItemState extends State<AddItem> {
                 onSaved: (value) => itemName = value!.trim(),
               ),
               const SizedBox(height: 16),
-              const Text('작가 선택', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const Text('작가 선택',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)
+              ),
+              const SizedBox(height: 8),
               DropdownButtonFormField<String>(
+                decoration: InputDecoration(border: OutlineInputBorder()),
                 value: selectedPainter,
                 items: painters
                     .map((painter) =>
-                    DropdownMenuItem(value: painter, child: Text(painter)))
+                        DropdownMenuItem(value: painter, child: Text(painter)))
                     .toList(),
                 onChanged: (value) {
                   setState(() {
@@ -182,13 +190,13 @@ class _AddItemState extends State<AddItem> {
                 },
               ),
               const SizedBox(height: 16),
-              const Text('원가', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const Text('원가',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)
+              ),
+              const SizedBox(height: 8),
               TextFormField(
-
                 decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: '상품을 만드는데 들어간 비용'
-                ),
+                    border: OutlineInputBorder(), hintText: '상품을 만드는데 들어간 비용'),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -202,12 +210,13 @@ class _AddItemState extends State<AddItem> {
                 onSaved: (value) => costPrice = int.parse(value!),
               ),
               const SizedBox(height: 16),
-              const Text('판매가', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const Text('판매가',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)
+              ),
+              const SizedBox(height: 8),
               TextFormField(
                 decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: '실제로 판매할 가격'
-                ),
+                    border: OutlineInputBorder(), hintText: '실제로 판매할 가격'),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -221,12 +230,13 @@ class _AddItemState extends State<AddItem> {
                 onSaved: (value) => sellingPrice = int.parse(value!),
               ),
               const SizedBox(height: 16),
-              const Text('재고 수량', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const Text('재고 수량',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)
+              ),
+              const SizedBox(height: 8),
               TextFormField(
                 decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: '상품의 총 수량'
-                ),
+                    border: OutlineInputBorder(), hintText: '상품의 총 수량'),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -240,7 +250,10 @@ class _AddItemState extends State<AddItem> {
                 onSaved: (value) => stockQuantity = int.parse(value!),
               ),
               const SizedBox(height: 16),
-              const Text('상품 종류', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const Text('상품 종류',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)
+              ),
+              const SizedBox(height: 8),
               TextFormField(
                 decoration: const InputDecoration(
                   hintText: 'ex) 아크릴 키링, 포토 카드 등',
@@ -255,18 +268,35 @@ class _AddItemState extends State<AddItem> {
                 onSaved: (value) => itemType = value!.trim(),
               ),
               const SizedBox(height: 16),
-              const Text('이미지 업로드', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              //const Text('이미지 업로드',
+                //  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)
+              //),
+              const SizedBox(height: 8),
               TextButton(
                 onPressed: () async {
                   final pickedFile =
-                  await _picker.pickImage(source: ImageSource.gallery);
+                      await _picker.pickImage(source: ImageSource.gallery);
                   if (pickedFile != null) {
                     setState(() {
                       imageFile = File(pickedFile.path);
                     });
                   }
                 },
-                child: const Text('이미지 선택'),
+                style: TextButton.styleFrom(
+                  side: BorderSide(color: Colors.grey), // 아웃라인 추가
+                  minimumSize: Size(320, 56), // 너비와 높이 설정
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                  child: Center(
+                child: const Text(
+                    '사진 업로드 +',
+                  style: TextStyle(
+                    color: Colors.black, // 텍스트 색상 검은색
+                  ),
+                ),
+                  ),
               ),
               if (imageFile != null)
                 Padding(
@@ -282,20 +312,44 @@ class _AddItemState extends State<AddItem> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text('뒤로가기'),
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFD1D1D1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Text(
+                            '뒤로가기',
+                            style: TextStyle(fontSize: 14, color: Colors.black),
+                          )),
+                    ),
                   ),
-                  TextButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        _formKey.currentState!.save();
-                        _addItem();
-                      }
-                    },
-                    child: const Text('확인'),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFDBE85),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: TextButton(
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            _formKey.currentState!.save();
+                            _addItem();
+                          }
+                        },
+                        child: const Text(
+                            '확인',
+                          style: TextStyle(fontSize: 14, color: Colors.black),
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),

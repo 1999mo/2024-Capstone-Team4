@@ -215,17 +215,20 @@ class _MakeProfileState extends State<MakeProfile> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Checkbox(
-                        value: isSeller,
-                        onChanged: (value) {
-                          setState(() {
-                            isSeller = value ?? false;
-                          });
-                        },
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(100),
+                      Transform.scale(
+                        scale: 1.2, // 체크박스 크기 조정
+                        child: Checkbox(
+                          value: isSeller,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(100), // 체크박스 모양을 둥글게
+                          ),
+                          activeColor: Color(0xFF525252), // 체크박스 활성 색상
+                          onChanged: (value) {
+                            setState(() {
+                              isSeller = value ?? false;
+                            });
+                          },
                         ),
-                        activeColor: Color(0xFF525252)
                       ),
                       const Text(
                         '판매자 여부',
@@ -245,7 +248,7 @@ class _MakeProfileState extends State<MakeProfile> {
             height: 48,
             padding: const EdgeInsets.symmetric(horizontal: 16),
             decoration: ShapeDecoration(
-              color: Color(0xFFFDBE85),
+              color: const Color(0xFFFDBE85),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             child: TextButton(
@@ -253,7 +256,7 @@ class _MakeProfileState extends State<MakeProfile> {
               child: const Text(
                 '완료',
                 style: TextStyle(
-                  fontWeight: FontWeight.w400,
+                    fontSize: 14, color: Colors.black
                 ),
               ),
             ),

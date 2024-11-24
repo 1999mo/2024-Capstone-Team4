@@ -155,30 +155,55 @@ class _SellingState extends State<Selling> {
           // 정산하기 & 사전구매 버튼
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(
-                          context, '/seller_screens/adjustment', arguments: boothId);
-                    },
-                    child: const Text('정산하기'),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Color(0xFFF7F8FF), // 배경색 설정
+                border: Border.all(color: Colors.grey), // 전체 아웃라인 추가
+                borderRadius: BorderRadius.circular(8), // 둥근 모서리 설정
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center, // 수직 정렬 중앙으로
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/seller_screens/adjustment', arguments: boothId);
+                      },
+                      child: const Text(
+                        '정산하기',
+                        style: TextStyle(
+                          color: Color(0xFFE84141),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                const VerticalDivider(
-                    width: 1, thickness: 1, color: Colors.grey),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/seller_screens/pre_buy');
-                    },
-                    child: const Text('사전구매'),
+                  SizedBox(
+                    height: 33, // VerticalDivider의 높이 설정
+                    child: const VerticalDivider(
+                      width: 1,
+                      thickness: 1, // 두께
+                      color: Colors.grey, // 경계선 색상
+                    ),
                   ),
-                ),
-              ],
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () {
+                        // 사전구매 로직
+                      },
+                      child: const Text(
+                        '사전구매',
+                        style: TextStyle(
+                          color: Color(0xFFE68C32),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
 
