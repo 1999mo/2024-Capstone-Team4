@@ -48,6 +48,7 @@ class MyApp extends StatelessWidget {
         '/seller_screens/add_item':(context)=>const AddItem(),
         '/seller_screens/edit_item':(context)=>const EditItem(),
         '/seller_screens/adjustment':(context)=>const Adjustment(),
+        '/seller_screens/adjustment_detail':(context)=>const AdjustmentDetail(),
         '/seller_screens/pre_buy':(context)=>const PreBuy(),
 
       },

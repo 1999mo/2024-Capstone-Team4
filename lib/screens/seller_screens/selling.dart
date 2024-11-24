@@ -161,7 +161,7 @@ class _SellingState extends State<Selling> {
                   child: TextButton(
                     onPressed: () {
                       Navigator.pushNamed(
-                          context, '/seller_screens/adjustment');
+                          context, '/seller_screens/adjustment', arguments: boothId);
                     },
                     child: const Text('정산하기'),
                   ),
@@ -173,7 +173,7 @@ class _SellingState extends State<Selling> {
                 Expanded(
                   child: TextButton(
                     onPressed: () {
-                      // 사전구매 로직
+                      Navigator.pushNamed(context, '/seller_screens/pre_buy');
                     },
                     child: const Text('사전구매'),
                   ),

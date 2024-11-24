@@ -91,6 +91,7 @@ class _AddItemState extends State<AddItem> {
   }
 
   Future<void> _addItem() async {
+
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null || boothId == null) return;
 
@@ -116,7 +117,6 @@ class _AddItemState extends State<AddItem> {
       );
       return;
     }
-
     await itemsRef.doc(itemName).set({
       'itemName': itemName,
       'artist': selectedPainter,
@@ -127,11 +127,12 @@ class _AddItemState extends State<AddItem> {
       'imagePath': imageUrl,
     });
 
+    Navigator.pop(context);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('상품이 성공적으로 추가되었습니다.')),
     );
 
-    Navigator.pop(context);
+
   }
 
   @override
