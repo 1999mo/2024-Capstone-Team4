@@ -28,11 +28,7 @@ class _EditSellingItemsState extends State<EditSellingItems> {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null || boothId == null) return;
 
-    final boothRef = FirebaseFirestore.instance
-        .collection('Users')
-        .doc(uid)
-        .collection('booths')
-        .doc(boothId);
+    final boothRef = FirebaseFirestore.instance.collection('Users').doc(uid).collection('booths').doc(boothId);
 
     final boothDoc = await boothRef.get();
     if (boothDoc.exists) {
@@ -74,6 +70,36 @@ class _EditSellingItemsState extends State<EditSellingItems> {
     }
   }
 
+  void _showDeleteConfirmation(String itemId, String? imagePath) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('상품 삭제'),
+          content: const Text('정말 이 상품을 삭제하시겠습니까? 삭제하면 되돌릴 수 없습니다.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // 팝업 닫기
+              },
+              child: const Text('취소'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.popUntil(
+                  context,
+                  ModalRoute.withName('/seller_screens/edit_selling_items'),
+                );
+                _deleteItem(itemId, imagePath); // 실제 삭제 함수 호출
+              },
+              child: const Text('삭제'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _showItemDetails(Map<String, dynamic> itemData, String itemId) {
     showDialog(
       context: context,
@@ -97,42 +123,37 @@ class _EditSellingItemsState extends State<EditSellingItems> {
                 Center(
                   child: itemData['imagePath']?.isNotEmpty == true
                       ? Image.network(
-                    itemData['imagePath'],
-                    fit: BoxFit.cover,
-                    height: 150,
-                    width: 150,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Image.asset(
-                        'assets/catcul_w.jpg',
-                        fit: BoxFit.cover,
-                        height: 150,
-                        width: 150,
-                      );
-                    },
-                  )
+                          itemData['imagePath'],
+                          fit: BoxFit.cover,
+                          height: 150,
+                          width: 150,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Image.asset(
+                              'assets/catcul_w.jpg',
+                              fit: BoxFit.cover,
+                              height: 150,
+                              width: 150,
+                            );
+                          },
+                        )
                       : Image.asset(
-                    'assets/catcul_w.jpg',
-                    fit: BoxFit.cover,
-                    height: 150,
-                    width: 150,
-                  ),
+                          'assets/catcul_w.jpg',
+                          fit: BoxFit.cover,
+                          height: 150,
+                          width: 150,
+                        ),
                 ),
                 const SizedBox(height: 8),
                 Text('상품명: ${itemData['itemName'] ?? ''}',
                     style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                Text('작가정보: ${itemData['artist'] ?? ''}',
-                    style: const TextStyle(fontSize: 16)),
+                Text('작가정보: ${itemData['artist'] ?? ''}', style: const TextStyle(fontSize: 16)),
                 const SizedBox(height: 16),
-                Text('재고수: ${itemData['stockQuantity'] ?? ''}',
-                    style: const TextStyle(fontSize: 14)),
-                Text('상품종류: ${itemData['itemType'] ?? ''}',
-                    style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                Text('재고수: ${itemData['stockQuantity'] ?? ''}', style: const TextStyle(fontSize: 14)),
+                Text('상품종류: ${itemData['itemType'] ?? ''}', style: const TextStyle(fontSize: 14, color: Colors.grey)),
                 const SizedBox(height: 16),
-                Text('원가: ${itemData['costPrice'] ?? ''}',
-                    style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                Text('원가: ${itemData['costPrice'] ?? ''}', style: const TextStyle(fontSize: 14, color: Colors.grey)),
                 Text('판매가: ${itemData['sellingPrice'] ?? ''}',
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFFF5353))),
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFFF5353))),
                 const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -145,11 +166,9 @@ class _EditSellingItemsState extends State<EditSellingItems> {
                         ),
                         child: TextButton(
                           onPressed: () {
-                            Navigator.pop(context);
-                            _deleteItem(itemId, itemData['imagePath']);
+                            _showDeleteConfirmation(itemId, itemData['imagePath']);
                           },
-                          child: const Text('삭제',
-                              style: TextStyle(fontSize: 14, color: Colors.black)),
+                          child: const Text('삭제', style: TextStyle(fontSize: 14, color: Colors.black)),
                         ),
                       ),
                     ),
@@ -163,11 +182,9 @@ class _EditSellingItemsState extends State<EditSellingItems> {
                         child: TextButton(
                           onPressed: () {
                             Navigator.pop(context);
-                            Navigator.pushNamed(context, '/seller_screens/edit_item',
-                                arguments: [boothId, itemId]);
+                            Navigator.pushNamed(context, '/seller_screens/edit_item', arguments: [boothId, itemId]);
                           },
-                          child: const Text('수정',
-                              style: TextStyle(fontSize: 14, color: Colors.black)),
+                          child: const Text('수정', style: TextStyle(fontSize: 14, color: Colors.black)),
                         ),
                       ),
                     ),
@@ -227,10 +244,7 @@ class _EditSellingItemsState extends State<EditSellingItems> {
                       selectedPainter = value!;
                     });
                   },
-                  items: painters
-                      .map((painter) =>
-                      DropdownMenuItem(value: painter, child: Text(painter)))
-                      .toList(),
+                  items: painters.map((painter) => DropdownMenuItem(value: painter, child: Text(painter))).toList(),
                 ),
               ],
             ),
@@ -256,8 +270,7 @@ class _EditSellingItemsState extends State<EditSellingItems> {
                 final items = snapshot.data!.docs.where((doc) {
                   final docData = doc.data() as Map<String, dynamic>;
                   final itemName = docData['itemName']?.toLowerCase() ?? '';
-                  return (selectedPainter == '작가 전체' ||
-                      (docData['artist'] ?? '') == selectedPainter) &&
+                  return (selectedPainter == '작가 전체' || (docData['artist'] ?? '') == selectedPainter) &&
                       itemName.contains(searchKeyword.toLowerCase());
                 }).toList();
 
@@ -287,19 +300,19 @@ class _EditSellingItemsState extends State<EditSellingItems> {
                             Expanded(
                               child: itemData['imagePath']?.isNotEmpty == true
                                   ? Image.network(
-                                itemData['imagePath'],
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Image.asset(
-                                    'assets/catcul_w.jpg',
-                                    fit: BoxFit.cover,
-                                  );
-                                },
-                              )
+                                      itemData['imagePath'],
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return Image.asset(
+                                          'assets/catcul_w.jpg',
+                                          fit: BoxFit.cover,
+                                        );
+                                      },
+                                    )
                                   : Image.asset(
-                                'assets/catcul_w.jpg',
-                                fit: BoxFit.cover,
-                              ),
+                                      'assets/catcul_w.jpg',
+                                      fit: BoxFit.cover,
+                                    ),
                             ),
                             Padding(
                               padding: const EdgeInsets.all(8.0),
@@ -322,8 +335,7 @@ class _EditSellingItemsState extends State<EditSellingItems> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.pushNamed(context, '/seller_screens/add_item',
-              arguments: boothId);
+          Navigator.pushNamed(context, '/seller_screens/add_item', arguments: boothId);
         },
         child: const Icon(Icons.add),
         tooltip: '상품 추가하기',

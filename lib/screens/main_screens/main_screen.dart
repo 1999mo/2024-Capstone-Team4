@@ -231,7 +231,7 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
                     children: [
                       Container(
                         child: Text(
-                          '온라인 판매 둘러보기',
+                          '온라인 상품 둘러보기',
                           style: TextStyle(
                               color: Colors.black, fontWeight: FontWeight.w500),
                         ),
