@@ -550,9 +550,16 @@ class _SellingState extends State<Selling> {
                             : () => _onItemCardClicked(itemData, itemId),
                         child: Card(
                           color: stock == 0 ? Colors.grey[300] : null,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            side: BorderSide(color: Colors.grey, width: 1),
+                          ),
                           child: Column(
                             children: [
+                              const SizedBox(height: 16),
                               Expanded(
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
                                 child: Image.network(
                                   itemData['imagePath'] ?? '',
                                   fit: BoxFit.cover,
@@ -562,6 +569,7 @@ class _SellingState extends State<Selling> {
                                       fit: BoxFit.cover,
                                     );
                                   },
+                                ),
                                 ),
                               ),
                               Padding(

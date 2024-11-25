@@ -109,7 +109,7 @@ class _EditSellingItemsState extends State<EditSellingItems> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start, // 텍스트의 기본 정렬을 왼쪽으로 설정
               children: [
                 Align(
                   alignment: Alignment.topRight,
@@ -121,41 +121,67 @@ class _EditSellingItemsState extends State<EditSellingItems> {
                   ),
                 ),
                 Center(
-                  child: itemData['imagePath']?.isNotEmpty == true
-                      ? Image.network(
-                          itemData['imagePath'],
-                          fit: BoxFit.cover,
-                          height: 150,
-                          width: 150,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Image.asset(
-                              'assets/catcul_w.jpg',
-                              fit: BoxFit.cover,
-                              height: 150,
-                              width: 150,
-                            );
-                          },
-                        )
-                      : Image.asset(
-                          'assets/catcul_w.jpg',
-                          fit: BoxFit.cover,
-                          height: 150,
-                          width: 150,
-                        ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    itemData['imagePath'] ?? '',
+                    fit: BoxFit.cover,
+                    height: 150,
+                    width: 150,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Icon(Icons.image_not_supported);
+                    },
+                  ),
+                  ),
                 ),
-                const SizedBox(height: 8),
-                Text('상품명: ${itemData['itemName'] ?? ''}',
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                Text('작가정보: ${itemData['artist'] ?? ''}', style: const TextStyle(fontSize: 16)),
-                const SizedBox(height: 16),
-                Text('재고수: ${itemData['stockQuantity'] ?? ''}', style: const TextStyle(fontSize: 14)),
-                Text('상품종류: ${itemData['itemType'] ?? ''}', style: const TextStyle(fontSize: 14, color: Colors.grey)),
-                const SizedBox(height: 16),
-                Text('원가: ${itemData['costPrice'] ?? ''}', style: const TextStyle(fontSize: 14, color: Colors.grey)),
-                Text('판매가: ${itemData['sellingPrice'] ?? ''}',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFFF5353))),
                 const SizedBox(height: 20),
-                Row(
+                Container(
+                  padding: EdgeInsets.all(8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '상품명: ${itemData['itemName'] ?? ''}',
+                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                '작가정보: ${itemData['artist'] ?? ''}',
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text('재고수: ${itemData['stockQuantity'] ?? ''}', style: const TextStyle(fontSize: 14)),
+                              Text('상품종류: ${itemData['itemType'] ?? ''}', style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('원가: ${itemData['costPrice'] ?? ''}', style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                          Text('판매가: ${itemData['sellingPrice'] ?? ''}',
+                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFFF5353))),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+            Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
@@ -294,25 +320,33 @@ class _EditSellingItemsState extends State<EditSellingItems> {
                         _showItemDetails(itemData, itemId);
                       },
                       child: Card(
-                        elevation: 3,
+                        //elevation: 3,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          side: BorderSide(color: Colors.grey, width: 1),
+                        ),
                         child: Column(
                           children: [
+                            const SizedBox(height: 16),
                             Expanded(
-                              child: itemData['imagePath']?.isNotEmpty == true
-                                  ? Image.network(
-                                      itemData['imagePath'],
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) {
-                                        return Image.asset(
-                                          'assets/catcul_w.jpg',
-                                          fit: BoxFit.cover,
-                                        );
-                                      },
-                                    )
-                                  : Image.asset(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: itemData['imagePath']?.isNotEmpty == true
+                                    ? Image.network(
+                                  itemData['imagePath'],
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Image.asset(
                                       'assets/catcul_w.jpg',
                                       fit: BoxFit.cover,
-                                    ),
+                                    );
+                                  },
+                                )
+                                    : Image.asset(
+                                  'assets/catcul_w.jpg',
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                             ),
                             Padding(
                               padding: const EdgeInsets.all(8.0),
