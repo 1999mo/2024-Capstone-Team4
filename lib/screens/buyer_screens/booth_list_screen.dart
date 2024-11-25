@@ -15,7 +15,6 @@ class _BoothListScreen extends State<BoothListScreen> {
 
   Future<List<Map<String, dynamic>>> _getAllBooths(String painter) async {
     try {
-      //print(painter + " : painter");
       // Get all festivals from the 'Festivals' collection
       var festivalsSnapshot = await FirebaseFirestore.instance.collection('Festivals').get();
 

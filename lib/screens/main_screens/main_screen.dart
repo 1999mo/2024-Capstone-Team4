@@ -1,3 +1,4 @@
+import 'package:catculator/screens/buyer_screens/bag_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -257,7 +258,7 @@ class BuyerMainScreen extends StatefulWidget {
 }
 
 class _BuyerMainScreenState extends State<BuyerMainScreen> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 1;
   final TextEditingController _controller = TextEditingController();
 
   // Initialize _screens with the first state of screens
@@ -270,7 +271,7 @@ class _BuyerMainScreenState extends State<BuyerMainScreen> {
       Center(child: Text('지도 화면')), // 지도
       BoothListScreen(painter: _controller.text), // 부스
       Center(child: Text('사전 구매 화면')), // 사전 구매
-      Center(child: Text('장바구니 화면')), // 장바구니
+      BagScreen(), // 장바구니
     ];
   }
 
