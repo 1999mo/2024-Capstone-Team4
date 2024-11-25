@@ -7,6 +7,6 @@ export 'add_item.dart';
 export 'edit_item.dart';
 export 'adjustment.dart';
 export 'adjustment_detail.dart';
+export 'pre_order.dart';
 export 'sale_record.dart';
-export 'check_pre_buy.dart';
 export 'calculator.dart';

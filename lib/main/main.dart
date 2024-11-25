@@ -1,6 +1,3 @@
-import 'package:catculator/screens/seller_screens/add_booth.dart';
-import 'package:catculator/screens/seller_screens/edit_selling_items.dart';
-import 'package:catculator/screens/seller_screens/sale_record.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -51,7 +48,7 @@ class MyApp extends StatelessWidget {
         '/seller_screens/adjustment':(context)=>const Adjustment(),
         '/seller_screens/adjustment_detail':(context)=>const AdjustmentDetail(),
         '/seller_screens/sale_record':(context)=>const SaleRecord(),
-        '/seller_screens/check_pre_buy':(context)=>const CheckPreBuy(),
+        '/seller_screens/pre_order':(context)=>const PreOrder(),
 
       },
     );

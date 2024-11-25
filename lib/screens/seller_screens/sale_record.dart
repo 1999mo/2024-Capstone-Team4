@@ -34,18 +34,89 @@ class _SaleRecordState extends State<SaleRecord> {
     }
   }
 
-  Future<void> _deleteSaleRecord(String documentId) async {
+  Future<void> _deleteSaleRecord(String documentId, Map<String, dynamic> itemSold) async {
     try {
+      // 판매 기록 삭제
       await salesCollection.doc(documentId).delete();
+
+      // itemSold를 순회하며 artist 컬렉션에서 수량 감소 및 필드 업데이트
+      for (var entry in itemSold.entries) {
+        final itemName = entry.key;
+        final itemCount = entry.value;
+
+        // itemName에 해당하는 artist 및 item 데이터 가져오기
+        final itemsSnapshot = await FirebaseFirestore.instance
+            .collection('Users')
+            .doc(FirebaseAuth.instance.currentUser?.uid)
+            .collection('booths')
+            .doc(boothId!)
+            .collection('items')
+            .where('itemName', isEqualTo: itemName)
+            .get();
+
+        if (itemsSnapshot.docs.isNotEmpty) {
+          final itemData = itemsSnapshot.docs.first.data();
+          final artistName = itemData['artist'];
+          final sellingPrice = itemData['sellingPrice'];
+          final costPrice = itemData['costPrice'];
+
+          // artist 문서 참조
+          final artistDocRef = FirebaseFirestore.instance
+              .collection('Users')
+              .doc(FirebaseAuth.instance.currentUser?.uid)
+              .collection('booths')
+              .doc(boothId!)
+              .collection('sales')
+              .doc('adjustment')
+              .collection('artist')
+              .doc(artistName);
+
+          // artist 문서 읽기
+          final artistDocSnapshot = await artistDocRef.get();
+          if (artistDocSnapshot.exists) {
+            final artistData = artistDocSnapshot.data() as Map<String, dynamic>;
+
+            // 기존 필드 값 읽기
+            final soldItems = Map<String, dynamic>.from(artistData['soldItems'] ?? {});
+            final totalProfit = artistData['totalProfit'] ?? 0;
+            final totalSales = artistData['totalSales'] ?? 0;
+
+            // soldItems에서 개수 감소
+            if (soldItems.containsKey(itemName)) {
+              soldItems[itemName] = (soldItems[itemName] ?? 0) - itemCount;
+              if (soldItems[itemName] <= 0) {
+                soldItems.remove(itemName); // 0 이하가 되면 삭제
+              }
+            }
+
+            // totalSales 및 totalProfit 재계산
+            final updatedTotalSales = totalSales - (sellingPrice * itemCount);
+            final updatedTotalProfit =
+                totalProfit - ((sellingPrice - costPrice) * itemCount);
+
+            // artist 문서 업데이트
+            await artistDocRef.update({
+              'soldItems': soldItems,
+              'totalProfit': updatedTotalProfit,
+              'totalSales': updatedTotalSales,
+            });
+          }
+        }
+      }
+
+      // 삭제 완료 메시지
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('판매 기록이 삭제되었습니다.')),
       );
     } catch (e) {
+      // 오류 처리
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('삭제 중 오류가 발생했습니다: $e')),
       );
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +127,7 @@ class _SaleRecordState extends State<SaleRecord> {
         title: const Text('판매 기록'),
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: salesCollection.snapshots(),
+        stream: salesCollection.orderBy('time', descending: true).snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
@@ -103,7 +174,8 @@ class _SaleRecordState extends State<SaleRecord> {
                           ),
                           TextButton(
                             onPressed: () {
-                              _deleteSaleRecord(saleDoc.id);
+                              final itemSold = saleDoc['itemsSold'] as Map<String, dynamic>? ?? {}; // itemSold 데이터 추출
+                              _deleteSaleRecord(saleDoc.id, itemSold); // 두 개의 인자를 전달
                               Navigator.pop(context);
                             },
                             child: const Text('확인'),

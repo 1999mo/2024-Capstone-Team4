@@ -21,9 +21,7 @@ class _SellingDetailsState extends State<SellingDetails> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    final arguments =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ??
-            {};
+    final arguments = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ?? {};
     boothId = arguments['boothId'] as String? ?? 'Unknown';
     if (soldItems.isEmpty) {
       soldItems = Map<String, int>.from(arguments['soldItems'] ?? {});
@@ -35,11 +33,7 @@ class _SellingDetailsState extends State<SellingDetails> {
     final uid = FirebaseAuth.instance.currentUser?.uid;
 
     if (uid == null) return;
-    final boothRef = FirebaseFirestore.instance
-        .collection('Users')
-        .doc(uid)
-        .collection('booths')
-        .doc(boothId);
+    final boothRef = FirebaseFirestore.instance.collection('Users').doc(uid).collection('booths').doc(boothId);
 
     Map<String, Map<String, dynamic>> details = {};
     int total = 0;
@@ -72,8 +66,7 @@ class _SellingDetailsState extends State<SellingDetails> {
   void _calculateTotalAmount() {
     totalAmount = itemDetails.values.fold(
       0,
-      (sum, item) =>
-          sum + (item['sellingPrice'] as int) * (item['quantity'] as int),
+      (sum, item) => sum + (item['sellingPrice'] as int) * (item['quantity'] as int),
     );
     setState(() {});
   }
@@ -99,8 +92,7 @@ class _SellingDetailsState extends State<SellingDetails> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
+                      padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
                       child: Align(
                         alignment: Alignment.center,
                         child: Text(
@@ -127,50 +119,38 @@ class _SellingDetailsState extends State<SellingDetails> {
                           children: itemDetails.entries.map((entry) {
                             final item = entry.value;
                             final productName = item['itemName'] ?? '알 수 없음';
-                            final sellingPrice =
-                                item['sellingPrice'] as int? ?? 0;
+                            final sellingPrice = item['sellingPrice'] as int? ?? 0;
                             final quantity = item['quantity'] as int? ?? 0;
-                            final stockQuantity =
-                                item['stockQuantity'] as int? ?? 0;
+                            final stockQuantity = item['stockQuantity'] as int? ?? 0;
 
                             return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16.0, vertical: 4.0),
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
                               child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     productName,
-                                    style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold),
+                                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                                   ),
                                   Row(
                                     children: [
                                       Text(
                                         '${sellingPrice * quantity}원',
-                                        style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold),
+                                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                                       ),
                                       const SizedBox(width: 16),
                                       Container(
                                         decoration: BoxDecoration(
-                                          border: Border.all(
-                                              color: Color(0xFFD1D1D1)),
-                                          borderRadius:
-                                              BorderRadius.circular(8),
+                                          border: Border.all(color: Color(0xFFD1D1D1)),
+                                          borderRadius: BorderRadius.circular(8),
                                         ),
                                         padding: EdgeInsets.all(4),
                                         child: Row(
                                           children: [
                                             Container(
                                               decoration: BoxDecoration(
-                                                border: Border.all(
-                                                    color: Color(0xFFD1D1D1)),
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
+                                                border: Border.all(color: Color(0xFFD1D1D1)),
+                                                borderRadius: BorderRadius.circular(8),
                                               ),
                                               height: 30,
                                               width: 30,
@@ -179,37 +159,28 @@ class _SellingDetailsState extends State<SellingDetails> {
                                                 iconSize: 18,
                                                 padding: EdgeInsets.zero,
                                                 constraints: BoxConstraints(),
-                                                visualDensity:
-                                                    VisualDensity.compact,
+                                                visualDensity: VisualDensity.compact,
                                                 onPressed: () {
-                                                  if (quantity <
-                                                      stockQuantity) {
+                                                  if (quantity < stockQuantity) {
                                                     setState(() {
-                                                      item['quantity'] =
-                                                          quantity + 1;
-                                                      soldItems[entry.key] =
-                                                          item['quantity']!;
+                                                      item['quantity'] = quantity + 1;
+                                                      soldItems[entry.key] = item['quantity']!;
                                                     });
                                                     _calculateTotalAmount();
                                                   } else {
                                                     // 재고 초과 팝업
                                                     showDialog(
                                                       context: context,
-                                                      builder: (BuildContext
-                                                          context) {
+                                                      builder: (BuildContext context) {
                                                         return AlertDialog(
-                                                          title: const Text(
-                                                              '재고 초과'),
-                                                          content: const Text(
-                                                              '재고가 모자랍니다'),
+                                                          title: const Text('재고 초과'),
+                                                          content: const Text('재고가 모자랍니다'),
                                                           actions: [
                                                             TextButton(
                                                               onPressed: () {
-                                                                Navigator.pop(
-                                                                    context); // 팝업 닫기
+                                                                Navigator.pop(context); // 팝업 닫기
                                                               },
-                                                              child: const Text(
-                                                                  '확인'),
+                                                              child: const Text('확인'),
                                                             ),
                                                           ],
                                                         );
@@ -220,19 +191,13 @@ class _SellingDetailsState extends State<SellingDetails> {
                                               ),
                                             ),
                                             Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 8),
-                                              child: Text('$quantity',
-                                                  style: const TextStyle(
-                                                      fontSize: 16)),
+                                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                                              child: Text('$quantity', style: const TextStyle(fontSize: 16)),
                                             ),
                                             Container(
                                               decoration: BoxDecoration(
-                                                border: Border.all(
-                                                    color: Color(0xFFD1D1D1)),
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
+                                                border: Border.all(color: Color(0xFFD1D1D1)),
+                                                borderRadius: BorderRadius.circular(8),
                                               ),
                                               height: 30,
                                               width: 30,
@@ -241,15 +206,12 @@ class _SellingDetailsState extends State<SellingDetails> {
                                                 iconSize: 18,
                                                 padding: EdgeInsets.zero,
                                                 constraints: BoxConstraints(),
-                                                visualDensity:
-                                                    VisualDensity.compact,
+                                                visualDensity: VisualDensity.compact,
                                                 onPressed: () {
                                                   if (quantity > 0) {
                                                     setState(() {
-                                                      item['quantity'] =
-                                                          quantity - 1;
-                                                      soldItems[entry.key] =
-                                                          item['quantity']!;
+                                                      item['quantity'] = quantity - 1;
+                                                      soldItems[entry.key] = item['quantity']!;
                                                     });
                                                     _calculateTotalAmount();
                                                   }
@@ -278,27 +240,22 @@ class _SellingDetailsState extends State<SellingDetails> {
                     ),
 
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8.0, vertical: 16.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Padding(
-                            padding:
-                                const EdgeInsets.only(left: 16.0), // 오른쪽 여백 추가
+                            padding: const EdgeInsets.only(left: 16.0), // 오른쪽 여백 추가
                             child: const Text(
                               '총 가격',
-                              style: TextStyle(
-                                  fontSize: 20, fontWeight: FontWeight.bold),
+                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                             ),
                           ),
                           Padding(
-                            padding:
-                                const EdgeInsets.only(right: 16.0), // 왼쪽 여백 추가
+                            padding: const EdgeInsets.only(right: 16.0), // 왼쪽 여백 추가
                             child: Text(
                               '${NumberFormat('#,###').format(totalAmount)}원',
-                              style: const TextStyle(
-                                  fontSize: 20, fontWeight: FontWeight.bold),
+                              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                             ),
                           ),
                         ],

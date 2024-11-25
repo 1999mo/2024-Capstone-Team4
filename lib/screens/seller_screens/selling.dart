@@ -258,16 +258,12 @@ class _SellingState extends State<Selling> {
       localStock = {for (var doc in itemsSnapshot.docs) doc.id: doc['stockQuantity'] ?? 0};
 
       // Firebase에서 재고가 0인 항목으로 exhaustedItems 동기화
-      exhaustedItems = localStock.entries
-          .where((entry) => entry.value == 0)
-          .map((entry) => entry.key)
-          .toSet();
+      exhaustedItems = localStock.entries.where((entry) => entry.value == 0).map((entry) => entry.key).toSet();
 
       // `soldItems` 초기화
       soldItems.clear();
     });
   }
-
 
   Future<void> _startOnlineDemand(String itemId, Map<String, dynamic> itemData) async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
@@ -342,7 +338,23 @@ class _SellingState extends State<Selling> {
           IconButton(
               onPressed: () {
                 //실험용 실험용 실험용
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(clickedOutOfStockItems.toString())));
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text('품절된 상품 목록'),
+                      content: SingleChildScrollView(child: Text(localStock.toString())),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(); // 팝업 닫기
+                          },
+                          child: const Text('확인'),
+                        ),
+                      ],
+                    );
+                  },
+                );
               },
               icon: Icon(Icons.ac_unit_outlined))
         ],
@@ -367,7 +379,11 @@ class _SellingState extends State<Selling> {
                       onPressed: () {
                         snackBarController?.close();
                         snackBarController = null;
-                        Navigator.pushNamed(context, '/seller_screens/adjustment', arguments: boothId);
+                        Navigator.pushNamed(context, '/seller_screens/adjustment', arguments: boothId).then((_) {
+                          setState(() {
+                            _reloadItems();
+                          });
+                        });
                       },
                       child: const Text(
                         '정산하기',
@@ -393,6 +409,12 @@ class _SellingState extends State<Selling> {
                         snackBarController?.close();
                         snackBarController = null;
                         // 사전구매 로직
+                        Navigator.pushNamed(context, '/seller_screens/pre_order', arguments: boothId).then((_) {
+                          // 돌아올 때 Firebase 데이터 동기화
+                          setState(() {
+                            _reloadItems();
+                          });
+                        });
                       },
                       child: const Text(
                         '사전구매',
@@ -560,16 +582,16 @@ class _SellingState extends State<Selling> {
                               Expanded(
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(8),
-                                child: Image.network(
-                                  itemData['imagePath'] ?? '',
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Image.asset(
-                                      'assets/catcul_w.jpg',
-                                      fit: BoxFit.cover,
-                                    );
-                                  },
-                                ),
+                                  child: Image.network(
+                                    itemData['imagePath'] ?? '',
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Image.asset(
+                                        'assets/catcul_w.jpg',
+                                        fit: BoxFit.cover,
+                                      );
+                                    },
+                                  ),
                                 ),
                               ),
                               Padding(
