@@ -134,7 +134,7 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
                             TextStyle(fontSize: 18, color: Colors.pinkAccent),
                       ),
                       Text('좋은 앱 이름 추천 받아요... \n아이디어 있으면 연락주세요 (제발)'),
-                      Text('\n부스 판매하기, 부스 추가 구현 완료')
+                      Text('\n판매화면 모두 구성 완료!')
                     ])
                   ],
                 )),

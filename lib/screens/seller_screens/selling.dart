@@ -40,16 +40,10 @@ class _SellingState extends State<Selling> {
     String? uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null || boothId == null) return;
 
-    CollectionReference itemsRef = FirebaseFirestore.instance
-        .collection('Users')
-        .doc(uid)
-        .collection('booths')
-        .doc(boothId)
-        .collection('items');
+    CollectionReference itemsRef =
+        FirebaseFirestore.instance.collection('Users').doc(uid).collection('booths').doc(boothId).collection('items');
 
-    DocumentReference onlineStoreRef = FirebaseFirestore.instance
-        .collection('OnlineStore')
-        .doc(uid);
+    DocumentReference onlineStoreRef = FirebaseFirestore.instance.collection('OnlineStore').doc(uid);
 
     try {
       List<Set<String>> results = await Future.wait([
@@ -62,7 +56,8 @@ class _SellingState extends State<Selling> {
             final data = doc.data() as Map<String, dynamic>?; // 안전하게 캐스팅
             if (data != null &&
                 data.containsKey('expect') && // expect 필드 존재
-                (data['stockQuantity'] ?? 1) == 0) { // stockQuantity가 0인지 확인
+                (data['stockQuantity'] ?? 1) == 0) {
+              // stockQuantity가 0인지 확인
               clickedItems.add(doc.id); // clickedOutOfStockItems에 추가
               exhaustedItemsLocal.add(doc.id); // exhaustedItems에도 추가
             }
@@ -89,15 +84,9 @@ class _SellingState extends State<Selling> {
       });
     } catch (e) {
       // 오류 발생 시 Snackbar 표시
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('데이터 초기화 중 오류가 발생했습니다.'))
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('데이터 초기화 중 오류가 발생했습니다.')));
     }
   }
-
-
-
-
 
   Future<void> _initializePainters() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
@@ -123,20 +112,19 @@ class _SellingState extends State<Selling> {
   }
 
   void _showSnackBar() {
-    // 기존 SnackBar 닫기
     snackBarController?.close();
     snackBarController = null;
 
-    // 약간의 지연 시간 후 새로운 SnackBar 표시
     Future.delayed(const Duration(milliseconds: 1), () {
       final snackBar = SnackBar(
         duration: const Duration(days: 365), // 무한 지속
-        backgroundColor: const Color(0xFFFDBE85), // 배경색 설정
+        backgroundColor: const Color(0xFFFDBE85),
         content: GestureDetector(
           onTap: () async {
             snackBarController?.close();
-            snackBarController = null; // 스낵바 상태 초기화
-            // 클릭 시 '/seller_screens/selling_details'로 이동
+            snackBarController = null;
+
+            // 결제 화면으로 이동
             await Navigator.pushNamed(
               context,
               '/seller_screens/selling_details',
@@ -144,47 +132,45 @@ class _SellingState extends State<Selling> {
                 'boothId': boothId,
                 'soldItems': soldItems,
               },
-            );
-
-            setState(() {
-              totalPrice = 0;
-              totalSoldItems = 0;
-              soldItems.clear();
+            ).then((_) {
+              // 돌아올 때 상태 초기화 또는 동기화
+              setState(() {
+                _reloadItems(); // Firebase에서 데이터 동기화
+                totalPrice = 0;
+                totalSoldItems = 0;
+                soldItems.clear(); // soldItems 초기화
+              });
             });
           },
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // SnackBar 내용
               Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '총 가격: ${numberFormat.format(totalPrice)}원                              ',
+                    '총 가격: ${numberFormat.format(totalPrice)}원',
                     style: const TextStyle(color: Colors.black, fontSize: 20),
                   ),
                   Text(
-                    '총 상품 수: $totalSoldItems개                                          ',
+                    '총 상품 수: $totalSoldItems개',
                     style: const TextStyle(color: Colors.black),
                   ),
                 ],
               ),
-              // X 버튼
               IconButton(
                 icon: const Icon(Icons.close, color: Colors.black),
                 onPressed: () {
-                  // 스낵바 닫기 및 데이터 초기화
                   snackBarController?.close();
-                  snackBarController = null; // 스낵바 상태 초기화
+                  snackBarController = null;
 
-                  // 로컬 재고 복원 및 품절 목록에서 제거
+                  // 상태 초기화
                   soldItems.forEach((itemId, soldQuantity) {
                     if (localStock.containsKey(itemId)) {
                       localStock[itemId] = (localStock[itemId] ?? 0) + soldQuantity;
                     }
 
-                    // 재고 복원 후 품절 상태가 아니면 품절 목록에서 제거
                     if ((localStock[itemId] ?? 0) > 0) {
                       exhaustedItems.remove(itemId);
                     }
@@ -193,7 +179,7 @@ class _SellingState extends State<Selling> {
                   setState(() {
                     totalPrice = 0;
                     totalSoldItems = 0;
-                    soldItems.clear(); // 판매 기록 초기화
+                    soldItems.clear();
                   });
                 },
               ),
@@ -202,7 +188,6 @@ class _SellingState extends State<Selling> {
         ),
       );
 
-      // 새로운 SnackBar 표시
       snackBarController = ScaffoldMessenger.of(context).showSnackBar(snackBar);
     });
   }
@@ -274,12 +259,12 @@ class _SellingState extends State<Selling> {
 
       // Firebase에서 재고가 0인 항목으로 exhaustedItems 동기화
       exhaustedItems = localStock.entries
-          .where((entry) => entry.value == 0) // 재고가 0인 항목 필터링
+          .where((entry) => entry.value == 0)
           .map((entry) => entry.key)
           .toSet();
 
-      // 재고가 0이 아니게 된 항목을 clickedOutOfStockItems에서 제거
-      clickedOutOfStockItems.removeWhere((itemId) => localStock[itemId] != 0);
+      // `soldItems` 초기화
+      soldItems.clear();
     });
   }
 
@@ -348,16 +333,19 @@ class _SellingState extends State<Selling> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('부스 상품 판매'),
-        actions: [IconButton(onPressed: () {
-          //실험용 실험용 실험용
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(clickedOutOfStockItems.toString())));
-        }, icon: Icon(Icons.ac_unit_outlined))],
+        actions: [
+          IconButton(
+              onPressed: () {
+                //실험용 실험용 실험용
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(clickedOutOfStockItems.toString())));
+              },
+              icon: Icon(Icons.ac_unit_outlined))
+        ],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -595,38 +583,38 @@ class _SellingState extends State<Selling> {
                                             onPressed: onlineSaleStartedItems.contains(itemId)
                                                 ? null
                                                 : () => showDialog(
-                                              context: context,
-                                              builder: (BuildContext context) {
-                                                return AlertDialog(
-                                                  title: Text('온라인 판매 시작'),
-                                                  content: const Text('온라인 판매를 시작하시겠습니까?'),
-                                                  actions: [
-                                                    TextButton(
-                                                      onPressed: () {
-                                                        Navigator.of(context).pop(); // 팝업 닫기
+                                                      context: context,
+                                                      builder: (BuildContext context) {
+                                                        return AlertDialog(
+                                                          title: Text('온라인 판매 시작'),
+                                                          content: const Text('온라인 판매를 시작하시겠습니까?'),
+                                                          actions: [
+                                                            TextButton(
+                                                              onPressed: () {
+                                                                Navigator.of(context).pop(); // 팝업 닫기
+                                                              },
+                                                              child: const Text('취소'),
+                                                            ),
+                                                            ElevatedButton(
+                                                              onPressed: onlineSaleStartedItems.contains(itemId)
+                                                                  ? null // 이미 클릭된 경우 비활성화
+                                                                  : () {
+                                                                      setState(() {
+                                                                        onlineSaleStartedItems.add(itemId); // 클릭 상태 저장
+                                                                      });
+                                                                      Navigator.of(context).pop(); // 팝업 닫기
+                                                                      _startOnlineSale(itemData); // 온라인 판매 시작
+                                                                    },
+                                                              child: Text(
+                                                                onlineSaleStartedItems.contains(itemId)
+                                                                    ? '진행 중...'
+                                                                    : '확인',
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        );
                                                       },
-                                                      child: const Text('취소'),
                                                     ),
-                                                    ElevatedButton(
-                                                      onPressed: onlineSaleStartedItems.contains(itemId)
-                                                          ? null // 이미 클릭된 경우 비활성화
-                                                          : () {
-                                                        setState(() {
-                                                          onlineSaleStartedItems.add(itemId); // 클릭 상태 저장
-                                                        });
-                                                        Navigator.of(context).pop(); // 팝업 닫기
-                                                        _startOnlineSale(itemData); // 온라인 판매 시작
-                                                      },
-                                                      child: Text(
-                                                        onlineSaleStartedItems.contains(itemId)
-                                                            ? '진행 중...'
-                                                            : '확인',
-                                                      ),
-                                                    ),
-                                                  ],
-                                                );
-                                              },
-                                            ),
                                             child: Text(
                                               onlineSaleStartedItems.contains(itemId) ? '온라인 판매 진행중!' : '온라인 판매 시작',
                                             ),
@@ -644,7 +632,6 @@ class _SellingState extends State<Selling> {
                   );
                 },
               ),
-
             ),
           ),
         ],
