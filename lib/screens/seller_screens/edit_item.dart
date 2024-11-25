@@ -28,6 +28,7 @@ class _EditItemState extends State<EditItem> {
   String? imageUrl;
 
   List<String> painters = ['판매 작가명'];
+  final String defaultImagePath = 'assets/catcul_w.jpg'; // 기본 이미지 경로
 
   @override
   void initState() {
@@ -92,14 +93,21 @@ class _EditItemState extends State<EditItem> {
               itemData['stockQuantity']?.toString() ?? '';
           itemTypeController.text = itemData['itemType'] ?? '';
           selectedPainter = itemData['artist'] ?? '판매 작가명';
+          imageUrl = itemData['imagePath'];
         });
       }
     }
+  }
 
-    imageUrl = await FirebaseStorage.instance
-        .ref()
-        .child('$uid/${itemId?.replaceAll(' ', '_')}.jpg')
-        .getDownloadURL();
+  Future<void> _deletePreviousImage(String? previousImagePath) async {
+    if (previousImagePath != null && previousImagePath.isNotEmpty) {
+      try {
+        final ref = FirebaseStorage.instance.refFromURL(previousImagePath);
+        await ref.delete();
+      } catch (e) {
+        debugPrint('이미지 삭제 실패: $e');
+      }
+    }
   }
 
   Future<String> _uploadImage() async {
@@ -130,6 +138,7 @@ class _EditItemState extends State<EditItem> {
         .collection('items')
         .doc(itemId);
 
+    await _deletePreviousImage(imageUrl); // 기존 이미지 삭제
     final updatedImageUrl = await _uploadImage();
 
     await itemRef.update({
@@ -189,7 +198,7 @@ class _EditItemState extends State<EditItem> {
                 value: selectedPainter,
                 items: painters
                     .map((painter) =>
-                        DropdownMenuItem(value: painter, child: Text(painter)))
+                    DropdownMenuItem(value: painter, child: Text(painter)))
                     .toList(),
                 onChanged: (value) {
                   setState(() {
@@ -224,28 +233,9 @@ class _EditItemState extends State<EditItem> {
                 },
               ),
               const SizedBox(height: 16),
-              const Text('판매가',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: sellingPriceController,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return '판매가를 입력하세요';
-                  }
-                  if (int.tryParse(value) == null) {
-                    return '숫자만 입력가능합니다';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
               const Text('재고 수량',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: stockQuantityController,
                 decoration: const InputDecoration(
@@ -257,7 +247,7 @@ class _EditItemState extends State<EditItem> {
                     return '재고 수량을 입력하세요';
                   }
                   if (int.tryParse(value) == null) {
-                    return '숫자만 입력가능합니다';
+                    return '숫자만 입력 가능합니다';
                   }
                   return null;
                 },
@@ -278,7 +268,6 @@ class _EditItemState extends State<EditItem> {
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
               const Text('이미지 미리보기',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               if (imageFile != null)
@@ -286,15 +275,21 @@ class _EditItemState extends State<EditItem> {
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
                   child: Image.file(imageFile!, height: 150),
                 )
-              else if (imageUrl != null)
+              else if (imageUrl != null && imageUrl!.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  child: Image.network(imageUrl!, height: 150),
+                  child: Image.network(
+                    imageUrl!,
+                    height: 150,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Image.asset(defaultImagePath, height: 150);
+                    },
+                  ),
                 )
               else
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16.0),
-                  child: Text('이미지를 불러오는 중입니다.'),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  child: Image.asset(defaultImagePath, height: 150),
                 ),
               TextButton(
                 onPressed: () async {
@@ -307,20 +302,14 @@ class _EditItemState extends State<EditItem> {
                   }
                 },
                 style: TextButton.styleFrom(
-                  side: BorderSide(color: Colors.grey), // 아웃라인 추가
-                  minimumSize: Size(320, 56), // 너비와 높이 설정
+                  side: const BorderSide(color: Colors.grey),
+                  minimumSize: const Size(320, 56),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: Center(
-                  child: const Text(
-                    '사진 업로드 +',
-                    style: TextStyle(
-                      color: Colors.black, // 텍스트 색상 검은색
-                    ),
-                  ),
-                ),
+                child: const Text('사진 업로드 +',
+                    style: TextStyle(color: Colors.black)),
               ),
               const SizedBox(height: 16),
               Row(
@@ -337,14 +326,11 @@ class _EditItemState extends State<EditItem> {
                           Navigator.pop(context);
                         },
                         child: const Text('수정 취소',
-                            style:
-                                TextStyle(fontSize: 14, color: Colors.black)),
+                            style: TextStyle(fontSize: 14, color: Colors.black)),
                       ),
                     ),
                   ),
-                  SizedBox(
-                    width: 10,
-                  ),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
@@ -358,8 +344,7 @@ class _EditItemState extends State<EditItem> {
                           }
                         },
                         child: const Text('수정 완료',
-                            style:
-                                TextStyle(fontSize: 14, color: Colors.black)),
+                            style: TextStyle(fontSize: 14, color: Colors.black)),
                       ),
                     ),
                   ),

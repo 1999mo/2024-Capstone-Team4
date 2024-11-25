@@ -12,28 +12,33 @@ class Adjustment extends StatefulWidget {
 
 class _AdjustmentState extends State<Adjustment> {
   String? boothId;
-  late final CollectionReference artistCollection;
+  late CollectionReference artistCollection;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
     // ModalRoute로 boothId를 안전하게 추출
-    boothId = ModalRoute.of(context)?.settings.arguments as String;
+    final args = ModalRoute.of(context)?.settings.arguments as String?;
+    if (args == null) {
+      throw ArgumentError('boothId is required as an argument.');
+    }
+
+    boothId = args;
 
     final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid != null) {
-      artistCollection = FirebaseFirestore.instance
-          .collection('Users')
-          .doc(uid)
-          .collection('booths')
-          .doc(boothId!)
-          .collection('sales')
-          .doc('adjustment')
-          .collection('artist');
-    } else {
+    if (uid == null) {
       throw StateError('User is not authenticated.');
     }
+
+    artistCollection = FirebaseFirestore.instance
+        .collection('Users')
+        .doc(uid)
+        .collection('booths')
+        .doc(boothId!)
+        .collection('sales')
+        .doc('adjustment')
+        .collection('artist');
   }
 
   @override
@@ -43,6 +48,14 @@ class _AdjustmentState extends State<Adjustment> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('작가별 매출'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/seller_screens/sale_record', arguments: boothId);
+            },
+            child: const Text('판매기록'),
+          ),
+        ],
       ),
       body: FutureBuilder<QuerySnapshot>(
         future: artistCollection.get(),

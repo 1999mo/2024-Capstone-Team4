@@ -135,69 +135,129 @@ class _SellingDetailsState extends State<SellingDetails> {
 
                             return Padding(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 8.0, vertical: 4.0),
+                                  horizontal: 16.0, vertical: 4.0),
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     productName,
-                                    style: const TextStyle(fontSize: 16),
-                                  ),
-                                  Text(
-                                    '${sellingPrice * quantity}원',
-                                    style: const TextStyle(fontSize: 16),
+                                    style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold),
                                   ),
                                   Row(
                                     children: [
-                                      IconButton(
-                                        icon: const Icon(Icons.add),
-                                        onPressed: () {
-                                          if (quantity < stockQuantity) {
-                                            setState(() {
-                                              item['quantity'] = quantity + 1;
-                                              soldItems[entry.key] =
-                                                  item['quantity']!;
-                                            });
-                                            _calculateTotalAmount();
-                                          } else {
-                                            // 재고 초과 팝업
-                                            showDialog(
-                                              context: context,
-                                              builder: (BuildContext context) {
-                                                return AlertDialog(
-                                                  title: const Text('재고 초과'),
-                                                  content:
-                                                      const Text('재고가 모자랍니다'),
-                                                  actions: [
-                                                    TextButton(
-                                                      onPressed: () {
-                                                        Navigator.pop(
-                                                            context); // 팝업 닫기
-                                                      },
-                                                      child: const Text('확인'),
-                                                    ),
-                                                  ],
-                                                );
-                                              },
-                                            );
-                                          }
-                                        },
+                                      Text(
+                                        '${sellingPrice * quantity}원',
+                                        style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold),
                                       ),
-                                      Text('$quantity',
-                                          style: const TextStyle(fontSize: 16)),
-                                      IconButton(
-                                        icon: const Icon(Icons.remove),
-                                        onPressed: () {
-                                          if (quantity > 0) {
-                                            setState(() {
-                                              item['quantity'] = quantity - 1;
-                                              soldItems[entry.key] =
-                                                  item['quantity']!;
-                                            });
-                                            _calculateTotalAmount();
-                                          }
-                                        },
+                                      const SizedBox(width: 16),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                              color: Color(0xFFD1D1D1)),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        padding: EdgeInsets.all(4),
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                border: Border.all(
+                                                    color: Color(0xFFD1D1D1)),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              height: 30,
+                                              width: 30,
+                                              child: IconButton(
+                                                icon: const Icon(Icons.add),
+                                                iconSize: 18,
+                                                padding: EdgeInsets.zero,
+                                                constraints: BoxConstraints(),
+                                                visualDensity:
+                                                    VisualDensity.compact,
+                                                onPressed: () {
+                                                  if (quantity <
+                                                      stockQuantity) {
+                                                    setState(() {
+                                                      item['quantity'] =
+                                                          quantity + 1;
+                                                      soldItems[entry.key] =
+                                                          item['quantity']!;
+                                                    });
+                                                    _calculateTotalAmount();
+                                                  } else {
+                                                    // 재고 초과 팝업
+                                                    showDialog(
+                                                      context: context,
+                                                      builder: (BuildContext
+                                                          context) {
+                                                        return AlertDialog(
+                                                          title: const Text(
+                                                              '재고 초과'),
+                                                          content: const Text(
+                                                              '재고가 모자랍니다'),
+                                                          actions: [
+                                                            TextButton(
+                                                              onPressed: () {
+                                                                Navigator.pop(
+                                                                    context); // 팝업 닫기
+                                                              },
+                                                              child: const Text(
+                                                                  '확인'),
+                                                            ),
+                                                          ],
+                                                        );
+                                                      },
+                                                    );
+                                                  }
+                                                },
+                                              ),
+                                            ),
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 8),
+                                              child: Text('$quantity',
+                                                  style: const TextStyle(
+                                                      fontSize: 16)),
+                                            ),
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                border: Border.all(
+                                                    color: Color(0xFFD1D1D1)),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              height: 30,
+                                              width: 30,
+                                              child: IconButton(
+                                                icon: const Icon(Icons.remove),
+                                                iconSize: 18,
+                                                padding: EdgeInsets.zero,
+                                                constraints: BoxConstraints(),
+                                                visualDensity:
+                                                    VisualDensity.compact,
+                                                onPressed: () {
+                                                  if (quantity > 0) {
+                                                    setState(() {
+                                                      item['quantity'] =
+                                                          quantity - 1;
+                                                      soldItems[entry.key] =
+                                                          item['quantity']!;
+                                                    });
+                                                    _calculateTotalAmount();
+                                                  }
+                                                },
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -269,11 +329,9 @@ class _SellingDetailsState extends State<SellingDetails> {
                     ),
                   ),
                 ),
-
                 SizedBox(
                   width: 10,
                 ),
-
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(

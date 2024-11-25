@@ -63,20 +63,9 @@ class _AddItemState extends State<AddItem> {
     try {
       final uid = FirebaseAuth.instance.currentUser?.uid;
 
-      // 사용자가 이미지를 선택하지 않았다면 기본 이미지 업로드
+      // 사용자가 이미지를 선택하지 않았다면 빈 문자열 반환
       if (imageFile == null) {
-        final byteData =
-            await rootBundle.load('assets/catcul_w.jpg'); // Asset 이미지를 로드
-        final tempDir = Directory.systemTemp;
-        final tempFile = File('${tempDir.path}/catcul_w.jpg');
-        await tempFile.writeAsBytes(byteData.buffer.asUint8List());
-
-        final ref = FirebaseStorage.instance
-            .ref()
-            .child('$uid/${itemName.replaceAll(' ', '_')}_default.jpg');
-        final uploadTask = ref.putFile(tempFile);
-        final snapshot = await uploadTask;
-        return await snapshot.ref.getDownloadURL();
+        return '';
       }
 
       // 선택된 이미지 업로드
@@ -87,15 +76,19 @@ class _AddItemState extends State<AddItem> {
       final snapshot = await uploadTask;
       return await snapshot.ref.getDownloadURL();
     } catch (e) {
+      // 업로드 실패 시 빈 문자열 반환
       return '';
     }
   }
 
-  Future<void> _addItem() async {
 
+  Future<void> _addItem() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null || boothId == null) return;
-
+    Navigator.pop(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('상품이 성공적으로 추가되었습니다.')),
+    );
     final itemsRef = FirebaseFirestore.instance
         .collection('Users')
         .doc(uid)
@@ -112,12 +105,8 @@ class _AddItemState extends State<AddItem> {
     }
 
     final imageUrl = await _uploadImage();
-    if (imageUrl.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('이미지를 업로드하지 못했습니다.')),
-      );
-      return;
-    }
+
+    // 이미지 업로드 결과와 관계없이 데이터 저장
     await itemsRef.doc(itemName).set({
       'itemName': itemName,
       'artist': selectedPainter,
@@ -125,16 +114,12 @@ class _AddItemState extends State<AddItem> {
       'sellingPrice': sellingPrice,
       'stockQuantity': stockQuantity,
       'itemType': itemType,
-      'imagePath': imageUrl,
+      'imagePath': imageUrl, // 업로드 실패 시 빈 문자열 저장
     });
-
-    Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('상품이 성공적으로 추가되었습니다.')),
-    );
 
 
   }
+
 
   @override
   Widget build(BuildContext context) {
