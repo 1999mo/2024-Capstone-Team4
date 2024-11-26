@@ -155,6 +155,36 @@ class _SellingDetailsState extends State<SellingDetails> {
                                               height: 30,
                                               width: 30,
                                               child: IconButton(
+                                                icon: const Icon(Icons.remove),
+                                                iconSize: 18,
+                                                padding: EdgeInsets.zero,
+                                                constraints: BoxConstraints(),
+                                                visualDensity: VisualDensity.compact,
+                                                onPressed: () {
+                                                  if (quantity > 0) {
+                                                    setState(() {
+                                                      item['quantity'] = quantity - 1;
+                                                      soldItems[entry.key] = item['quantity']!;
+                                                    });
+                                                    _calculateTotalAmount();
+                                                  }
+                                                },
+                                              ),
+                                            ),
+
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                                              child: Text('$quantity', style: const TextStyle(fontSize: 16)),
+                                            ),
+
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                border: Border.all(color: Color(0xFFD1D1D1)),
+                                                borderRadius: BorderRadius.circular(8),
+                                              ),
+                                              height: 30,
+                                              width: 30,
+                                              child: IconButton(
                                                 icon: const Icon(Icons.add),
                                                 iconSize: 18,
                                                 padding: EdgeInsets.zero,
@@ -190,34 +220,7 @@ class _SellingDetailsState extends State<SellingDetails> {
                                                 },
                                               ),
                                             ),
-                                            Container(
-                                              padding: const EdgeInsets.symmetric(horizontal: 8),
-                                              child: Text('$quantity', style: const TextStyle(fontSize: 16)),
-                                            ),
-                                            Container(
-                                              decoration: BoxDecoration(
-                                                border: Border.all(color: Color(0xFFD1D1D1)),
-                                                borderRadius: BorderRadius.circular(8),
-                                              ),
-                                              height: 30,
-                                              width: 30,
-                                              child: IconButton(
-                                                icon: const Icon(Icons.remove),
-                                                iconSize: 18,
-                                                padding: EdgeInsets.zero,
-                                                constraints: BoxConstraints(),
-                                                visualDensity: VisualDensity.compact,
-                                                onPressed: () {
-                                                  if (quantity > 0) {
-                                                    setState(() {
-                                                      item['quantity'] = quantity - 1;
-                                                      soldItems[entry.key] = item['quantity']!;
-                                                    });
-                                                    _calculateTotalAmount();
-                                                  }
-                                                },
-                                              ),
-                                            ),
+
                                           ],
                                         ),
                                       ),
