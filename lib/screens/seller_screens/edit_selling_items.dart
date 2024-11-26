@@ -151,6 +151,9 @@ class _EditSellingItemsState extends State<EditSellingItems> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              Text('상품종류: ${itemData['itemType'] ?? ''}',
+                                  style: const TextStyle(fontSize: 14, color: Colors.grey)
+                              ),
                               Text(
                                 '상품명: ${itemData['itemName'] ?? ''}',
                                 style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -165,8 +168,6 @@ class _EditSellingItemsState extends State<EditSellingItems> {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text('재고수: ${itemData['stockQuantity'] ?? ''}', style: const TextStyle(fontSize: 14)),
-                              Text('상품종류: ${itemData['itemType'] ?? ''}',
-                                  style: const TextStyle(fontSize: 14, color: Colors.grey)),
                             ],
                           ),
                         ],
@@ -328,7 +329,7 @@ class _EditSellingItemsState extends State<EditSellingItems> {
                         //elevation: 3,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
-                          side: BorderSide(color: Colors.grey, width: 1),
+                          side: BorderSide(color: Color(0xFFD1D1D1), width: 1),
                         ),
                         child: Column(
                           children: [
