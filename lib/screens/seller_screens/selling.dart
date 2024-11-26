@@ -559,6 +559,7 @@ class _SellingState extends State<Selling> {
                       crossAxisCount: 2,
                       crossAxisSpacing: 8,
                       mainAxisSpacing: 8,
+                      childAspectRatio: 0.9,
                     ),
                     itemCount: items.length,
                     itemBuilder: (context, index) {
@@ -571,10 +572,11 @@ class _SellingState extends State<Selling> {
                             ? null // 클릭 막기
                             : () => _onItemCardClicked(itemData, itemId),
                         child: Card(
+                          // elevation: 3,
                           color: stock == 0 ? Colors.grey[300] : null,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
-                            side: BorderSide(color: Colors.grey, width: 1),
+                            side: BorderSide(color: Color(0xFFD1D1D1), width: 1),
                           ),
                           child: Column(
                             children: [
@@ -608,45 +610,66 @@ class _SellingState extends State<Selling> {
                                     if (itemData['expect'] != null && exhaustedItems.contains(itemId))
                                       Column(
                                         children: [
-                                          Text('구매 희망자 수 : ${itemData['expect'] ?? 0}'),
-                                          ElevatedButton(
-                                            onPressed: onlineSaleStartedItems.contains(itemId)
-                                                ? null
-                                                : () => showDialog(
-                                                      context: context,
-                                                      builder: (BuildContext context) {
-                                                        return AlertDialog(
-                                                          title: Text('온라인 판매 시작'),
-                                                          content: const Text('온라인 판매를 시작하시겠습니까?'),
-                                                          actions: [
-                                                            TextButton(
-                                                              onPressed: () {
-                                                                Navigator.of(context).pop(); // 팝업 닫기
-                                                              },
-                                                              child: const Text('취소'),
-                                                            ),
-                                                            ElevatedButton(
-                                                              onPressed: onlineSaleStartedItems.contains(itemId)
-                                                                  ? null // 이미 클릭된 경우 비활성화
-                                                                  : () {
-                                                                      setState(() {
-                                                                        onlineSaleStartedItems.add(itemId); // 클릭 상태 저장
-                                                                      });
-                                                                      Navigator.of(context).pop(); // 팝업 닫기
-                                                                      _startOnlineSale(itemData); // 온라인 판매 시작
-                                                                    },
-                                                              child: Text(
-                                                                onlineSaleStartedItems.contains(itemId)
-                                                                    ? '진행 중...'
-                                                                    : '확인',
+                                          Container(
+                                            padding: const EdgeInsets.all(8.0),
+                                            width: double.infinity,
+                                            height: 38.0,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              border: Border.all(color: Color(0xFFD1D1D1)),
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                            child: Text('구매 희망자 수 : ${itemData['expect'] ?? 0}',textAlign: TextAlign.center),
+                                          ),
+                                          const SizedBox(height: 8.0),
+                                          Container(
+                                            width: double.infinity,
+                                            height: 38.0,
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFFFFDCBD),
+                                              border: Border.all(color: Color(0xFFD1D1D1)),
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                            child: TextButton(
+                                              onPressed: onlineSaleStartedItems.contains(itemId)
+                                                  ? null
+                                                  : () => showDialog(
+                                                        context: context,
+                                                        builder: (BuildContext context) {
+                                                          return AlertDialog(
+                                                            title: Text('온라인 판매 시작'),
+                                                            content: const Text('온라인 판매를 시작하시겠습니까?'),
+                                                            actions: [
+                                                              TextButton(
+                                                                onPressed: () {
+                                                                  Navigator.of(context).pop(); // 팝업 닫기
+                                                                },
+                                                                child: const Text('취소'),
                                                               ),
-                                                            ),
-                                                          ],
-                                                        );
-                                                      },
-                                                    ),
-                                            child: Text(
-                                              onlineSaleStartedItems.contains(itemId) ? '온라인 판매 진행중!' : '온라인 판매 시작',
+                                                              ElevatedButton(
+                                                                onPressed: onlineSaleStartedItems.contains(itemId)
+                                                                    ? null // 이미 클릭된 경우 비활성화
+                                                                    : () {
+                                                                        setState(() {
+                                                                          onlineSaleStartedItems.add(itemId); // 클릭 상태 저장
+                                                                        });
+                                                                        Navigator.of(context).pop(); // 팝업 닫기
+                                                                        _startOnlineSale(itemData); // 온라인 판매 시작
+                                                                      },
+                                                                child: Text(
+                                                                  onlineSaleStartedItems.contains(itemId)
+                                                                      ? '진행 중...'
+                                                                      : '확인',
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          );
+                                                        },
+                                                      ),
+                                              child: Text(
+                                                onlineSaleStartedItems.contains(itemId) ? '온라인 판매 진행중!' : '온라인 판매 시작',
+                                                style: TextStyle(color: Colors.black),
+                                              ),
                                             ),
                                           ),
                                         ],

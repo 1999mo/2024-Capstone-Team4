@@ -53,72 +53,83 @@ class _AdjustmentState extends State<Adjustment> {
             onPressed: () {
               Navigator.pushNamed(context, '/seller_screens/sale_record', arguments: boothId);
             },
-            child: const Text('판매기록'),
+            child: const Text('판매기록', style: TextStyle(color: Colors.black),),
           ),
         ],
       ),
-      body: FutureBuilder<QuerySnapshot>(
-        future: artistCollection.get(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (snapshot.hasError) {
-            return const Center(
-              child: Text('Error loading data'),
-            );
-          } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(
-              child: Text('아직 판매된 상품이 없습니다.'),
-            );
-          }
+      body: Column(
+        children: [
+          const SizedBox(height: 24),
+          Expanded(
+            child: FutureBuilder<QuerySnapshot>(
+            future: artistCollection.get(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else if (snapshot.hasError) {
+                return const Center(
+                  child: Text('Error loading data'),
+                );
+              } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                return const Center(
+                  child: Text('아직 판매된 상품이 없습니다.'),
+                );
+              }
 
-          final artistDocs = snapshot.data!.docs;
+              final artistDocs = snapshot.data!.docs;
 
-          return ListView.builder(
-            itemCount: artistDocs.length,
-            itemBuilder: (context, index) {
-              final artistDoc = artistDocs[index];
-              final artistName = artistDoc.id;
-              final totalSales = artistDoc['totalSales'] ?? 0;
+              return ListView.builder(
+                itemCount: artistDocs.length,
+                itemBuilder: (context, index) {
+                  final artistDoc = artistDocs[index];
+                  final artistName = artistDoc.id;
+                  final totalSales = artistDoc['totalSales'] ?? 0;
 
-              return GestureDetector(
-                onTap: () {
-                  Navigator.pushNamed(
-                    context,
-                    '/seller_screens/adjustment_detail',
-                    arguments: {
-                      'boothId': boothId,
-                      'artistId': artistName,
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.pushNamed(
+                        context,
+                        '/seller_screens/adjustment_detail',
+                        arguments: {
+                          'boothId': boothId,
+                          'artistId': artistName,
+                        },
+                      );
                     },
+
+                    child: Container(
+                      margin: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(12.0),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(16.0),
+                      ),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              artistName,
+                              style: const TextStyle(fontSize: 16.0),
+                            ),
+                            Text(
+                              '₩${numberFormat.format(totalSales)}', // 숫자를 포맷 적용
+                              style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold, color: Colors.red),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   );
                 },
-                child: Container(
-                  margin: const EdgeInsets.all(8.0),
-                  padding: const EdgeInsets.all(16.0),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Text(
-                        artistName,
-                        style: const TextStyle(fontSize: 16.0),
-                      ),
-                      Text(
-                        '₩${numberFormat.format(totalSales)}', // 숫자를 포맷 적용
-                        style: const TextStyle(fontSize: 16.0),
-                      ),
-                    ],
-                  ),
-                ),
               );
             },
-          );
-        },
+          ),
+          ),
+        ],
       ),
     );
   }

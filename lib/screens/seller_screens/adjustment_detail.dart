@@ -146,8 +146,8 @@ class _AdjustmentDetailState extends State<AdjustmentDetail> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text('총 매출: ₩${numberFormat.format(totalSales)}'),
-                Text('총 순수익: ₩${numberFormat.format(totalProfit)}'),
+                Text('총 매출: ₩${numberFormat.format(totalSales)}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text('총 순수익: ₩${numberFormat.format(totalProfit)}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               ],
             ),
           ),
@@ -193,26 +193,27 @@ class _AdjustmentDetailState extends State<AdjustmentDetail> {
                       padding: const EdgeInsets.all(16.0),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(8.0),
+                        borderRadius: BorderRadius.circular(16.0),
+                        color: Color(0xFFFFF2F2)
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         crossAxisAlignment: CrossAxisAlignment.center, // 세로로 가운데 정렬
                         children: [
-                          Expanded(child: Text(itemName, textAlign: TextAlign.center)),
+                          Expanded(child: Text(itemName, textAlign: TextAlign.center, style: TextStyle(fontSize: 16,))),
                           Container(
                             height: 20, // VerticalDivider의 높이 설정
                             child: const VerticalDivider(color: Colors.grey, thickness: 1),
                           ),
                           Expanded(
-                            child: Text('수량: ${numberFormat.format(quantity)}', textAlign: TextAlign.center),
+                            child: Text('수량: ${numberFormat.format(quantity)}', textAlign: TextAlign.center, style: TextStyle(fontSize: 16,)),
                           ),
                           Container(
                             height: 20, // VerticalDivider의 높이 설정
                             child: const VerticalDivider(color: Colors.grey, thickness: 1),
                           ),
                           Expanded(
-                            child: Text('매출: ₩${numberFormat.format(sales)}', textAlign: TextAlign.center),
+                            child: Text('매출: ₩${numberFormat.format(sales)}', textAlign: TextAlign.center, style: TextStyle(fontSize: 16,)),
                           ),
                         ],
                       ),
