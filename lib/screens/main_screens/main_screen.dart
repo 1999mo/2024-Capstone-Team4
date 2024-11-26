@@ -254,14 +254,19 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
 
 // BuyerMainScreen
 class BuyerMainScreen extends StatefulWidget {
-  const BuyerMainScreen({super.key});
+  final int selectedIndex;
+
+  const BuyerMainScreen({
+    Key? key,
+    this.selectedIndex = 1,  // Default value for selectedIndex
+  }) : super(key: key);
 
   @override
   State<BuyerMainScreen> createState() => _BuyerMainScreenState();
 }
 
 class _BuyerMainScreenState extends State<BuyerMainScreen> {
-  int _selectedIndex = 1;
+  late int _selectedIndex;
   final TextEditingController _controller = TextEditingController();
 
   // Initialize _screens with the first state of screens
@@ -270,6 +275,7 @@ class _BuyerMainScreenState extends State<BuyerMainScreen> {
   @override
   void initState() {
     super.initState();
+    _selectedIndex = widget.selectedIndex;
     _screens = [
       Center(child: Text('지도 화면')), // 지도
       BoothListScreen(painter: _controller.text), // 부스

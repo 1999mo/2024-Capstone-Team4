@@ -1,34 +1,119 @@
+import 'dart:ffi';
+
 import 'package:catculator/screens/buyer_screens/bag_qr.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class BagScreen extends StatefulWidget {
-  const BagScreen({Key? key}) : super(key: key);
+class Booth {
+  final String name;
+  final String imagePath;
 
-  @override
-  State<BagScreen> createState() => _BagScreenState();
+  Booth ({required this.name, required this.imagePath});
 }
 
-class _BagScreenState extends State<BagScreen> {
-  // Dummy data for order items (can be replaced with actual data later)
-  final List<Map<String, dynamic>> orderItems = [
-    {
-      'itemName': '상품A',
-      'price': 1000,
-      'itemQuantitySelected': 2,
-    },
-    {
-      'itemName': '상품B',
-      'price': 1500,
-      'itemQuantitySelected': 1,
-    },
-  ];
+class Festival {
+  final String name;
+  final List<Booth> booths;
+
+  Festival({required this.name, required this.booths});
+}
+
+class BagScreen extends StatefulWidget {
+  const BagScreen({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<BagScreen> createState() => _BagScreen();
+}
+
+class _BagScreen extends State<BagScreen> {
+  List<Map<String, dynamic>> orderItems = [];
+  bool isLoading = true;
+  final user = FirebaseAuth.instance.currentUser;
+  String? currentFestival;
+  List<Festival> festivalNames = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchFestivalAndBoothData();
+  }
+
+  Future<void> fetchFestivalAndBoothData() async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      // Fetch festival names
+      QuerySnapshot festivalSnapshot = await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(user?.uid)
+          .collection('basket')
+          .get();
+
+      // Process the festival names into Festival objects
+      List<Festival> fetchedFestivals = [];
+
+      for (var doc in festivalSnapshot.docs) {
+        String festivalName = doc.id;
+
+        // Fetch booths related to this festival
+        QuerySnapshot boothSnapshot = await FirebaseFirestore.instance
+            .collection('Users')
+            .doc(user?.uid)
+            .collection('basket')  // This part will be inside the festival's basket collection
+            .doc(festivalName)      // Add festivalName as the document reference
+            .collection('booth')    // Access the 'booth' subcollection under this festival
+            .get();
+
+        List<Booth> booths = [];
+
+        for (var boothDoc in boothSnapshot.docs) {
+          String boothUid = boothDoc.id;
+
+          DocumentSnapshot boothDetailSnapshot = await FirebaseFirestore.instance
+              .collection('Users')
+              .doc(boothUid)
+              .collection('booths')
+              .doc(festivalName)
+              .get();
+
+          String boothName = boothDetailSnapshot['boothName'] ?? 'Unknown';
+          String imagePath;
+          try {
+            imagePath = boothDetailSnapshot['imagePath'] ?? '';
+          } catch (e) {
+            imagePath = '';
+          }
+
+          booths.add(Booth(name: boothName, imagePath: imagePath));
+        }
+
+        fetchedFestivals.add(Festival(name: festivalName, booths: booths));
+      }
+
+      setState(() {
+        festivalNames = fetchedFestivals;
+        currentFestival = festivalNames.isNotEmpty ? festivalNames.first.name : null;
+        isLoading = false;
+      });
+
+      currentFestival = festivalNames.first.name;
+    } catch (e) {
+      print('Error fetching festival and booth data: $e');
+      isLoading = false;
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    // Calculate the total price
     int totalPrice = orderItems.fold<int>(0, (sum, item) {
-      return sum + (int.tryParse(item['price'].toString()) ?? 0) * (int.tryParse(item['itemQuantitySelected'].toString()) ?? 0);
+      return sum +
+          (int.tryParse(item['price'].toString()) ?? 0) *
+              (int.tryParse(item['itemQuantitySelected'].toString()) ?? 0);
     });
 
     return Scaffold(
@@ -38,79 +123,109 @@ class _BagScreenState extends State<BagScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: Padding(
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Rectangle for 주문 목록 and item list combined
-            Container(
-              padding: const EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(8.0),
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: DropdownButton<String>(
+                    isExpanded: true,
+                    value: currentFestival,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        currentFestival = newValue;
+                      });
+                    },
+                    items: festivalNames.map((festival) {
+                      return DropdownMenuItem<String>(
+                        value: festival.name, // Use festival name as the value
+                        child: Text(festival.name), // Display the festival name
+                      );
+                    }).toList(),
+                    hint: const Text("Select Festival"),
+                  ),
+                ),
+                const SizedBox(width: 16),
+              ],
+            ),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 주문 목록 title
-                  const Center(
-                    child: Text(
-                    '주문 목록',
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  GridView.builder(
+                    shrinkWrap: true,
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 8,
+                      mainAxisSpacing: 8,
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Divider(),
-                  // List of items
-                  Column(
-                    children: orderItems.map((item) {
-                      return Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    itemCount: festivalNames
+                        .firstWhere(
+                          (festival) => festival.name == currentFestival,
+                      orElse: () => Festival(name: '', booths: []), // Fallback in case no matching festival is found
+                    )
+                        .booths
+                        .length,
+                    itemBuilder: (context, index) {
+                      var booth = festivalNames
+                          .firstWhere(
+                            (festival) => festival.name == currentFestival,
+                        orElse: () => Festival(name: '', booths: []), // Fallback
+                      )
+                          .booths[index];
+
+                      return GestureDetector(
+                        onTap: () {
+                          //go to bag_inside
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey), // Default border color
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Column(
                             children: [
-                              Text(item['itemName']),
+                              Image.network(
+                                booth.imagePath, // Display booth image
+                                width: 50, // Adjust size as needed
+                                height: 50, // Adjust size as needed
+                                fit: BoxFit.cover,
+                              ),
+                              const SizedBox(height: 8),
                               Text(
-                                '${item['price']} x ${item['itemQuantitySelected']} = ${item['price'] * item['itemQuantitySelected']} 원',
-                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                booth.name, // Display booth name
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.normal,
+                                ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 8),
-                        ],
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 16),
-                  // Line separator for total price
-                  const Divider(),
-                  const SizedBox(height: 16),
-                  // Total price
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '총 가격 : $totalPrice 원',
-                        style: const TextStyle(
-                          fontSize: 30.0,
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
                         ),
-                      ),
-                    ],
+                      );
+                    },
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 16),
-            // Buttons at the bottom
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                ElevatedButton(
+                  onPressed: () {
+                    //await fetchOrderItems(); // Refresh data
+                  },
+                  child: const Text('데이터 새로고침'),
+                ),
+                const SizedBox(width: 16),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(

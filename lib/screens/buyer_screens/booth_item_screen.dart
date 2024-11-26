@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class BoothItemScreen extends StatefulWidget {
   final String uid;
@@ -127,67 +128,98 @@ class _BoothItemScreenState extends State<BoothItemScreen> {
                             border: Border.all(color: Colors.grey), // Rectangle border around the row
                             borderRadius: BorderRadius.circular(8.0), // Optional rounded corners
                           ),
-          child: Row(
-          mainAxisSize: MainAxisSize.min, // Shrink to fit content
-          children: [
-          // "+" Button
-          Container(
-          child: ElevatedButton(
-          onPressed: () {
-          setState(() {
-          itemQuantity++;
-          });
-          },
-          style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.all(8),
-          backgroundColor: Colors.white,
-          ),
-          child: const Icon(Icons.add, color: Colors.black),
-          ),
-          ),
-
-          // Quantity Display
-          Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-          decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey), // Border for the quantity box
-          borderRadius: BorderRadius.circular(4.0), // Optional rounded corners
-          color: Colors.white,
-          ),
-          child: Text(
-          '$itemQuantity', // Display quantity
-          style: const TextStyle(fontSize: 16.0),
-          ),
-          ),
-
-          // "-" Button
-          Container(
-          child: ElevatedButton(
-          onPressed: () {
-          setState(() {
-          if (itemQuantity > 1) itemQuantity--; // Prevent going below 1
-          });
-          },
-          style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.all(8),
-          backgroundColor: Colors.white,
-          ),
-          child: const Icon(Icons.remove, color: Colors.black),
-          ),),
-                          ],
-                        ),
-                        )],
-                ),
-              ])
-          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      itemQuantity++;
+                                    });
+                                    },
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.all(8),
+                                    backgroundColor: Colors.white,
+                                  ),
+                                  child: const Icon(Icons.add, color: Colors.black),
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(4.0),
+                                  color: Colors.white,),
+                                child: Text(
+                                  '$itemQuantity',
+                                  style: const TextStyle(fontSize: 16.0),
+                                ),
+                              ),
+                              Container(
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      if (itemQuantity > 1) itemQuantity--;
+                                    });
+                                    },
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.all(8),
+                                    backgroundColor: Colors.white,
+                                  ),
+                                  child: const Icon(Icons.remove, color: Colors.black),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  ])
+              ),
               const Spacer(),
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
-                      // Handle adding to cart logic here
+                    onPressed: () async {
+                      try {
+                        final user = FirebaseAuth.instance.currentUser;
+
+                        await FirebaseFirestore.instance
+                            .collection('Users')
+                            .doc(user?.uid)
+                            .collection('basket')
+                            .doc(widget.festivalName)
+                            .set({'createdAt': FieldValue.serverTimestamp()}, SetOptions(merge: true));
+
+                        await FirebaseFirestore.instance
+                            .collection('Users')
+                            .doc(user?.uid)
+                            .collection('basket')
+                            .doc(widget.festivalName)
+                            .collection('booth')
+                            .doc(widget.uid)
+                            .set({'createdAt': FieldValue.serverTimestamp()}, SetOptions(merge: true));
+
+
+                        await FirebaseFirestore.instance
+                            .collection('Users')
+                            .doc(user?.uid)
+                            .collection('basket')
+                            .doc(widget.festivalName)
+                            .collection('booth')
+                            .doc(widget.uid)
+                            .collection('items')
+                            .add({
+                          'itemName': widget.itemName,
+                          'quantity': itemQuantity,
+                        });
+
+                      } catch (e) {
+                        print('Error adding in basket: $e');
+                      }
                     },
                     child: const Text('미리담기'),
                   ),

@@ -32,7 +32,12 @@ class BoothScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.shopping_basket),
             onPressed: () {
-              // TODO: Implement basket functionality here
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => BuyerMainScreen(selectedIndex: 3,)
+                ), (Route<dynamic> route) => false,
+              );
             },
           ),
         ],
