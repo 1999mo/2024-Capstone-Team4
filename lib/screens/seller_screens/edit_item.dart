@@ -64,7 +64,7 @@ class _EditItemState extends State<EditItem> {
     final itemDoc = await itemRef.get();
 
     if (boothDoc.exists) {
-      final boothData = boothDoc.data() as Map<String, dynamic>?;
+      final boothData = boothDoc.data();
       if (boothData != null && boothData['painters'] is List) {
         setState(() {
           painters = [

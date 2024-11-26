@@ -25,7 +25,7 @@ class _MyOnlineItemsState extends State<MyOnlineItems> {
     try {
       if (uid == null) return null;
       // Firebase Storage에서 이미지 URL 가져오기
-      final ref = FirebaseStorage.instance.ref('$uid/$itemId.jpg');
+      final ref = FirebaseStorage.instance.ref('$uid/${itemId.replaceAll(' ', '_')}.jpg');
       return await ref.getDownloadURL();
     } catch (e) {
       return null; // 이미지가 없거나 에러가 발생한 경우
@@ -36,17 +36,48 @@ class _MyOnlineItemsState extends State<MyOnlineItems> {
     if (uid == null || boothId == null) return;
 
     try {
-      await FirebaseFirestore.instance.collection('OnlineStore').doc(boothId).collection(uid!).doc(itemId).delete();
+      // Firestore에서 해당 아이템 문서 참조 생성
+      final itemRef = FirebaseFirestore.instance
+          .collection('OnlineStore')
+          .doc(boothId)
+          .collection(uid!)
+          .doc(itemId);
 
+      // 문서 가져오기
+      final itemSnapshot = await itemRef.get();
+
+      if (itemSnapshot.exists) {
+        // 문서 데이터 가져오기
+        final itemData = itemSnapshot.data() as Map<String, dynamic>?;
+
+        // stockQuantity 확인
+        if (itemData != null && itemData['stockQuantity'] != null) {
+        } else {
+          // stockQuantity가 없으면 이미지를 삭제
+          final storageRef = FirebaseStorage.instance.ref();
+          final imagePath = '$uid/${itemId.replaceAll(' ', '_')}.jpg';
+          final imageRef = storageRef.child(imagePath);
+
+          await imageRef.delete();
+          print('이미지를 삭제했습니다.');
+        }
+      }
+
+      // Firestore에서 문서 삭제
+      await itemRef.delete();
+
+      // 삭제 성공 메시지
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('상품이 삭제되었습니다.')),
+        const SnackBar(content: Text('상품을 삭제했습니다.')),
       );
     } catch (e) {
+      // 삭제 실패 시 에러 메시지 표시
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('삭제 중 오류가 발생했습니다: $e')),
       );
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -259,6 +290,12 @@ class _MyOnlineItemsState extends State<MyOnlineItems> {
             ),
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pushNamed(context, '/online_seller_screens/online_item_add', arguments: boothId);
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }

@@ -52,17 +52,14 @@ class _OnlineItemEditState extends State<OnlineItemEdit> {
   Future<void> _loadItemData() async {
     if (uid == null || boothId == null || itemId == null) return;
 
-    final itemRef = FirebaseFirestore.instance
-        .collection('OnlineStore')
-        .doc(boothId)
-        .collection(uid!)
-        .doc(itemId);
+    final itemRef = FirebaseFirestore.instance.collection('OnlineStore').doc(boothId).collection(uid!).doc(itemId);
 
     final itemDoc = await itemRef.get();
 
     if (itemDoc.exists) {
       final itemData = itemDoc.data() as Map<String, dynamic>?;
       if (itemData != null) {
+        imageUrl = await _getImageUrl();
         setState(() {
           itemNameController.text = itemData['itemName'] ?? '';
           artistController.text = itemData['artist'] ?? '';
@@ -72,14 +69,12 @@ class _OnlineItemEditState extends State<OnlineItemEdit> {
         });
       }
     }
-
-    imageUrl = await _getImageUrl();
   }
 
   Future<String?> _getImageUrl() async {
     if (uid == null || itemId == null) return null;
     try {
-      final ref = FirebaseStorage.instance.ref('$uid/$itemId.jpg');
+      final ref = FirebaseStorage.instance.ref('$uid/${itemId?.replaceAll(' ', '_')}.jpg');
       return await ref.getDownloadURL();
     } catch (e) {
       return null; // 이미지가 없거나 에러가 발생한 경우
@@ -97,11 +92,7 @@ class _OnlineItemEditState extends State<OnlineItemEdit> {
   Future<void> _updateItem() async {
     if (uid == null || boothId == null || itemId == null) return;
 
-    final itemRef = FirebaseFirestore.instance
-        .collection('OnlineStore')
-        .doc(boothId)
-        .collection(uid!)
-        .doc(itemId);
+    final itemRef = FirebaseFirestore.instance.collection('OnlineStore').doc(boothId).collection(uid!).doc(itemId);
 
     final updatedImageUrl = await _uploadImage();
 
@@ -285,8 +276,6 @@ class _OnlineItemEditState extends State<OnlineItemEdit> {
                       child: TextButton(
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
-                            Navigator.pop(context);
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('상품정보가 수정되었습니다.')));
                             _updateItem();
                           }
                         },
@@ -300,6 +289,7 @@ class _OnlineItemEditState extends State<OnlineItemEdit> {
           ),
         ),
       ),
+
     );
   }
 }

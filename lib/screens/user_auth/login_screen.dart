@@ -1,7 +1,7 @@
 // Firestore 사용
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:catculator/main/script.dart';
+import 'package:catculator/script.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

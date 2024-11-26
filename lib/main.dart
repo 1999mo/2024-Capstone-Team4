@@ -56,7 +56,7 @@ class MyApp extends StatelessWidget {
         '/online_seller_screens/online_select_booth':(context)=>const OnlineSelectBooth(),
         '/online_seller_screens/my_online_items':(context)=>const MyOnlineItems(),
         '/online_seller_screens/online_item_edit':(context)=>const OnlineItemEdit(),
-
+        '/online_seller_screens/online_item_add':(context)=>const OnlineItemAdd()
 
       },
     );

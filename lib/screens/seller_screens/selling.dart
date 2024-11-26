@@ -636,7 +636,7 @@ class _SellingState extends State<Selling> {
                                             width: double.infinity,
                                             height: 38.0,
                                             decoration: BoxDecoration(
-                                              color: const Color(0xFFFFDCBD),
+                                              color: onlineSaleStartedItems.contains(itemId)? Colors.grey:const Color(0xFFFFDCBD),
                                               border: Border.all(color: Color(0xFFD1D1D1)),
                                               borderRadius: BorderRadius.circular(8),
                                             ),
