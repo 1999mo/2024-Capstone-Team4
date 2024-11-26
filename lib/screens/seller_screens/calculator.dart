@@ -31,53 +31,70 @@ Future<Map<String, dynamic>?> showCalculatorBottomSheet({
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  '받은 금액 ${numberFormat.format(receivedAmount)}원',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: receivedAmount < totalAmount ? Colors.red : Colors.black,
+                const SizedBox(height: 48),
+                  Text(
+                    '받은 금액 ${numberFormat.format(receivedAmount)}원',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: receivedAmount < totalAmount ? Colors.red : Colors.black,
+                    ),
                   ),
-                ),
                 const SizedBox(height: 8),
                 Text(
                   '결제해야할 금액 ${numberFormat.format(totalAmount)}원 / 거스름 돈: ${numberFormat.format(change)}원',
                   style: const TextStyle(color: Colors.grey),
                 ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          receivedAmount = totalAmount;
-                        });
-                      },
-                      child: Text(numberFormat.format(totalAmount)),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          receivedAmount = next5000;
-                        });
-                      },
-                      child: Text(numberFormat.format(next5000)),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          receivedAmount = next10000;
-                        });
-                      },
-                      child: Text(numberFormat.format(next10000)),
-                    ),
-                  ],
+                const SizedBox(height: 48),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            receivedAmount = totalAmount;
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                          fixedSize: const Size(112,33),
+                          backgroundColor: const Color(0xFFD1D1D1),
+                        ),
+                        child: Text(numberFormat.format(totalAmount), style: const TextStyle(color: Colors.black),),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            receivedAmount = next5000;
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                          fixedSize: const Size(112,33),
+                          backgroundColor: const Color(0xFFD1D1D1),
+                        ),
+                        child: Text(numberFormat.format(next5000), style: const TextStyle(color: Colors.black),),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            receivedAmount = next10000;
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                          fixedSize: const Size(112,33),
+                          backgroundColor: const Color(0xFFD1D1D1),
+                        ),
+                        child: Text(numberFormat.format(next10000), style: const TextStyle(color: Colors.black),),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 16),
                 GridView.count(
                   crossAxisCount: 3,
                   shrinkWrap: true,
+                  childAspectRatio: 1.5,
                   children: [
                     ...List.generate(9, (index) {
                       final number = (index + 1).toString();
@@ -87,7 +104,8 @@ Future<Map<String, dynamic>?> showCalculatorBottomSheet({
                             receivedAmount = int.parse('$receivedAmount$number');
                           });
                         },
-                        child: Text(number, style: const TextStyle(fontSize: 24)),
+
+                        child: Text(number, style: const TextStyle(fontSize: 24, color: Colors.black)),
                       );
                     }),
                     TextButton(
@@ -96,7 +114,7 @@ Future<Map<String, dynamic>?> showCalculatorBottomSheet({
                           receivedAmount = 0;
                         });
                       },
-                      child: const Text('C', style: TextStyle(fontSize: 24)),
+                      child: const Text('C', style: TextStyle(fontSize: 24, color: Colors.black)),
                     ),
                     TextButton(
                       onPressed: () {
@@ -104,7 +122,7 @@ Future<Map<String, dynamic>?> showCalculatorBottomSheet({
                           receivedAmount = int.parse('${receivedAmount}0');
                         });
                       },
-                      child: const Text('0', style: TextStyle(fontSize: 24)),
+                      child: const Text('0', style: TextStyle(fontSize: 24, color: Colors.black)),
                     ),
                     TextButton(
                       onPressed: () {
@@ -114,7 +132,7 @@ Future<Map<String, dynamic>?> showCalculatorBottomSheet({
                           }
                         });
                       },
-                      child: const Icon(Icons.backspace),
+                      child: const Icon(Icons.backspace, color: Colors.black),
                     ),
                   ],
                 ),
@@ -122,13 +140,28 @@ Future<Map<String, dynamic>?> showCalculatorBottomSheet({
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    TextButton(
+          Expanded(
+          child: Container(
+          decoration: BoxDecoration(
+          color: const Color(0xFFD1D1D1),
+          borderRadius: BorderRadius.circular(8),
+          ),
+          child: TextButton(
                       onPressed: () {
                         Navigator.pop(context, null); // 아무 값도 반환하지 않음
                       },
-                      child: const Text('뒤로가기', style: TextStyle(fontSize: 16)),
+                      child: const Text('뒤로가기', style: TextStyle(fontSize: 16, color: Colors.black)),
                     ),
-                    TextButton(
+                    ),
+          ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                    child: Container(
+          decoration: BoxDecoration(
+          color: const Color(0xFFFDBE85),
+          borderRadius: BorderRadius.circular(8),
+          ),
+          child: TextButton(
                       onPressed: () async {
                         if (receivedAmount < totalAmount) {
                           showDialog(
@@ -266,7 +299,9 @@ Future<Map<String, dynamic>?> showCalculatorBottomSheet({
                           }
                         }
                       },
-                      child: const Text('결제하기', style: TextStyle(fontSize: 16)),
+                      child: const Text('결제하기', style: TextStyle(fontSize: 16, color: Colors.black)),
+                    ),
+                    ),
                     ),
                   ],
                 ),

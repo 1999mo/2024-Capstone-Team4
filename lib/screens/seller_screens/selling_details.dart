@@ -155,7 +155,10 @@ class _SellingDetailsState extends State<SellingDetails> {
                                               height: 30,
                                               width: 30,
                                               child: IconButton(
-                                                icon: const Icon(Icons.remove),
+                                                icon: const Icon(
+                                                    Icons.remove,
+                                                  color: Colors.blue,
+                                                ),
                                                 iconSize: 18,
                                                 padding: EdgeInsets.zero,
                                                 constraints: BoxConstraints(),
@@ -185,7 +188,10 @@ class _SellingDetailsState extends State<SellingDetails> {
                                               height: 30,
                                               width: 30,
                                               child: IconButton(
-                                                icon: const Icon(Icons.add),
+                                                icon: const Icon(
+                                                    Icons.add,
+                                                    color: Colors.red,
+                                                ),
                                                 iconSize: 18,
                                                 padding: EdgeInsets.zero,
                                                 constraints: BoxConstraints(),

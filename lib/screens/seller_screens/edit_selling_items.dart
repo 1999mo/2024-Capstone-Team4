@@ -264,10 +264,10 @@ class _EditSellingItemsState extends State<EditSellingItems> {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
-                const Text(
-                  '작가 선택: ',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
+                // const Text(
+                //   '작가 선택: ',
+                //   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                // ),
                 DropdownButton<String>(
                   value: selectedPainter,
                   onChanged: (value) {
