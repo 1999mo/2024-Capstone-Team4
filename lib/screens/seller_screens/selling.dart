@@ -40,10 +40,17 @@ class _SellingState extends State<Selling> {
     String? uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null || boothId == null) return;
 
-    CollectionReference itemsRef =
-        FirebaseFirestore.instance.collection('Users').doc(uid).collection('booths').doc(boothId).collection('items');
+    CollectionReference itemsRef = FirebaseFirestore.instance
+        .collection('Users')
+        .doc(uid)
+        .collection('booths')
+        .doc(boothId)
+        .collection('items');
 
-    DocumentReference onlineStoreRef = FirebaseFirestore.instance.collection('OnlineStore').doc(uid);
+    CollectionReference onlineItemsRef = FirebaseFirestore.instance
+        .collection('OnlineStore')
+        .doc(boothId)
+        .collection(uid);
 
     try {
       List<Set<String>> results = await Future.wait([
@@ -71,7 +78,7 @@ class _SellingState extends State<Selling> {
         }),
 
         // 2. Initialize onlineSaleStartedItems
-        onlineStoreRef.collection('onlineSell').get().then((onlineSnapshot) {
+        onlineItemsRef.get().then((onlineSnapshot) {
           Set<String> onlineItems = onlineSnapshot.docs.map((doc) => doc.id).toSet();
           return onlineItems;
         }),
@@ -84,9 +91,12 @@ class _SellingState extends State<Selling> {
       });
     } catch (e) {
       // 오류 발생 시 Snackbar 표시
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('데이터 초기화 중 오류가 발생했습니다.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('데이터 초기화 중 오류가 발생했습니다.')),
+      );
     }
   }
+
 
   Future<void> _initializePainters() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
@@ -288,7 +298,7 @@ class _SellingState extends State<Selling> {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
-    final String? uid = user.uid; // 현재 사용자의 UID
+    final String uid = user.uid; // 현재 사용자의 UID
     final String? email = user.email; // 현재 사용자의 이메일
 
     // itemData에서 문서 ID로 사용할 값을 가져옴 (예: 'itemName' 필드)
@@ -300,7 +310,7 @@ class _SellingState extends State<Selling> {
       return;
     }
 
-    final onlineStoreRef = FirebaseFirestore.instance.collection('OnlineStore').doc(uid);
+    final onlineStoreRef = FirebaseFirestore.instance.collection('OnlineStore').doc(boothId);
 
     try {
       // **1. Firebase 작업 수행**
@@ -309,7 +319,7 @@ class _SellingState extends State<Selling> {
         SetOptions(merge: true), // 기존 데이터에 병합
       );
 
-      final itemRef = onlineStoreRef.collection('onlineSell').doc(itemName);
+      final itemRef = onlineStoreRef.collection(uid).doc(itemName);
       await itemRef.set(itemData);
 
       // **2. 성공적으로 Firebase 작업 완료 후 로컬 상태 업데이트**
@@ -343,7 +353,7 @@ class _SellingState extends State<Selling> {
                   builder: (BuildContext context) {
                     return AlertDialog(
                       title: const Text('품절된 상품 목록'),
-                      content: SingleChildScrollView(child: Text(localStock.toString())),
+                      content: SingleChildScrollView(child: Text(boothId.toString())),
                       actions: [
                         TextButton(
                           onPressed: () {

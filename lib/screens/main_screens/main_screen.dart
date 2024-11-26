@@ -205,7 +205,7 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
                 ),
               ),
               onTap: () {
-                Navigator.pushNamed(context, '/online_seller_screens/my_online_items');
+                Navigator.pushNamed(context, '/online_seller_screens/online_select_booth');
               },
             ),
             const SizedBox(height: 20),

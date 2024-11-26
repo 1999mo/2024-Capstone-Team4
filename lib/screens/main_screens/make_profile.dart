@@ -188,21 +188,11 @@ class _MakeProfileState extends State<MakeProfile> {
                   ),
                   const SizedBox(height: 24), // 프로필 사진과 텍스트 필드 사이 간격
                   Container(
-                    width: 320,
-                    height: 44,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: ShapeDecoration(
-                      shape: RoundedRectangleBorder(
-                        side: const BorderSide(
-                          width: 1,
-                          strokeAlign: BorderSide.strokeAlignCenter,
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
+                    margin: EdgeInsets.symmetric(horizontal: 40),
                     child: TextFormField(
                       decoration: const InputDecoration(
                         labelText: '사용할 이름 입력',
+                        border: OutlineInputBorder(),
                       ),
                       onChanged: (value) {
                         setState(() {

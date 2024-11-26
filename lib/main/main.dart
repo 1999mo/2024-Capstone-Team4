@@ -53,7 +53,10 @@ class MyApp extends StatelessWidget {
         '/seller_screens/sale_record':(context)=>const SaleRecord(),
         '/seller_screens/pre_order':(context)=>const PreOrder(),
         //online_seller_screens 시작
+        '/online_seller_screens/online_select_booth':(context)=>const OnlineSelectBooth(),
         '/online_seller_screens/my_online_items':(context)=>const MyOnlineItems(),
+        '/online_seller_screens/online_item_edit':(context)=>const OnlineItemEdit(),
+
 
       },
     );
