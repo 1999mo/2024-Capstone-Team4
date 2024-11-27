@@ -70,7 +70,7 @@ class _MainScreenState extends State<MainScreen> {
         } else if (snapshot.hasData) {
           // isSeller 값에 따라 화면 반환
           final isSeller = snapshot.data!;
-          return isSeller ? const SellerMainScreen() : const BuyerMainScreen();
+          return isSeller ? const SellerMainScreen() : const BuyerMainScreen(); //BuyerMainScreen
         } else {
           // null 케이스가 없으므로 여기는 실행되지 않음
           return const SizedBox();
@@ -304,7 +304,7 @@ class _BuyerMainScreenState extends State<BuyerMainScreen> {
         title: TextField(
           controller: _controller,
           decoration: InputDecoration(
-            hintText: '작가명 또는 캐릭터명으로 검색',
+            hintText: '작가명 또는 상품명으로 검색',
             suffixIcon: const Icon(Icons.search),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8.0),

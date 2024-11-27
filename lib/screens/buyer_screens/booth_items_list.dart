@@ -59,13 +59,10 @@ class BoothItemsList extends StatelessWidget {
 
           return Column(
             children: [
-              // Booth Details at the Top
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                // Padding outside the rectangle
                 child: Container(
                   height: 100.0,
-                  // Set a fixed height for the rectangle (adjust as needed)
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8.0), // Rounded corners
                     border: Border.all(color: Colors.grey), // Optional border

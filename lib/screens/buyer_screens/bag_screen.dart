@@ -118,7 +118,7 @@ class _BagScreen extends State<BagScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('미리담기 목록'),
+        title: const Text('장바구니 목록'),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
