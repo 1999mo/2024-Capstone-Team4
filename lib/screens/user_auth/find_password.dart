@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:catculator/main/script.dart';
+import 'package:catculator/script.dart';
 
 class FindId extends StatefulWidget {
   const FindId({super.key});

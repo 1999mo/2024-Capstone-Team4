@@ -1,6 +1,3 @@
-import 'package:catculator/screens/seller_screens/add_booth.dart';
-import 'package:catculator/screens/seller_screens/edit_selling_items.dart';
-import 'package:catculator/screens/seller_screens/sale_record.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,6 +6,7 @@ import 'package:catculator/screens/splash.dart';
 import 'package:catculator/screens/user_auth/auth_screen_export.dart';
 import 'package:catculator/screens/main_screens/main_screen_export.dart';
 import 'package:catculator/screens/seller_screens/seller_screen_export.dart';
+import 'package:catculator/screens/online_seller_screens/online_seller_screens_export.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,9 +33,11 @@ class MyApp extends StatelessWidget {
       ),
       routes: {
         '/splash': (context) => const Splash(),
+        //user_auth 시작
         '/user_auth/login_screen': (context) => const LoginScreen(),
         '/user_auth/signup': (context) => const Signup(),
         '/user_auth/find_id': (context) => const FindId(),
+        //seller_screens 시작
         '/main_screens/make_profile': (context) => const MakeProfile(),
         '/main_screens/main_screen': (context) => const MainScreen(),
         '/main_screens/setting': (context) => const Setting(),
@@ -51,7 +51,12 @@ class MyApp extends StatelessWidget {
         '/seller_screens/adjustment':(context)=>const Adjustment(),
         '/seller_screens/adjustment_detail':(context)=>const AdjustmentDetail(),
         '/seller_screens/sale_record':(context)=>const SaleRecord(),
-        '/seller_screens/check_pre_buy':(context)=>const CheckPreBuy(),
+        '/seller_screens/pre_order':(context)=>const PreOrder(),
+        //online_seller_screens 시작
+        '/online_seller_screens/online_select_booth':(context)=>const OnlineSelectBooth(),
+        '/online_seller_screens/my_online_items':(context)=>const MyOnlineItems(),
+        '/online_seller_screens/online_item_edit':(context)=>const OnlineItemEdit(),
+        '/online_seller_screens/online_item_add':(context)=>const OnlineItemAdd()
 
       },
     );

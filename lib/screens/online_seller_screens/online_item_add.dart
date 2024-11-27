@@ -4,55 +4,30 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter/services.dart' show rootBundle;
 
-class AddItem extends StatefulWidget {
-  const AddItem({super.key});
+class OnlineItemAdd extends StatefulWidget {
+  const OnlineItemAdd({super.key});
 
   @override
-  State<AddItem> createState() => _AddItemState();
+  State<OnlineItemAdd> createState() => _OnlineItemAddState();
 }
 
-class _AddItemState extends State<AddItem> {
+class _OnlineItemAddState extends State<OnlineItemAdd> {
   final _formKey = GlobalKey<FormState>();
   final ImagePicker _picker = ImagePicker();
 
   String? boothId;
   String itemName = '';
-  String selectedPainter = '판매 작가명';
+  String artist = '';
   String itemType = '';
   int? costPrice;
   int? sellingPrice;
-  int? stockQuantity;
   File? imageFile;
-
-  List<String> painters = ['판매 작가명'];
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     boothId = ModalRoute.of(context)?.settings.arguments as String?;
-    if (boothId != null) {
-      _loadPainters();
-    }
-  }
-
-  Future<void> _loadPainters() async {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid == null || boothId == null) return;
-
-    final boothRef = FirebaseFirestore.instance.collection('Users').doc(uid).collection('booths').doc(boothId);
-
-    final boothDoc = await boothRef.get();
-    if (boothDoc.exists) {
-      final data = boothDoc.data() as Map<String, dynamic>;
-      setState(() {
-        painters = [
-          '판매 작가명',
-          ...List<String>.from(data['painters'] ?? []),
-        ];
-      });
-    }
   }
 
   Future<String> _uploadImage() async {
@@ -79,17 +54,18 @@ class _AddItemState extends State<AddItem> {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null || boothId == null) return;
 
-    final itemsRef =
-        FirebaseFirestore.instance.collection('Users').doc(uid).collection('booths').doc(boothId).collection('items');
+
+
+    final itemsRef = FirebaseFirestore.instance.collection('OnlineStore').doc(boothId).collection(uid);
 
     final existingDoc = await itemsRef.doc(itemName).get();
-
     if (existingDoc.exists) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('이미 존재하는 상품명입니다.')),
       );
       return;
     }
+
     Navigator.pop(context);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('상품이 성공적으로 추가되었습니다.')),
@@ -97,13 +73,12 @@ class _AddItemState extends State<AddItem> {
 
     final imageUrl = await _uploadImage();
 
-    // 이미지 업로드 결과와 관계없이 데이터 저장
+    // 데이터 저장
     await itemsRef.doc(itemName).set({
       'itemName': itemName,
-      'artist': selectedPainter,
+      'artist': artist,
       'costPrice': costPrice,
       'sellingPrice': sellingPrice,
-      'stockQuantity': stockQuantity,
       'itemType': itemType,
       'imagePath': imageUrl, // 업로드 실패 시 빈 문자열 저장
     });
@@ -113,7 +88,7 @@ class _AddItemState extends State<AddItem> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('상품 추가'),
+        title: const Text('온라인 상품 추가'),
       ),
       body: Form(
         key: _formKey,
@@ -137,23 +112,19 @@ class _AddItemState extends State<AddItem> {
                 onSaved: (value) => itemName = value!.trim(),
               ),
               const SizedBox(height: 16),
-              const Text('작가 선택', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const Text('작가', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
-              DropdownButtonFormField<String>(
-                decoration: InputDecoration(border: OutlineInputBorder()),
-                value: selectedPainter,
-                items: painters.map((painter) => DropdownMenuItem(value: painter, child: Text(painter))).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    selectedPainter = value!;
-                  });
-                },
+              TextFormField(
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                ),
                 validator: (value) {
-                  if (value == '판매 작가명') {
-                    return '해당 상품의 작가를 선택하세요';
+                  if (value == null || value.trim().isEmpty) {
+                    return '작가명을 입력하세요';
                   }
                   return null;
                 },
+                onSaved: (value) => artist = value!.trim(),
               ),
               const SizedBox(height: 16),
               const Text('원가', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
@@ -166,7 +137,7 @@ class _AddItemState extends State<AddItem> {
                     return '원가를 입력하세요';
                   }
                   if (int.tryParse(value) == null) {
-                    return '숫자만 입력가능합니다';
+                    return '숫자만 입력 가능합니다';
                   }
                   return null;
                 },
@@ -183,28 +154,11 @@ class _AddItemState extends State<AddItem> {
                     return '판매가를 입력하세요';
                   }
                   if (int.tryParse(value) == null) {
-                    return '숫자만 입력가능합니다';
+                    return '숫자만 입력 가능합니다';
                   }
                   return null;
                 },
                 onSaved: (value) => sellingPrice = int.parse(value!),
-              ),
-              const SizedBox(height: 16),
-              const Text('재고 수량', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              TextFormField(
-                decoration: const InputDecoration(border: OutlineInputBorder(), hintText: '상품의 총 수량'),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return '재고 수량을 입력하세요';
-                  }
-                  if (int.tryParse(value) == null) {
-                    return '숫자만 입력가능합니다';
-                  }
-                  return null;
-                },
-                onSaved: (value) => stockQuantity = int.parse(value!),
               ),
               const SizedBox(height: 16),
               const Text('상품 종류', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
@@ -223,10 +177,6 @@ class _AddItemState extends State<AddItem> {
                 onSaved: (value) => itemType = value!.trim(),
               ),
               const SizedBox(height: 16),
-              //const Text('이미지 업로드',
-              //  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)
-              //),
-              const SizedBox(height: 8),
               TextButton(
                 onPressed: () async {
                   final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
@@ -237,14 +187,14 @@ class _AddItemState extends State<AddItem> {
                   }
                 },
                 style: TextButton.styleFrom(
-                  side: BorderSide(color: Colors.grey), // 아웃라인 추가
-                  minimumSize: Size(320, 56), // 너비와 높이 설정
+                  side: const BorderSide(color: Colors.grey), // 아웃라인 추가
+                  minimumSize: const Size(320, 56), // 너비와 높이 설정
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: Center(
-                  child: const Text(
+                child: const Center(
+                  child: Text(
                     '사진 업로드 +',
                     style: TextStyle(
                       color: Colors.black, // 텍스트 색상 검은색
@@ -256,11 +206,6 @@ class _AddItemState extends State<AddItem> {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
                   child: Image.file(imageFile!, height: 150),
-                )
-              else
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  child: Image.asset('assets/catcul_w.jpg', height: 150),
                 ),
               const SizedBox(height: 16),
               Row(
@@ -273,18 +218,17 @@ class _AddItemState extends State<AddItem> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: Text(
-                            '뒤로가기',
-                            style: TextStyle(fontSize: 14, color: Colors.black),
-                          )),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text(
+                          '뒤로가기',
+                          style: TextStyle(fontSize: 14, color: Colors.black),
+                        ),
+                      ),
                     ),
                   ),
-                  SizedBox(
-                    width: 10,
-                  ),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(

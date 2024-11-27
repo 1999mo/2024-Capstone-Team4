@@ -1,7 +1,7 @@
 // Firestore 사용
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:catculator/main/script.dart';
+import 'package:catculator/script.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -101,7 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       );
                     }
                   },
-                  child: const Center(child: Text('로그인')),
+                  child: const Center(child: Text('로그인', style: TextStyle(color: Colors.black))),
                 ),
               ),
               SizedBox(
@@ -113,7 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: () {
                         Navigator.pushNamed(context, '/user_auth/signup');
                       },
-                      child: const Text('회원가입'),
+                      child: const Text('회원가입', style: TextStyle(color: Colors.black)),
                     ),
                     Container(
                       height: 20, // 경계선 높이
@@ -125,7 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: () {
                         Navigator.pushNamed(context, '/user_auth/find_id');
                       },
-                      child: const Text('비밀번호 찾기'),
+                      child: const Text('비밀번호 찾기', style: TextStyle(color: Colors.black)),
                     ),
                   ],
                 ),

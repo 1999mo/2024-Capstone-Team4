@@ -123,15 +123,19 @@ class _EditSellingItemsState extends State<EditSellingItems> {
                 Center(
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    itemData['imagePath'] ?? '',
-                    fit: BoxFit.cover,
-                    height: 150,
-                    width: 150,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Icon(Icons.image_not_supported);
-                    },
-                  ),
+                    child: Image.network(
+                      itemData['imagePath'] ?? '',
+                      fit: BoxFit.cover,
+                      height: 150,
+                      width: 150,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Image.asset(
+                          'assets/catcul_w.jpg',
+                          height: 150,
+                          width: 150,
+                        );
+                      },
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -147,6 +151,9 @@ class _EditSellingItemsState extends State<EditSellingItems> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              Text('상품종류: ${itemData['itemType'] ?? ''}',
+                                  style: const TextStyle(fontSize: 14, color: Colors.grey)
+                              ),
                               Text(
                                 '상품명: ${itemData['itemName'] ?? ''}',
                                 style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -161,7 +168,6 @@ class _EditSellingItemsState extends State<EditSellingItems> {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text('재고수: ${itemData['stockQuantity'] ?? ''}', style: const TextStyle(fontSize: 14)),
-                              Text('상품종류: ${itemData['itemType'] ?? ''}', style: const TextStyle(fontSize: 14, color: Colors.grey)),
                             ],
                           ),
                         ],
@@ -170,18 +176,18 @@ class _EditSellingItemsState extends State<EditSellingItems> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('원가: ${itemData['costPrice'] ?? ''}', style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                          Text('원가: ${itemData['costPrice'] ?? ''}',
+                              style: const TextStyle(fontSize: 14, color: Colors.grey)),
                           Text('판매가: ${itemData['sellingPrice'] ?? ''}',
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFFF5353))),
+                              style:
+                                  const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFFF5353))),
                         ],
                       ),
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 20),
-
-            Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
@@ -259,10 +265,10 @@ class _EditSellingItemsState extends State<EditSellingItems> {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
-                const Text(
-                  '작가 선택: ',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
+                // const Text(
+                //   '작가 선택: ',
+                //   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                // ),
                 DropdownButton<String>(
                   value: selectedPainter,
                   onChanged: (value) {
@@ -323,7 +329,7 @@ class _EditSellingItemsState extends State<EditSellingItems> {
                         //elevation: 3,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
-                          side: BorderSide(color: Colors.grey, width: 1),
+                          side: BorderSide(color: Color(0xFFD1D1D1), width: 1),
                         ),
                         child: Column(
                           children: [
@@ -333,19 +339,19 @@ class _EditSellingItemsState extends State<EditSellingItems> {
                                 borderRadius: BorderRadius.circular(8),
                                 child: itemData['imagePath']?.isNotEmpty == true
                                     ? Image.network(
-                                  itemData['imagePath'],
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Image.asset(
-                                      'assets/catcul_w.jpg',
-                                      fit: BoxFit.cover,
-                                    );
-                                  },
-                                )
+                                        itemData['imagePath'],
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stackTrace) {
+                                          return Image.asset(
+                                            'assets/catcul_w.jpg',
+                                            fit: BoxFit.cover,
+                                          );
+                                        },
+                                      )
                                     : Image.asset(
-                                  'assets/catcul_w.jpg',
-                                  fit: BoxFit.cover,
-                                ),
+                                        'assets/catcul_w.jpg',
+                                        fit: BoxFit.cover,
+                                      ),
                               ),
                             ),
                             Padding(
