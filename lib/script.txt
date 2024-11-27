@@ -1,0 +1,35 @@
+Future<void> sendEmailVerification(String email) async
+이메일 인증 번호 보내는 함수
+Future<void> sendVerificationEmail(String email, String verificationCode) async
+이메일 인증 번호 보내는 직접 함수
+- **구현중
+Future<bool> verifyCode(String uid, String codeEntered) async
+인증 번호 이메일 맞는지 확인하는 함수
+Future<void> deleteUser(String uid) async
+사용자 삭제 함수
+-가입중에 취소시 이를 사용 고려
+Future<UserCredential?> signIn(String email, String password) async
+로그인 함수
+-유저로그인 반환
+Future<Map<String, dynamic>?> signInWithGoogle() async 
+구글로 로그인 함수
+-유저로그인+로그인 성공여부 반환
+-만약 구매자 판매자 구분 없을 경우 0, 1 제거
+Future<void> updateUserData(String uid, String userName, int idType, String photoURL) async
+사용자 정보 갱신 함수
+-여기서 구매자 판매자 정보 업데이트 해야함 **수정 필요
+Future<void> uploadItem(String itemName, int itemPrice, int sellPrice, int quantity, String imageUrl) async
+물품 업로드 함수
+Future<String> uploadImage(File imageFile, String imageName) async 
+이미지 업로드 함수
+-이미지 링크 반환
+사진 업로드 관련 좀 알아봐야함
+Future<void> updateItem(String itemId, String itemName, int itemPrice, int sellPrice, int quantity, String imageUrl) async
+물품 업데이트 함수
+Future<void> deleteItem(String itemId) async 
+물품 삭제 함수
+Future<List<Map<String, dynamic>>> getItemsByUserId(String userId) async 
+물품 유저 id로 검색 함수
+
+-물품에 행사장 관련 정보 추가 고려
+-아니면 물품들을 행사장으로 묶어서 저장 고려
