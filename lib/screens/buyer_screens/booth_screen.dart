@@ -16,6 +16,7 @@ class BoothScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        /*
         leading: IconButton(
           icon: const Icon(Icons.home),
           onPressed: () {
@@ -25,23 +26,12 @@ class BoothScreen extends StatelessWidget {
                   (route) => false,
             );
           },
-        ),
+        ),*/
         centerTitle: true,
         title: const Text('부스 둘러보기', textAlign: TextAlign.center),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.shopping_basket),
-            onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => BuyerMainScreen(selectedIndex: 3,)
-                ), (Route<dynamic> route) => false,
-              );
-            },
-          ),
-        ],
+        toolbarHeight: 56.0,
       ),
+      extendBodyBehindAppBar: true,
       body: BoothItemsList(uid: uid, festivalName: festivalName),
     );
   }

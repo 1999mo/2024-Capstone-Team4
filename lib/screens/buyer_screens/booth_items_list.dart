@@ -35,7 +35,7 @@ class BoothItemsList extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('부스 둘러보기'),
+        automaticallyImplyLeading: false,
       ),
       body: FutureBuilder<DocumentSnapshot>(
         future: boothInfo.get(),
@@ -170,18 +170,26 @@ class BoothItemsList extends StatelessWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // Image section (assuming imagePath is a URL or asset)
                                   imagePath.isNotEmpty
                                       ? Image.network(
                                     imagePath,
                                     fit: BoxFit.cover,
                                     height: 120.0, // Fixed height for the image
                                     width: double.infinity,
+                                    errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                                      return Image.asset(
+                                        'assets/catcul_w.jpg',
+                                        fit: BoxFit.cover,
+                                        height: 120.0,
+                                        width: double.infinity,
+                                      );
+                                    },
                                   )
-                                      : Container(
+                                      : Image.asset(
+                                    'assets/catcul_w.jpg',
+                                    fit: BoxFit.cover,
                                     height: 120.0,
-                                    color: Colors.grey[200],
-                                    child: const Center(child: Text('No Image')),
+                                    width: double.infinity,
                                   ),
                                   const SizedBox(height: 8.0), // Space between image and text
 

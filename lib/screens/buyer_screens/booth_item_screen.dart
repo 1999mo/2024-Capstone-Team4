@@ -74,11 +74,26 @@ class _BoothItemScreenState extends State<BoothItemScreen> {
               Center(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8.0),
-                  child: Image.network(
+                  child: imagePath.isNotEmpty
+                      ? Image.network(
                     imagePath,
-                    height: 300,
-                    width: 500,
                     fit: BoxFit.cover,
+                    height: 350.0,
+                    width: double.infinity,
+                    errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                      return Image.asset(
+                        'assets/catcul_w.jpg',
+                        fit: BoxFit.cover,
+                        height: 350.0,
+                        width: double.infinity,
+                      );
+                    },
+                  )
+                      : Image.asset(
+                    'assets/catcul_w.jpg',
+                    fit: BoxFit.cover,
+                    height: 350.0,
+                    width: double.infinity,
                   ),
                 ),
               ),
@@ -122,7 +137,7 @@ class _BoothItemScreenState extends State<BoothItemScreen> {
                             fontSize: 16.0,
                             color: Colors.grey,
                       ),
-                    ),Container(
+                    ),/*Container(
                           padding: const EdgeInsets.all(8.0), // Padding around the entire row
                           decoration: BoxDecoration(
                             border: Border.all(color: Colors.grey), // Rectangle border around the row
@@ -172,13 +187,13 @@ class _BoothItemScreenState extends State<BoothItemScreen> {
                               ),
                             ],
                           ),
-                        )
+                        )*/
                       ],
                     ),
                   ])
               ),
               const Spacer(),
-              Padding(
+              /*Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: SizedBox(
                   width: double.infinity,
@@ -224,7 +239,7 @@ class _BoothItemScreenState extends State<BoothItemScreen> {
                     child: const Text('미리담기'),
                   ),
                 ),
-              ),
+              ),*/
             ],
           );
         },

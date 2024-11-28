@@ -1,9 +1,9 @@
 import 'package:catculator/screens/buyer_screens/bag_screen.dart';
+import 'package:catculator/screens/buyer_screens/booth_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '/screens/buyer_screens/booth_list_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});

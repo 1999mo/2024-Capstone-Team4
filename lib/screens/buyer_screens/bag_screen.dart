@@ -1,6 +1,5 @@
-import 'dart:ffi';
-
 import 'package:catculator/screens/buyer_screens/bag_qr.dart';
+import 'package:catculator/screens/buyer_screens/festival_select.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -220,7 +219,7 @@ class _BagScreen extends State<BagScreen> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async{
                     //await fetchOrderItems(); // Refresh data
                   },
                   child: const Text('데이터 새로고침'),
