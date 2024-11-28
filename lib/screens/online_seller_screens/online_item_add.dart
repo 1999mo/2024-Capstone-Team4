@@ -89,6 +89,7 @@ class _OnlineItemAddState extends State<OnlineItemAdd> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('온라인 상품 추가'),
+        centerTitle: true,
       ),
       body: Form(
         key: _formKey,

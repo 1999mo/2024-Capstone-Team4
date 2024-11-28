@@ -344,6 +344,7 @@ class _SellingState extends State<Selling> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('부스 상품 판매'),
+        centerTitle: true,
         actions: [
           IconButton(
               onPressed: () {
@@ -569,7 +570,7 @@ class _SellingState extends State<Selling> {
                       crossAxisCount: 2,
                       crossAxisSpacing: 8,
                       mainAxisSpacing: 8,
-                      childAspectRatio: 0.9,
+                      childAspectRatio: 0.85,
                     ),
                     itemCount: items.length,
                     itemBuilder: (context, index) {
@@ -598,9 +599,22 @@ class _SellingState extends State<Selling> {
                                     itemData['imagePath'] ?? '',
                                     fit: BoxFit.cover,
                                     errorBuilder: (context, error, stackTrace) {
-                                      return Image.asset(
-                                        'assets/catcul_w.jpg',
-                                        fit: BoxFit.cover,
+                                      return ColorFiltered(
+                                        colorFilter: stock == 0
+                                            ? const ColorFilter.matrix(<double>[
+                                          0.6, 0.2, 0.2, 0, 0, // R
+                                          0.2, 0.6, 0.2, 0, 0, // G
+                                          0.2, 0.2, 0.6, 0, 0, // B
+                                          0,   0,   0,   1, 0, // Alpha
+                                        ])
+                                            : const ColorFilter.mode(
+                                          Colors.transparent,
+                                          BlendMode.multiply,
+                                        ),
+                                        child: Image.asset(
+                                          'assets/catcul_w.jpg',
+                                          fit: BoxFit.cover,
+                                        ),
                                       );
                                     },
                                   ),
@@ -610,7 +624,13 @@ class _SellingState extends State<Selling> {
                                 padding: const EdgeInsets.all(8.0),
                                 child: Column(
                                   children: [
-                                    Text(itemData['itemName'] ?? ''),
+                                    Text(
+                                        itemData['itemName'] ?? '',
+                                      style: TextStyle(
+                                        color: stock == 0 ? Colors.grey[700]: Colors.black,
+                                        fontSize: 16,
+                                      ),
+                                    ),
                                     Text(
                                       '${numberFormat.format(stock)}개',
                                       style: TextStyle(

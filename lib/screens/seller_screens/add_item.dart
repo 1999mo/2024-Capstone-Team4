@@ -114,6 +114,7 @@ class _AddItemState extends State<AddItem> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('상품 추가'),
+        centerTitle: true,
       ),
       body: Form(
         key: _formKey,

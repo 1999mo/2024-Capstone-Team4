@@ -13,14 +13,15 @@ class _OnlineSelectBoothState extends State<OnlineSelectBooth> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('온라인 판매'), // 제목 변경
+        title: const Text('온라인 판매'),
+        centerTitle: true,// 제목 변경
       ),
       body: Container(
         decoration: BoxDecoration(
             border: Border.all(color: Colors.grey, width: 1),
             borderRadius: BorderRadius.circular(12)
         ),
-        margin: EdgeInsets.all(15),
+        margin: EdgeInsets.symmetric(vertical:10, horizontal: 20),
         child: Column(
           children: [
             // "축제 선택" 헤더

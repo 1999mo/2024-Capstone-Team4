@@ -48,6 +48,7 @@ class _AdjustmentState extends State<Adjustment> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('작가별 매출'),
+        centerTitle: true,
         actions: [
           TextButton(
             onPressed: () {

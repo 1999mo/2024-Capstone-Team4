@@ -13,7 +13,10 @@ class _MyBoothState extends State<MyBooth> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('내 부스')),
+      appBar: AppBar(
+        title: Text('내 부스'),
+        centerTitle: true,
+      ),
       body: Column(
         children: [
           Expanded(
@@ -22,7 +25,7 @@ class _MyBoothState extends State<MyBooth> {
                 border: Border.all(color: Colors.grey, width: 1),
                 borderRadius: BorderRadius.circular(12)
               ),
-              margin: EdgeInsets.all(15),
+              margin: EdgeInsets.symmetric(vertical:10, horizontal: 20),
               child: Column(
                 children: [
                   SizedBox(height: 15,),
@@ -61,7 +64,6 @@ class _MyBoothState extends State<MyBooth> {
                           if (booths.length == 1 && booths[0].id == 'default') {
                             return Center(child: Text('아직 추가된 부스가 없습니다.'));
                           }
-                                  
                           return ListView.builder(
                             itemCount: booths.length,
                             itemBuilder: (context, index) {
@@ -110,13 +112,13 @@ class _MyBoothState extends State<MyBooth> {
           ),
           // "부스 새로 추가하기" 버튼
           Container(
-            width: 320,
-            height: 48,
+            width: double.infinity,
+            height: 52,
             decoration: ShapeDecoration(
               color: const Color(0xFFFDBE85),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
-            margin: const EdgeInsets.all(15),
+            margin: const EdgeInsets.all(20),
             child: TextButton(
               onPressed: () {
                 Navigator.pushNamed(context, '/seller_screens/add_booth');

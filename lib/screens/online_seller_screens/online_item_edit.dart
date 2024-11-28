@@ -241,7 +241,7 @@ class _OnlineItemEditState extends State<OnlineItemEdit> {
                 },
                 style: TextButton.styleFrom(
                   side: const BorderSide(color: Colors.grey),
-                  minimumSize: const Size(320, 56),
+                  minimumSize: const Size(double.infinity, 56),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
