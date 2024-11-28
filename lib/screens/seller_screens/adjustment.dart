@@ -102,7 +102,7 @@ class _AdjustmentState extends State<Adjustment> {
 
                     child: Container(
                       margin: const EdgeInsets.all(8.0),
-                      padding: const EdgeInsets.all(12.0),
+                      padding: const EdgeInsets.all(16.0),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey),
                         borderRadius: BorderRadius.circular(16.0),

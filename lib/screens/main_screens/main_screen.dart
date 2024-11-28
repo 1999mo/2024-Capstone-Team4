@@ -199,26 +199,23 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
                               height: 56,
                               padding: const EdgeInsets.symmetric(horizontal: 16),
                               decoration: ShapeDecoration(
-                                color: Color(0xFFFDBE85),
+                                color: Color(0xFFD1D1D1),
                                 shape: RoundedRectangleBorder(
                                  // side: BorderSide(width: 1, color: Color(0xFFD1D1D1)),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    '온라인 상품 판매하기',
+                                    '온라인 상품 둘러보기',
                                     style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
                                   ),
-                                  Icon(Icons.chevron_right),
+                                  //Icon(Icons.chevron_right),
                                 ],
                               ),
                             ),
-                            onTap: () {
-                              Navigator.pushNamed(context, '/online_seller_screens/online_select_booth');
-                            },
                           ),
                         ),
                         const SizedBox(width: 10), // 버튼 사이 간격
@@ -228,23 +225,26 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
                               height: 56,
                               padding: const EdgeInsets.symmetric(horizontal: 16),
                               decoration: ShapeDecoration(
-                                color: Color(0xFFD1D1D1),
+                                color: Color(0xFFFDBE85),
                                 shape: RoundedRectangleBorder(
-                                 // side: BorderSide(width: 1, color: Color(0xFFD1D1D1)),
+                                  // side: BorderSide(width: 1, color: Color(0xFFD1D1D1)),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    '온라인 상품 둘러보기',
+                                    '온라인 상품 판매하기',
                                     style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
                                   ),
-                                  Icon(Icons.chevron_right),
+                                  //Icon(Icons.chevron_right),
                                 ],
                               ),
                             ),
+                            onTap: () {
+                              Navigator.pushNamed(context, '/online_seller_screens/online_select_booth');
+                            },
                           ),
                         ),
                       ],
@@ -263,7 +263,8 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
             Navigator.pushNamed(context, '/main_screens/setting');
           },
           child: const Icon(Icons.settings),
-        ));
+        )
+    );
   }
 }
 

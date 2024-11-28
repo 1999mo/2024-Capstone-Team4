@@ -362,7 +362,7 @@ class _EditSellingItemsState extends State<EditSellingItems> {
                               padding: const EdgeInsets.all(8.0),
                               child: Text(
                                 itemData['itemName'] ?? '',
-                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                                 textAlign: TextAlign.center,
                               ),
                             ),

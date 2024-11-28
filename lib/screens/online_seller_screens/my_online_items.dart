@@ -156,7 +156,7 @@ class _MyOnlineItemsState extends State<MyOnlineItems> {
                                         children: [
                                           // 상품 이미지 표시
                                           Container(
-                                            height: 230, // 이미지 높이 설정
+                                            height: 250, // 이미지 높이 설정
                                             width: double.infinity,
                                             decoration: BoxDecoration(
                                               borderRadius: BorderRadius.circular(8),
