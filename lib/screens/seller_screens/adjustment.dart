@@ -48,6 +48,7 @@ class _AdjustmentState extends State<Adjustment> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('작가별 매출'),
+        centerTitle: true,
         actions: [
           TextButton(
             onPressed: () {
@@ -101,7 +102,7 @@ class _AdjustmentState extends State<Adjustment> {
 
                     child: Container(
                       margin: const EdgeInsets.all(8.0),
-                      padding: const EdgeInsets.all(12.0),
+                      padding: const EdgeInsets.all(16.0),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey),
                         borderRadius: BorderRadius.circular(16.0),

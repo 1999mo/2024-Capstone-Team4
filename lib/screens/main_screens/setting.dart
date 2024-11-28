@@ -14,6 +14,7 @@ class _SettingState extends State<Setting> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('설정'),
+        centerTitle: true,
       ),
       body: Center(
         child: Column(

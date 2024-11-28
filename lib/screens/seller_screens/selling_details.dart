@@ -76,6 +76,7 @@ class _SellingDetailsState extends State<SellingDetails> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('주문 상세 정보'),
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -130,7 +131,7 @@ class _SellingDetailsState extends State<SellingDetails> {
                                 children: [
                                   Text(
                                     productName,
-                                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                                   ),
                                   Row(
                                     children: [

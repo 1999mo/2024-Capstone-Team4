@@ -156,6 +156,7 @@ class _EditItemState extends State<EditItem> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('상품 수정'),
+        centerTitle: true,
       ),
       body: Form(
         key: _formKey,
@@ -271,6 +272,7 @@ class _EditItemState extends State<EditItem> {
                   return null;
                 },
               ),
+              const SizedBox(height: 16,),
               const Text('이미지 미리보기', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               if (imageFile != null)
                 Padding(
@@ -304,7 +306,7 @@ class _EditItemState extends State<EditItem> {
                 },
                 style: TextButton.styleFrom(
                   side: const BorderSide(color: Colors.grey),
-                  minimumSize: const Size(320, 56),
+                  minimumSize: const Size(double.infinity, 56),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),

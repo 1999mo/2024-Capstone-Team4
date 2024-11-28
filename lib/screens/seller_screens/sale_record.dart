@@ -125,6 +125,7 @@ class _SaleRecordState extends State<SaleRecord> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('판매 기록'),
+        centerTitle: true,
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: salesCollection.orderBy('time', descending: true).snapshots(),

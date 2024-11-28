@@ -235,6 +235,7 @@ class _EditSellingItemsState extends State<EditSellingItems> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('상품 관리'),
+        centerTitle: true,
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -270,6 +271,7 @@ class _EditSellingItemsState extends State<EditSellingItems> {
                 //   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 // ),
                 DropdownButton<String>(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   value: selectedPainter,
                   onChanged: (value) {
                     setState(() {
@@ -283,6 +285,8 @@ class _EditSellingItemsState extends State<EditSellingItems> {
           ),
           // 상품 목록
           Expanded(
+            child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('Users')
@@ -358,7 +362,7 @@ class _EditSellingItemsState extends State<EditSellingItems> {
                               padding: const EdgeInsets.all(8.0),
                               child: Text(
                                 itemData['itemName'] ?? '',
-                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                                 textAlign: TextAlign.center,
                               ),
                             ),
@@ -370,10 +374,15 @@ class _EditSellingItemsState extends State<EditSellingItems> {
                 );
               },
             ),
+            ),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Color(0xFFFDBE85),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(30)),
+        ),
         onPressed: () {
           Navigator.pushNamed(context, '/seller_screens/add_item', arguments: boothId);
         },
