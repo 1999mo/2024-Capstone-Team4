@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class BoothScreen extends StatelessWidget {
   final String uid;
-  final String festivalName;
+  final String? festivalName;
 
   const BoothScreen({
     Key? key,
