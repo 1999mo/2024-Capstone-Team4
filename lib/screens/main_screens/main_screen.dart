@@ -218,6 +218,9 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
                                 ],
                               ),
                             ),
+                            onTap: () {
+                              Navigator.pushNamed(context, '/online_buyer_screens/online_select_festival');
+                            },
                           ),
                         ),
                         const SizedBox(width: 10), // 버튼 사이 간격
