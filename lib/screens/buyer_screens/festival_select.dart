@@ -39,6 +39,8 @@ class _MyDropdownDialogState extends State<MyDropdownDialog> {
 
   @override
   Widget build(BuildContext context) {
+    //String selectedValue = '';
+
   return Dialog(
       child: Container(
         width: 500,
@@ -64,7 +66,7 @@ class _MyDropdownDialogState extends State<MyDropdownDialog> {
             TextButton(
               onPressed: () {
                 Navigator.of(context)
-                    .pop();
+                    .pop('');
               },
               child: const Text('뒤로'),
             ),

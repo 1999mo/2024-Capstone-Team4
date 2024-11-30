@@ -1,11 +1,13 @@
 import 'package:catculator/screens/buyer_screens/booth_screen.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class BoothListScreen extends StatefulWidget {
   final String painter;
+  final String? festivalName;
 
-  const BoothListScreen({Key? key, required this.painter}) : super(key: key);
+  const BoothListScreen({Key? key, required this.painter, required this.festivalName}) : super(key: key);
 
   @override
   _BoothListScreen createState() => _BoothListScreen();
@@ -15,21 +17,25 @@ class _BoothListScreen extends State<BoothListScreen> {
 
   Future<List<Map<String, dynamic>>> _getAllBooths(String painter) async {
     try {
-      var festivalsSnapshot = await FirebaseFirestore.instance.collection('Festivals').get();
+      //var festivalsSnapshot = await FirebaseFirestore.instance.collection('Festivals').get();
 
+      DocumentSnapshot festivalDoc = await FirebaseFirestore.instance
+          .collection('Festivals')
+          .doc(widget.festivalName)
+          .get();
       List<Map<String, dynamic>> festivalBoothList = [];
 
-      for (var festivalDoc in festivalsSnapshot.docs) {
-        String festivalName = festivalDoc.id; // Festival name is the document ID
-        List<String> sellerUids = List.from(festivalDoc['sellers']); // List of seller UIDs
+      //for (var festivalDoc in festivalsSnapshot.docs) {
+        //String festivalName = festivalDoc.id; Festival name is the document ID
 
-        // For each seller UID, fetch their booths for this festival
+      List<String> sellerUids = List.from(festivalDoc['sellers']); // List of seller UIDs
+
         for (var userId in sellerUids) {
           var boothRef = FirebaseFirestore.instance
               .collection('Users')
               .doc(userId)
               .collection('booths')
-              .doc(festivalName);
+              .doc(widget.festivalName);
 
           // Fetch the booth items for this user and festival
           var boothSnapshot = await boothRef.get();
@@ -40,18 +46,22 @@ class _BoothListScreen extends State<BoothListScreen> {
             bool matchesPainter = painters.any((painterName) =>
             painterName.toLowerCase().contains(painter.toLowerCase()) || painter.isEmpty);
 
+            String imagePath = await FirebaseStorage.instance
+                .ref('$userId/profile_image.jpg')
+                .getDownloadURL();
+
             if(matchesPainter) {
               festivalBoothList.add({
-                'festival': festivalName,
                 'userId': userId,
                 'boothName': boothSnapshot['boothName'],
                 'location': boothSnapshot['location'],
                 'painters': List<String>.from(boothSnapshot['painters'] ?? []),
+                'imagePath': imagePath,
               });
             }
           }
         }
-      }
+      //}
       return festivalBoothList;
     } catch (e) {
       print('Error fetching booth list: $e');
@@ -77,7 +87,12 @@ class _BoothListScreen extends State<BoothListScreen> {
           } else {
             var boothList = snapshot.data!;
 
-            return ListView.builder(
+            return GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+              ),
               itemCount: boothList.length,
               itemBuilder: (context, index) {
                 var booth = boothList[index];
@@ -88,7 +103,7 @@ class _BoothListScreen extends State<BoothListScreen> {
                       MaterialPageRoute(
                         builder: (context) => BoothScreen(
                             uid: booth['userId'],
-                            festivalName: booth['festival'],
+                            festivalName: widget.festivalName,
                         ),
                       )
                     );
@@ -99,14 +114,39 @@ class _BoothListScreen extends State<BoothListScreen> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
+                            booth['imagePath'].isNotEmpty
+                            ? Container(
+                              width: 100.0,
+                              height: 100.0,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                  image: NetworkImage(
+                                  booth['imagePath'],
+                                ),
+                                fit: BoxFit.cover,
+                                ),
+                              ),
+                            )
+                            : Container(
+                              width: 100.0,
+                              height: 100.0,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                  image: AssetImage('assets/catcul_w.jpg'),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
                             Text(
                               booth['boothName'],
                               style: const TextStyle(fontWeight: FontWeight.bold),
                             ),
-                            Text('부스위치: ${booth['location']}'),
-                            Text('작가: ${booth['painters'].join(', ')}'),
+                            Text('${booth['location']}'),
+                            Text('${booth['painters'].join(', ')}'),
                           ],
                         ),
                       ),

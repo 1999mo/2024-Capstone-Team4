@@ -1,16 +1,18 @@
 import 'package:catculator/screens/buyer_screens/booth_item_screen.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class BoothItemsList extends StatelessWidget {
   final String uid;
-  final String festivalName;
+  final String? festivalName;
 
   const BoothItemsList({
     Key? key,
     required this.uid,
     required this.festivalName,
   }) : super(key: key);
+
 
   Future<List<Map<String, dynamic>>> fetchItems() async {
     final boothRef = FirebaseFirestore.instance
@@ -25,6 +27,14 @@ class BoothItemsList extends StatelessWidget {
     return snapshot.docs.map((doc) => doc.data()).toList();
   }
 
+  Future<String> fetchImage() async {
+    final boothImage = await FirebaseStorage.instance
+        .ref('$uid/profile_image.jpg')
+        .getDownloadURL();
+
+    return boothImage;
+  }
+
   @override
   Widget build(BuildContext context) {
     final boothInfo = FirebaseFirestore.instance
@@ -37,9 +47,12 @@ class BoothItemsList extends StatelessWidget {
       appBar: AppBar(
         automaticallyImplyLeading: false,
       ),
-      body: FutureBuilder<DocumentSnapshot>(
-        future: boothInfo.get(),
-        builder: (context, snapshot) {
+      body: FutureBuilder<List<dynamic>>(
+        future: Future.wait([
+          boothInfo.get(),
+          fetchImage(),
+        ]),
+        builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -48,14 +61,19 @@ class BoothItemsList extends StatelessWidget {
             return const Center(child: Text('Error loading booth details.'));
           }
 
-          if (!snapshot.hasData || !snapshot.data!.exists) {
+          if (!snapshot.hasData || snapshot.data == null || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No booth details found.'));
+          }
+
+          if (!(snapshot.data![0] as DocumentSnapshot).exists) {
             return const Center(child: Text('No booth details found.'));
           }
 
           // Fetching data from the document
-          final boothData = snapshot.data!.data() as Map<String, dynamic>;
+          final boothData = snapshot.data![0].data() as Map<String, dynamic>;
           final boothLocation = boothData['location'] ?? 'Unknown Location';
           final painters = List<String>.from(boothData['painters'] ?? []);
+          final boothImage = snapshot.data![1];
 
           return Column(
             children: [
@@ -106,6 +124,35 @@ class BoothItemsList extends StatelessWidget {
                             style: const TextStyle(
                               fontSize: 14.0,
                               color: Colors.grey,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: boothImage.isNotEmpty
+                              ? Container(
+                            width: 50.0,
+                            height: 50.0,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              image: DecorationImage(
+                                image: NetworkImage(
+                                  boothImage,
+                                ),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          )
+                              : Container(
+                            width: 50.0,
+                            height: 50.0,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              image: DecorationImage(
+                                image: AssetImage('assets/catcul_w.jpg'),
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
                         ),

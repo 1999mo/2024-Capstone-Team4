@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class BoothItemScreen extends StatefulWidget {
   final String uid;
-  final String festivalName;
+  final String? festivalName;
   final String itemName;
 
   const BoothItemScreen({
@@ -15,11 +15,11 @@ class BoothItemScreen extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _BoothItemScreenState createState() => _BoothItemScreenState(); // Fixed the creation of the state class
+  _BoothItemScreenState createState() => _BoothItemScreenState();
 }
 
 class _BoothItemScreenState extends State<BoothItemScreen> {
-  int itemQuantity = 1; // Moved this to the state class for using setState()
+  int itemQuantity = 1;
 
   @override
   Widget build(BuildContext context) {
