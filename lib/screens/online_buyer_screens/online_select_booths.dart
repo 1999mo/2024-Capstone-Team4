@@ -41,7 +41,17 @@ class _OnlineSelectBoothsState extends State<OnlineSelectBooths> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('온라인 상품 둘러보기')),
+      appBar: AppBar(
+        title: const Text('온라인 상품 둘러보기'),
+        actions: [
+          IconButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/online_buyer_screens/online_buyer_shopping_cart',
+                    arguments: festivalName);
+              },
+              icon: Icon(Icons.shopping_cart)),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -65,10 +75,7 @@ class _OnlineSelectBoothsState extends State<OnlineSelectBooths> {
             // 부스 목록 표시
             Expanded(
               child: StreamBuilder<DocumentSnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('Festivals')
-                    .doc(festivalName)
-                    .snapshots(),
+                stream: FirebaseFirestore.instance.collection('Festivals').doc(festivalName).snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -105,8 +112,7 @@ class _OnlineSelectBoothsState extends State<OnlineSelectBooths> {
                           if (boothSnapshot.connectionState == ConnectionState.waiting) {
                             return const Center(child: CircularProgressIndicator());
                           }
-                          if (!boothSnapshot.hasData ||
-                              !(boothSnapshot.data?.exists ?? false)) {
+                          if (!boothSnapshot.hasData || !(boothSnapshot.data?.exists ?? false)) {
                             return const SizedBox.shrink(); // 부스 정보가 없으면 표시하지 않음
                           }
 
@@ -118,8 +124,7 @@ class _OnlineSelectBoothsState extends State<OnlineSelectBooths> {
                           // 검색 조건
                           if (searchQuery.isNotEmpty &&
                               !boothName.toLowerCase().contains(searchQuery) &&
-                              !painters.any((painter) =>
-                                  painter.toString().toLowerCase().contains(searchQuery))) {
+                              !painters.any((painter) => painter.toString().toLowerCase().contains(searchQuery))) {
                             return const SizedBox.shrink();
                           }
 
@@ -150,8 +155,7 @@ class _OnlineSelectBoothsState extends State<OnlineSelectBooths> {
                                         CircleAvatar(
                                           backgroundImage: imageUrl != null
                                               ? NetworkImage(imageUrl)
-                                              : const AssetImage('assets/catcul_w.jpg')
-                                          as ImageProvider,
+                                              : const AssetImage('assets/catcul_w.jpg') as ImageProvider,
                                           radius: 40,
                                           backgroundColor: Colors.grey[200],
                                         ),
