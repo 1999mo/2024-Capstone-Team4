@@ -105,6 +105,54 @@ class _OnlineBuyerShoppingCartState extends State<OnlineBuyerShoppingCart> {
     }
   }
 
+  Future<void> _deleteItemFromCart(String sellerId, Map<String, dynamic> item) async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null || festivalName == null) return;
+
+    // Firestore 문서 참조
+    final cartRef = FirebaseFirestore.instance
+        .collection('Users')
+        .doc(uid)
+        .collection('online_basket')
+        .doc(festivalName);
+
+    // Firestore에서 해당 항목 삭제
+    try {
+      final cartSnapshot = await cartRef.get();
+      if (cartSnapshot.exists) {
+        final cartData = cartSnapshot.data() as Map<String, dynamic>? ?? {};
+
+        if (cartData.containsKey(sellerId)) {
+          List<dynamic> items = cartData[sellerId];
+          items.removeWhere((element) => element['itemName'] == item['itemName']);
+
+          if (items.isEmpty) {
+            await cartRef.update({sellerId: FieldValue.delete()});
+          } else {
+            await cartRef.update({sellerId: items});
+          }
+
+          // UI 갱신
+          setState(() {
+            cartData[sellerId] = items;
+            if (items.isEmpty) {
+              cartData.remove(sellerId);
+            }
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('상품이 장바구니에서 삭제되었습니다.')),
+          );
+        }
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('상품 삭제 중 오류가 발생했습니다: $e')),
+      );
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final numberFormat = NumberFormat('#,###');
@@ -152,100 +200,138 @@ class _OnlineBuyerShoppingCartState extends State<OnlineBuyerShoppingCart> {
                               margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                child: Stack(
                                   children: [
-                                    Column(
+                                    Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        SizedBox(
-                                          height: 50,
-                                          width: 50,
-                                          child: FutureBuilder<String>(
-                                            future: imagePath != null ? imageCache[imagePath] : Future.value(''),
-                                            builder: (context, snapshot) {
-                                              final imageUrl = snapshot.data;
-                                              if (snapshot.connectionState == ConnectionState.waiting) {
-                                                return const Center(
-                                                  child: CircularProgressIndicator(),
-                                                );
-                                              } else if (snapshot.hasError || imageUrl == null || imageUrl.isEmpty) {
-                                                return ClipRRect(
-                                                  borderRadius: BorderRadius.circular(8),
-                                                  child: Image.asset(
-                                                    'assets/catcul_w.jpg',
-                                                    fit: BoxFit.cover,
-                                                  ),
-                                                );
-                                              } else {
-                                                return ClipRRect(
-                                                  borderRadius: BorderRadius.circular(8),
-                                                  child: Image.network(
-                                                    imageUrl,
-                                                    fit: BoxFit.cover,
-                                                    errorBuilder: (context, error, stackTrace) {
-                                                      return Image.asset(
+                                        Column(
+                                          children: [
+                                            SizedBox(
+                                              height: 50,
+                                              width: 50,
+                                              child: FutureBuilder<String>(
+                                                future: imagePath != null ? imageCache[imagePath] : Future.value(''),
+                                                builder: (context, snapshot) {
+                                                  final imageUrl = snapshot.data;
+                                                  if (snapshot.connectionState == ConnectionState.waiting) {
+                                                    return const Center(
+                                                      child: CircularProgressIndicator(),
+                                                    );
+                                                  } else if (snapshot.hasError || imageUrl == null || imageUrl.isEmpty) {
+                                                    return ClipRRect(
+                                                      borderRadius: BorderRadius.circular(8),
+                                                      child: Image.asset(
                                                         'assets/catcul_w.jpg',
                                                         fit: BoxFit.cover,
-                                                      );
-                                                    },
-                                                  ),
-                                                );
-                                              }
-                                            },
-                                          ),
-                                        ),
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            IconButton(
-                                              icon: const Icon(Icons.remove, color: Colors.blue),
-                                              onPressed: () {
-                                                if (item['quantity'] > 0) {
-                                                  setState(() {
-                                                    item['quantity']--;
-                                                    totalCost -= item['sellingPrice'] as int;
-                                                  });
-                                                  _updateCartData(sellerId, cartData[sellerId]!);
-                                                }
-                                              },
+                                                      ),
+                                                    );
+                                                  } else {
+                                                    return ClipRRect(
+                                                      borderRadius: BorderRadius.circular(8),
+                                                      child: Image.network(
+                                                        imageUrl,
+                                                        fit: BoxFit.cover,
+                                                        errorBuilder: (context, error, stackTrace) {
+                                                          return Image.asset(
+                                                            'assets/catcul_w.jpg',
+                                                            fit: BoxFit.cover,
+                                                          );
+                                                        },
+                                                      ),
+                                                    );
+                                                  }
+                                                },
+                                              ),
                                             ),
-                                            Text('${item['quantity']}'),
-                                            IconButton(
-                                              icon: const Icon(Icons.add, color: Colors.red),
-                                              onPressed: () {
-                                                setState(() {
-                                                  item['quantity']++;
-                                                  totalCost += item['sellingPrice'] as int;
-                                                });
-                                                _updateCartData(sellerId, cartData[sellerId]!);
-                                              },
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                IconButton(
+                                                  icon: const Icon(Icons.remove, color: Colors.blue),
+                                                  onPressed: () {
+                                                    if (item['quantity'] > 0) {
+                                                      setState(() {
+                                                        item['quantity']--;
+                                                        totalCost -= item['sellingPrice'] as int;
+                                                      });
+                                                      _updateCartData(sellerId, cartData[sellerId]!);
+                                                    }
+                                                  },
+                                                ),
+                                                Text('${item['quantity']}'),
+                                                IconButton(
+                                                  icon: const Icon(Icons.add, color: Colors.red),
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      item['quantity']++;
+                                                      totalCost += item['sellingPrice'] as int;
+                                                    });
+                                                    _updateCartData(sellerId, cartData[sellerId]!);
+                                                  },
+                                                ),
+                                              ],
                                             ),
                                           ],
                                         ),
+                                        const SizedBox(width: 10),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                item['itemName'] ?? '',
+                                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                              ),
+                                              Text(
+                                                '작가: ${item['artist']}',
+                                                style: const TextStyle(fontSize: 14, color: Colors.grey),
+                                              ),
+                                              Text(
+                                                '종류: ${item['itemType']}',
+                                                style: const TextStyle(fontSize: 14, color: Colors.grey),
+                                              ),
+                                              Text(
+                                                '₩${numberFormat.format(item['sellingPrice'])}',
+                                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                       ],
                                     ),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            item['itemName'] ?? '',
-                                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                                          ),
-                                          Text(
-                                            '작가: ${item['artist']}',
-                                            style: const TextStyle(fontSize: 14, color: Colors.grey),
-                                          ),
-                                          Text(
-                                            '종류: ${item['itemType']}',
-                                            style: const TextStyle(fontSize: 14, color: Colors.grey),
-                                          ),
-                                          Text(
-                                            '₩${numberFormat.format(item['sellingPrice'])}',
-                                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                                          ),
-                                        ],
+                                    // 오른쪽 상단 X 버튼
+                                    Positioned(
+                                      top: 0,
+                                      right: 0,
+                                      child: IconButton(
+                                        icon: const Icon(Icons.close, color: Colors.black),
+                                        onPressed: () {
+                                          // 확인 팝업 표시
+                                          showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                title: const Text('삭제 확인'),
+                                                content: const Text('이 상품을 장바구니에서 삭제하시겠습니까?'),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () => Navigator.pop(context), // 팝업 닫기
+                                                    child: const Text('취소'),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () async {
+                                                      // Firestore에서 삭제
+                                                      await _deleteItemFromCart(sellerId, item);
+                                                      Navigator.pop(context); // 팝업 닫기
+                                                    },
+                                                    child: const Text('삭제'),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+                                        },
                                       ),
                                     ),
                                   ],

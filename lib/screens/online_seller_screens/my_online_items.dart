@@ -43,7 +43,7 @@ class _MyOnlineItemsState extends State<MyOnlineItems> {
           .collection(uid!)
           .doc(itemId);
 
-      // 문서 가져오기
+// 문서 가져오기
       final itemSnapshot = await itemRef.get();
 
       if (itemSnapshot.exists) {
@@ -52,24 +52,34 @@ class _MyOnlineItemsState extends State<MyOnlineItems> {
 
         // stockQuantity 확인
         if (itemData != null && itemData['stockQuantity'] != null) {
+          // stockQuantity가 존재하는 경우 추가 로직 작성 가능
         } else {
-          // stockQuantity가 없으면 이미지를 삭제
+          // stockQuantity가 없으면 이미지 삭제 조건 추가
           final storageRef = FirebaseStorage.instance.ref();
-          final imagePath = '$uid/${itemId.replaceAll(' ', '_')}.jpg';
-          final imageRef = storageRef.child(imagePath);
+          final imagePath = itemData?['imagePath'] ?? ''; // Firestore에서 가져온 이미지 경로
 
-          await imageRef.delete();
-          print('이미지를 삭제했습니다.');
+          if (imagePath.isNotEmpty) {
+            try {
+              final imageRef = storageRef.child(imagePath);
+              await imageRef.delete();
+              print('이미지를 삭제했습니다.');
+            } catch (e) {
+              print('이미지 삭제 중 오류 발생: $e');
+            }
+          } else {
+            print('유효한 이미지 경로가 없어 삭제를 수행하지 않습니다.');
+          }
         }
       }
 
-      // Firestore에서 문서 삭제
+// Firestore에서 문서 삭제
       await itemRef.delete();
 
-      // 삭제 성공 메시지
+// 삭제 성공 메시지
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('상품을 삭제했습니다.')),
       );
+
     } catch (e) {
       // 삭제 실패 시 에러 메시지 표시
       ScaffoldMessenger.of(context).showSnackBar(
@@ -92,7 +102,7 @@ class _MyOnlineItemsState extends State<MyOnlineItems> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('온라인 판매'),
+        title: const Text('내 온라인 판매 상품'),
         centerTitle: true,
       ),
       body: StreamBuilder<QuerySnapshot>(

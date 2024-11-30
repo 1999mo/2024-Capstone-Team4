@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class Selling extends StatefulWidget {
   const Selling({super.key});
@@ -486,31 +487,35 @@ class _SellingState extends State<Selling> {
                               const SizedBox(height: 16),
                               Expanded(
                                 child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Image.network(
-                                    itemData['imagePath'] ?? '',
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
+                                  borderRadius: BorderRadius.circular(8), // 둥근 모서리 유지
+                                  child: CachedNetworkImage(
+                                    imageUrl: itemData['imagePath'] ?? '',
+                                    placeholder: (context, url) => const Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                    errorWidget: (context, url, error) {
                                       return ColorFiltered(
                                         colorFilter: stock == 0
                                             ? const ColorFilter.matrix(<double>[
-                                                0.6, 0.2, 0.2, 0, 0, // R
-                                                0.2, 0.6, 0.2, 0, 0, // G
-                                                0.2, 0.2, 0.6, 0, 0, // B
-                                                0, 0, 0, 1, 0, // Alpha
-                                              ])
+                                          0.6, 0.2, 0.2, 0, 0, // R
+                                          0.2, 0.6, 0.2, 0, 0, // G
+                                          0.2, 0.2, 0.6, 0, 0, // B
+                                          0, 0, 0, 1, 0, // Alpha
+                                        ])
                                             : const ColorFilter.mode(
-                                                Colors.transparent,
-                                                BlendMode.multiply,
-                                              ),
+                                          Colors.transparent,
+                                          BlendMode.multiply,
+                                        ),
                                         child: Image.asset(
-                                          'assets/catcul_w.jpg',
+                                          'assets/catcul_w.jpg', // 기본 이미지 경로
                                           fit: BoxFit.cover,
                                         ),
                                       );
                                     },
+                                    fit: BoxFit.cover, // 이미지 크기 조정
                                   ),
                                 ),
+
                               ),
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
