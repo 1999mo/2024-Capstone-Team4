@@ -1,4 +1,3 @@
-import 'package:catculator/screens/online_buyer_screens/online_select_festival.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -65,11 +64,13 @@ class MyApp extends StatelessWidget {
         '/online_seller_screens/online_consumer_list':(context)=>const OnlineConsumerList(),
 
         //online_buyer_screens 시작
+        '/online_buyer_screens/navigation':(context)=>const NavigationMain(),
         '/online_buyer_screens/online_select_festival':(context)=>const OnlineSelectFestival(),
         '/online_buyer_screens/online_select_booths':(context)=>const OnlineSelectBooths(),
         '/online_buyer_screens/online_look_booth_items':(context)=>const OnlineLookBoothItems(),
         '/online_buyer_screens/online_buyer_shopping_cart':(context)=>const OnlineBuyerShoppingCart(),
         '/online_buyer_screens/online_buyer_pay':(context)=>const OnlineBuyerPay(),
+        '/online_buyer_screens/online_buyer_order_list':(context)=>const OnlineBuyerOrderList(),
 
 
       },

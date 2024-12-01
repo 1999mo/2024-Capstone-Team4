@@ -55,6 +55,12 @@ class _OnlineBuyerPayState extends State<OnlineBuyerPay> {
         .collection('online_basket')
         .doc(festivalName);
 
+    final orderListRef = FirebaseFirestore.instance
+        .collection('Users')
+        .doc(uid)
+        .collection('online_order_list')
+        .doc(festivalName);
+
     try {
       final basketSnapshot = await basketRef.get();
       if (!basketSnapshot.exists) {
@@ -72,6 +78,18 @@ class _OnlineBuyerPayState extends State<OnlineBuyerPay> {
         'zipcode': zipcodeController.text.trim(),
       };
 
+      // Step 1: Copy data to `online_order_list`
+      for (var sellerId in basketData.keys) {
+        final sellerBasketItems = List.from(basketData[sellerId]);
+
+        final uniqueOrderId = FirebaseFirestore.instance.collection('placeholder').doc().id;
+
+        await orderListRef.set({
+          uniqueOrderId: [buyerInfo, ...sellerBasketItems],
+        }, SetOptions(merge: true));
+      }
+
+      // Step 2: Process `online_consumer_list` updates
       for (var sellerId in basketData.keys) {
         final sellerOrdersRef = FirebaseFirestore.instance
             .collection('Users')
@@ -79,29 +97,23 @@ class _OnlineBuyerPayState extends State<OnlineBuyerPay> {
             .collection('online_consumer_list')
             .doc(festivalName);
 
-        final sellerSnapshot = await sellerOrdersRef.get();
+        final uniqueConsumerId = FirebaseFirestore.instance.collection('placeholder').doc().id;
 
-        if (sellerSnapshot.exists) {
-          // Add to existing data
-          await sellerOrdersRef.update({
-            uid: [buyerInfo, ...List.from(basketData[sellerId])]
-          });
-        } else {
-          // Create new data
-          await sellerOrdersRef.set({
-            uid: [buyerInfo, ...List.from(basketData[sellerId])]
-          });
-        }
+        await sellerOrdersRef.set({
+          uniqueConsumerId: [buyerInfo, ...List.from(basketData[sellerId])],
+        }, SetOptions(merge: true));
       }
 
-      // Delete the basket
+      // Step 3: Delete the basket
       await basketRef.delete();
 
+      // Success message
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('결제가 완료되었습니다!')),
       );
 
-      Navigator.popUntil(context, ModalRoute.withName('/online_buyer_screens/online_select_booths'));
+      // Navigate back
+      Navigator.pop(context);
 
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -113,6 +125,8 @@ class _OnlineBuyerPayState extends State<OnlineBuyerPay> {
       });
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {

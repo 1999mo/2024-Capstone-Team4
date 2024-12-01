@@ -90,7 +90,7 @@ class _OnlineSelectFestivalState extends State<OnlineSelectFestival> {
                         onTap: () {
                           Navigator.pushNamed(
                             context,
-                            '/online_buyer_screens/online_select_booths',
+                            '/online_buyer_screens/navigation',
                             arguments: festivals[index].id, // Festival ID 전달
                           );
                         },

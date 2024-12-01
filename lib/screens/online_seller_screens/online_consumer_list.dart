@@ -15,7 +15,6 @@ class _OnlineConsumerListState extends State<OnlineConsumerList> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Get the festivalName from the previous screen
     festivalName = ModalRoute.of(context)?.settings.arguments as String?;
   }
 
@@ -37,7 +36,6 @@ class _OnlineConsumerListState extends State<OnlineConsumerList> {
 
     final Map<String, int> totalOrders = {};
 
-    // Safely process each field's data
     for (var field in data.values) {
       if (field is List<dynamic>) {
         for (var i = 1; i < field.length; i++) {
@@ -72,7 +70,6 @@ class _OnlineConsumerListState extends State<OnlineConsumerList> {
     final data = docSnapshot.data();
     if (data == null) return {};
 
-    // Ensure all values in the map are List<dynamic>
     final Map<String, List<dynamic>> result = {};
     for (var entry in data.entries) {
       if (entry.value is List<dynamic>) {
@@ -91,7 +88,7 @@ class _OnlineConsumerListState extends State<OnlineConsumerList> {
     } else if (cleaned.length == 11) {
       return '${cleaned.substring(0, 3)}-${cleaned.substring(3, 7)}-${cleaned.substring(7)}';
     } else {
-      return phone; // Return as is if formatting is not possible
+      return phone;
     }
   }
 
@@ -116,7 +113,7 @@ class _OnlineConsumerListState extends State<OnlineConsumerList> {
                     const SizedBox(height: 16),
                     SizedBox(
                       width: double.maxFinite,
-                      height: 300, // 최대 높이 제한
+                      height: 300,
                       child: ListView.builder(
                         itemCount: totalOrders.length,
                         itemBuilder: (context, index) {
@@ -148,12 +145,12 @@ class _OnlineConsumerListState extends State<OnlineConsumerList> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('소비자 주문 목록'),
+        backgroundColor: const Color(0xFFFDBE85),
         centerTitle: true,
       ),
       body: FutureBuilder<Map<String, List<dynamic>>>(
@@ -163,7 +160,6 @@ class _OnlineConsumerListState extends State<OnlineConsumerList> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            print('Error in FutureBuilder: ${snapshot.error}');
             return const Center(child: Text('오류가 발생했습니다.'));
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -176,6 +172,9 @@ class _OnlineConsumerListState extends State<OnlineConsumerList> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFDBE85),
+                  ),
                   onPressed: _showTotalOrdersPopup,
                   child: const Text('총 주문 물품'),
                 ),
@@ -184,7 +183,7 @@ class _OnlineConsumerListState extends State<OnlineConsumerList> {
                 child: Container(
                   margin: const EdgeInsets.symmetric(horizontal: 16.0),
                   decoration: BoxDecoration(
-                    color: Colors.grey[200],
+                    color: Colors.grey[100],
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                   child: ListView.builder(
@@ -199,9 +198,11 @@ class _OnlineConsumerListState extends State<OnlineConsumerList> {
                       final String address = consumerInfo['address'] ?? '';
 
                       return Card(
+                        color: Colors.white,
                         margin: const EdgeInsets.symmetric(vertical: 8.0),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
                         child: Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.all(16.0),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -210,14 +211,36 @@ class _OnlineConsumerListState extends State<OnlineConsumerList> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                    Text(
+                                      '성함: $name',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                      ),
+                                    ),
                                     const SizedBox(height: 4),
-                                    Text(phone),
+                                    Text('연락처: $phone'),
                                     const SizedBox(height: 4),
-                                    Text(zipcode),
+                                    Text('우편번호: $zipcode'),
                                     const SizedBox(height: 4),
-                                    Text(address),
+                                    Text('주소: $address'),
                                   ],
+                                ),
+                              ),
+                              Container(
+                                width: 3,
+                                margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.grey[400]!,
+                                      Colors.grey[300]!,
+                                      Colors.grey[200]!,
+                                      Colors.transparent
+                                    ],
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                  ),
                                 ),
                               ),
                               Expanded(
