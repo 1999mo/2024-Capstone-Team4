@@ -191,6 +191,26 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
                           ],
                         ),
                     ),
+                    onTap: () async {
+                      String? selection = await showDialog<String>(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return MyDropdownDialog();
+                          } );
+
+                      if(selection == '') {
+                        //this is where nothing selected, such as cancel, or selecting nothing and continue;
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => BuyerNavigationScreen(
+                                festivalName: selection,
+                              )
+                          ),
+                        );
+                      }
+                    },
                   ),
                   const SizedBox(height: 20),
                     Row(
