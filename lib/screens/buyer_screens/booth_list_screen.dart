@@ -1,218 +1,385 @@
-import 'package:catculator/screens/buyer_screens/booth_screen.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class BoothListScreen extends StatefulWidget {
-  final String painter;
-  final String? festivalName;
-
-  const BoothListScreen({Key? key, required this.painter, required this.festivalName}) : super(key: key);
+  const BoothListScreen({super.key});
 
   @override
-  _BoothListScreen createState() => _BoothListScreen();
+  State<BoothListScreen> createState() => _BoothListScreenState();
 }
 
-class _BoothListScreen extends State<BoothListScreen> {
+class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  String searchQuery = '';
+  String? festivalName;
+  bool isLoading = false;
+  List<DocumentSnapshot> characterResults = [];
+  bool hasMoreResults = true;
+  DocumentSnapshot? lastDocument;
 
-  Future<List<Map<String, dynamic>>> _getAllBooths(String painter) async {
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    festivalName = ModalRoute.of(context)?.settings.arguments as String?;
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _fetchCharacterResults() async {
+    if (!hasMoreResults || isLoading || festivalName == null) return;
+
+    setState(() {
+      isLoading = true;
+    });
+
     try {
-      //var festivalsSnapshot = await FirebaseFirestore.instance.collection('Festivals').get();
+      final query = FirebaseFirestore.instance
+          .collectionGroup('items')
+          .where('itemName', isGreaterThanOrEqualTo: searchQuery.toLowerCase())
+          .where('itemName', isLessThan: '${searchQuery.toLowerCase()}z')
+          .limit(10);
 
-      DocumentSnapshot festivalDoc = await FirebaseFirestore.instance
-          .collection('Festivals')
-          .doc(widget.festivalName)
-          .get();
-      List<Map<String, dynamic>> festivalBoothList = [];
+      QuerySnapshot snapshot;
+      if (lastDocument == null) {
+        snapshot = await query.get();
+      } else {
+        snapshot = await query.startAfterDocument(lastDocument!).get();
+      }
 
-      //for (var festivalDoc in festivalsSnapshot.docs) {
-        //String festivalName = festivalDoc.id; Festival name is the document ID
-
-      List<String> sellerUids = List.from(festivalDoc['sellers']); // List of seller UIDs
-
-        for (var userId in sellerUids) {
-          var boothRef = FirebaseFirestore.instance
-              .collection('Users')
-              .doc(userId)
-              .collection('booths')
-              .doc(widget.festivalName);
-
-          // Fetch the booth items for this user and festival
-          var boothSnapshot = await boothRef.get();
-
-          if (boothSnapshot.exists) {
-            List<String> painters = List<String>.from(boothSnapshot['painters'] ?? []);
-
-            bool matchesPainter = painters.any((painterName) =>
-            painterName.toLowerCase().contains(painter.toLowerCase()) || painter.isEmpty);
-
-            String imagePath = await FirebaseStorage.instance
-                .ref('$userId/profile_image.jpg')
-                .getDownloadURL();
-
-            if(matchesPainter) {
-              festivalBoothList.add({
-                'userId': userId,
-                'boothName': boothSnapshot['boothName'],
-                'location': boothSnapshot['location'],
-                'painters': List<String>.from(boothSnapshot['painters'] ?? []),
-                'imagePath': imagePath,
-              });
-            }
-          }
-        }
-      //}
-
-      return _getItemMatchBooths(painter, festivalBoothList);
+      if (snapshot.docs.isEmpty) {
+        setState(() {
+          hasMoreResults = false;
+        });
+      } else {
+        setState(() {
+          characterResults.addAll(snapshot.docs);
+          lastDocument = snapshot.docs.last;
+        });
+      }
     } catch (e) {
-      print('Error fetching booth list: $e');
-      return [];
+      debugPrint('Error fetching character results: $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
-  Future<List<Map<String, dynamic>>> _getItemMatchBooths(String painter, List<Map<String, dynamic>> festivalBoothList) async {
-    try {
-      DocumentSnapshot festivalDoc = await FirebaseFirestore.instance
-          .collection('Festivals')
-          .doc(widget.festivalName)
-          .get();
-
-      List<String> sellerUids = List.from(festivalDoc['sellers']);
-
-      for (var userId in sellerUids) {
-        var boothRef = FirebaseFirestore.instance
-            .collection('Users')
-            .doc(userId)
-            .collection('booths')
-            .doc(widget.festivalName);
-
-        // Fetch the booth items for this user and festival
-        var boothSnapshot = await boothRef.get();
-
-        if (boothSnapshot.exists) {
-          //List<String> painters = List<String>.from(boothSnapshot['painters'] ?? []);
-
-          //bool matchesPainter = painters.any((painterName) =>
-          //painterName.toLowerCase().contains(painter.toLowerCase()) || painter.isEmpty);
-          final collection = FirebaseFirestore.instance.collection('Users/$userId/booths/');
-          final querySnapshot = await collection.get();
-          List<String> itemNames = querySnapshot.docs.map((doc) => doc.id).toList();
-
-          bool matchesName = itemNames.any((itemName) =>
-          itemName.toLowerCase().contains(itemName.toLowerCase()) || painter.isEmpty);
-
-
-          String imagePath = await FirebaseStorage.instance
-              .ref('$userId/profile_image.jpg')
-              .getDownloadURL();
-
-          if(matchesName && (!festivalBoothList.any((item) => item['userId'] == userId))) {
-            festivalBoothList.add({
-              'userId': userId,
-              'boothName': boothSnapshot['boothName'],
-              'location': boothSnapshot['location'],
-              'painters': List<String>.from(boothSnapshot['painters'] ?? []),
-              'imagePath': imagePath,
-            });
-          }
-        }
-      }
-
-      return festivalBoothList;
-    } catch (e) {
-      print('Error fetching booth list: $e');
-      return [];
-    }
+  void _searchCharacters() {
+    setState(() {
+      characterResults.clear();
+      lastDocument = null;
+      hasMoreResults = true;
+    });
+    _fetchCharacterResults();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('부스 목록'),
+        title: Text(festivalName ?? 'Festival'),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(
+              icon: Icon(Icons.store),
+              text: '부스별 보기',
+            ),
+            Tab(
+              icon: Icon(Icons.person),
+              text: '캐릭터별 보기',
+            ),
+          ],
+        ),
       ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: _getAllBooths(widget.painter),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No booths available.'));
-          } else {
-            var boothList = snapshot.data!;
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _buildBoothView(),
+          _buildCharacterView(),
+        ],
+      ),
+    );
+  }
 
-            return GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-              ),
-              itemCount: boothList.length,
-              itemBuilder: (context, index) {
-                var booth = boothList[index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => BoothScreen(
-                            uid: booth['userId'],
-                            festivalName: widget.festivalName,
-                        ),
-                      )
-                    );
-                  },
-                  child: SizedBox(
-                    height: 100.0,
-                    child: Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            booth['imagePath'].isNotEmpty
-                            ? Container(
-                              width: 100.0,
-                              height: 100.0,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                  image: NetworkImage(
-                                  booth['imagePath'],
-                                ),
-                                fit: BoxFit.cover,
-                                ),
-                              ),
-                            )
-                            : Container(
-                              width: 100.0,
-                              height: 100.0,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                  image: AssetImage('assets/catcul_w.jpg'),
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
-                            Text(
-                              booth['boothName'],
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            Text('${booth['location']}'),
-                            Text('${booth['painters'].join(', ')}'),
-                          ],
-                        ),
-                      ),
+  Widget _buildBoothView() {
+    if (festivalName == null) {
+      return const Center(
+        child: Text('축제 이름을 불러오지 못했습니다.'),
+      );
+    }
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: TextField(
+            onChanged: (value) {
+              setState(() {
+                searchQuery = value.toLowerCase();
+              });
+            },
+            decoration: const InputDecoration(
+              hintText: '부스명 또는 작가명으로 검색',
+              prefixIcon: Icon(Icons.search),
+              border: OutlineInputBorder(),
+            ),
+          ),
+        ),
+        Expanded(
+          child: StreamBuilder<DocumentSnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('Festivals')
+                .doc(festivalName)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (!snapshot.hasData || !(snapshot.data?.exists ?? false)) {
+                return const Center(child: Text('등록된 판매자가 없습니다.'));
+              }
+
+              final sellers = snapshot.data!['sellers'] as List<dynamic>;
+              return FutureBuilder<List<Map<String, dynamic>>>(
+                future: Future.wait(
+                  sellers.map((sellerUid) async {
+                    final doc = await FirebaseFirestore.instance
+                        .collection('Users')
+                        .doc(sellerUid)
+                        .collection('booths')
+                        .doc(festivalName)
+                        .get();
+
+                    if (!doc.exists) return null;
+
+                    final data = doc.data() as Map<String, dynamic>? ?? {};
+                    final boothName = data['boothName']?.toString().toLowerCase() ?? '';
+                    final painters = (data['painters'] as List<dynamic>? ?? [])
+                        .map((painter) => painter.toString().toLowerCase())
+                        .toList();
+
+                    // 검색 조건 확인: 검색어가 포함되지 않으면 제외
+                    if (searchQuery.isNotEmpty &&
+                        !boothName.contains(searchQuery) &&
+                        !painters.any((painter) => painter.contains(searchQuery))) {
+                      return null;
+                    }
+
+                    return {'sellerUid': sellerUid, 'data': data}; // 조건에 맞는 데이터만 반환
+                  }).toList(),
+                ).then(
+                      (results) => results
+                      .where((element) => element != null) // null 값 필터링
+                      .map((element) => element!) // null 값이 아님을 명시적으로 선언
+                      .toList(),
+                ),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(child: Text('조건에 맞는 부스가 없습니다.'));
+                  }
+
+                  final filteredData = snapshot.data!;
+
+                  return GridView.builder(
+                    padding: const EdgeInsets.all(8.0),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
                     ),
-                  ),
+                    itemCount: filteredData.length,
+                    itemBuilder: (context, index) {
+                      final sellerUid = filteredData[index]['sellerUid'] as String;
+                      return _buildBoothCard(sellerUid);
+                    },
+                  );
+                },
+              );
+
+
+
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBoothCard(String sellerUid) {
+    return FutureBuilder<DocumentSnapshot>(
+      future: FirebaseFirestore.instance
+          .collection('Users')
+          .doc(sellerUid)
+          .collection('booths')
+          .doc(festivalName)
+          .get(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final data = snapshot.data?.data() as Map<String, dynamic>? ?? {};
+        final boothName = data['boothName'] ?? '이름 없음';
+        final painters = (data['painters'] as List<dynamic>? ?? []).join(', ');
+
+        return FutureBuilder<String>(
+          future: FirebaseStorage.instance
+              .ref('$sellerUid/profile_image.jpg')
+              .getDownloadURL(),
+          builder: (context, imageSnapshot) {
+            Widget avatar;
+            if (imageSnapshot.connectionState == ConnectionState.waiting) {
+              avatar = const CircleAvatar(
+                radius: 40,
+                child: CircularProgressIndicator(),
+              );
+            } else if (imageSnapshot.hasError || !imageSnapshot.hasData) {
+              avatar = const CircleAvatar(
+                radius: 40,
+                child: Icon(Icons.error),
+              );
+            } else {
+              avatar = CircleAvatar(
+                radius: 40,
+                backgroundImage: CachedNetworkImageProvider(imageSnapshot.data!),
+              );
+            }
+
+            return GestureDetector(
+              onTap: () {
+                Navigator.pushNamed(
+                  context,
+                  '/buyer_screens/booth_items_list',
+                  arguments: {
+                    'uid': sellerUid,
+                    'festivalName': festivalName,
+                  },
                 );
               },
+              child: Card(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    avatar,
+                    const SizedBox(height: 8),
+                    Text(
+                      boothName,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      painters,
+                      style: const TextStyle(color: Colors.grey),
+                    ),
+                  ],
+                ),
+              ),
             );
-          }
           },
+        );
+      },
+    );
+
+  }
+
+
+  Widget _buildCharacterView() {
+    if (festivalName == null) {
+      return const Center(
+        child: Text('축제 이름을 불러오지 못했습니다.'),
+      );
+    }
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: TextField(
+            onChanged: (value) {
+              searchQuery = value.toLowerCase();
+            },
+            decoration: InputDecoration(
+              hintText: '캐릭터명으로 검색',
+              suffixIcon: IconButton(
+                icon: const Icon(Icons.search),
+                onPressed: _searchCharacters,
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          child: characterResults.isEmpty
+              ? const Center(child: Text('나의 최애케를 검색해보세요!'))
+              : ListView.builder(
+            itemCount: characterResults.length + 1,
+            itemBuilder: (context, index) {
+              if (index == characterResults.length) {
+                if (isLoading) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                return hasMoreResults
+                    ? ElevatedButton(
+                  onPressed: _fetchCharacterResults,
+                  child: const Text('더 보기'),
+                )
+                    : const Center(
+                  child: Text('더 이상 검색 결과가 없습니다.'),
+                );
+              }
+
+              final item = characterResults[index].data()
+              as Map<String, dynamic>;
+              return _buildCharacterCard(item);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCharacterCard(Map<String, dynamic> item) {
+    final stock = item['stockQuantity'] ?? 0;
+    return Card(
+      child: Column(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8.0),
+            child: Image.network(
+              item['imagePath'] ?? '',
+              errorBuilder: (context, error, stackTrace) =>
+                  Image.asset('assets/catcul_w.jpg'),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(item['itemName'] ?? ''),
+          const SizedBox(height: 4),
+          Text(
+            '${item['sellingPrice']}원',
+          ),
+          Text(
+            stock > 0 ? '남은 수 $stock' : '품절',
+            style: TextStyle(color: stock > 0 ? Colors.black : Colors.red),
+          ),
+        ],
       ),
     );
   }

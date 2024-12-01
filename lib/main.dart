@@ -6,8 +6,10 @@ import 'package:catculator/screens/splash.dart';
 import 'package:catculator/screens/user_auth/auth_screen_export.dart';
 import 'package:catculator/screens/main_screens/main_screen_export.dart';
 import 'package:catculator/screens/seller_screens/seller_screen_export.dart';
+import 'package:catculator/screens/buyer_screens/buyer_screens_export.dart';
 import 'package:catculator/screens/online_seller_screens/online_seller_screens_export.dart';
 import 'package:catculator/screens/online_buyer_screens/online_buyer_screens_export.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,6 +57,10 @@ class MyApp extends StatelessWidget {
         '/seller_screens/adjustment_detail':(context)=>const AdjustmentDetail(),
         '/seller_screens/sale_record':(context)=>const SaleRecord(),
         '/seller_screens/pre_order':(context)=>const PreOrder(),
+
+        //buyer_screens 시작
+        '/buyer_screens/buyer_navigation_screen':(context)=>const BuyerNavigationScreen(),
+        '/buyer_screens/booth_items_list':(context)=>const BoothItemsList(),
 
         //online_seller_screens 시작
         '/online_seller_screens/online_select_booth':(context)=>const OnlineSelectBooth(),
