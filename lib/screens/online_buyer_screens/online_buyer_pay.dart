@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart'; // 숫자 포맷팅
 
-
 class OnlineBuyerPay extends StatefulWidget {
   const OnlineBuyerPay({super.key});
 
@@ -82,7 +81,8 @@ class _OnlineBuyerPayState extends State<OnlineBuyerPay> {
       for (var sellerId in basketData.keys) {
         final sellerBasketItems = List.from(basketData[sellerId]);
 
-        final uniqueOrderId = FirebaseFirestore.instance.collection('placeholder').doc().id;
+        final uniqueOrderId =
+            FirebaseFirestore.instance.collection('placeholder').doc().id;
 
         await orderListRef.set({
           uniqueOrderId: [buyerInfo, ...sellerBasketItems],
@@ -97,7 +97,8 @@ class _OnlineBuyerPayState extends State<OnlineBuyerPay> {
             .collection('online_consumer_list')
             .doc(festivalName);
 
-        final uniqueConsumerId = FirebaseFirestore.instance.collection('placeholder').doc().id;
+        final uniqueConsumerId =
+            FirebaseFirestore.instance.collection('placeholder').doc().id;
 
         await sellerOrdersRef.set({
           uniqueConsumerId: [buyerInfo, ...List.from(basketData[sellerId])],
@@ -114,7 +115,6 @@ class _OnlineBuyerPayState extends State<OnlineBuyerPay> {
 
       // Navigate back
       Navigator.pop(context);
-
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('결제 처리 중 오류가 발생했습니다: $e')),
@@ -126,15 +126,14 @@ class _OnlineBuyerPayState extends State<OnlineBuyerPay> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     final numberFormat = NumberFormat('#,###');
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('결제하기'),
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -143,24 +142,50 @@ class _OnlineBuyerPayState extends State<OnlineBuyerPay> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('성함', style: TextStyle(fontSize: 16)),
+              const Text(
+                '성함',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: nameController,
-                decoration: const InputDecoration(hintText: '이름을 입력하세요', border: OutlineInputBorder()),
-                validator: (value) => value == null || value.trim().isEmpty ? '이름을 입력하세요' : null,
+                decoration: const InputDecoration(
+                    hintText: '이름을 입력하세요', border: OutlineInputBorder()),
+                validator: (value) =>
+                    value == null || value.trim().isEmpty ? '이름을 입력하세요' : null,
               ),
               const SizedBox(height: 16),
-              const Text('주소', style: TextStyle(fontSize: 16)),
+              const Text(
+                '주소',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: addressController,
-                decoration: const InputDecoration(hintText: '주소를 입력하세요', border: OutlineInputBorder()),
-                validator: (value) => value == null || value.trim().isEmpty ? '주소를 입력하세요' : null,
+                decoration: const InputDecoration(
+                    hintText: '주소를 입력하세요', border: OutlineInputBorder()),
+                validator: (value) =>
+                    value == null || value.trim().isEmpty ? '주소를 입력하세요' : null,
               ),
               const SizedBox(height: 16),
-              const Text('우편번호', style: TextStyle(fontSize: 16)),
+              const Text(
+                '우편번호',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: zipcodeController,
-                decoration: const InputDecoration(hintText: '우편번호를 입력하세요', border: OutlineInputBorder()),
+                decoration: const InputDecoration(
+                    hintText: '우편번호를 입력하세요', border: OutlineInputBorder()),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -172,10 +197,18 @@ class _OnlineBuyerPayState extends State<OnlineBuyerPay> {
                 },
               ),
               const SizedBox(height: 16),
-              const Text('전화번호', style: TextStyle(fontSize: 16)),
+              const Text(
+                '전화번호',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: phoneController,
-                decoration: const InputDecoration(hintText: '전화번호를 입력하세요', border: OutlineInputBorder()),
+                decoration: const InputDecoration(
+                    hintText: '전화번호를 입력하세요', border: OutlineInputBorder()),
                 keyboardType: TextInputType.phone,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -186,26 +219,73 @@ class _OnlineBuyerPayState extends State<OnlineBuyerPay> {
                   return null;
                 },
               ),
-              SizedBox(height: 20,),
-              Text('총 결제 금액 : ${numberFormat.format(totalCost)}', style: TextStyle(fontSize: 30),),
+              SizedBox(
+                height: 20,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '총 결제금액',
+                      style: TextStyle(
+                          fontSize: 23,
+                        fontWeight: FontWeight.bold
+                      ),
+                    ),
+                    Text(
+                        '${numberFormat.format(totalCost)}원',
+                        style: TextStyle(
+                            fontSize: 23,
+                            fontWeight: FontWeight.bold,
+                          color: Colors.red
+                        ),
+                    ),
+                  ],
+                ),
+              ),
               const SizedBox(height: 32),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
-                    child: const Text('뒤로가기'),
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFD1D1D1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text(
+                            '뒤로가기',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      ),
+                    ),
                   ),
-                  ElevatedButton(
-                    onPressed: isProcessing ? null : _processPayment,
-                    child: isProcessing
-                        ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                    )
-                        : const Text('결제하기'),
+                  SizedBox(width: 10,),
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFDBE85),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: TextButton(
+                        onPressed: isProcessing ? null : _processPayment,
+                        child: isProcessing
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                    color: Colors.white, strokeWidth: 2),
+                              )
+                            : const Text(
+                            '결제하기',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),

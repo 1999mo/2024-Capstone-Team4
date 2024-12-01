@@ -185,10 +185,10 @@ class _OnlineBuyerShoppingCartState extends State<OnlineBuyerShoppingCart> {
                       Padding(
                         padding: const EdgeInsets.only(top: 8, bottom: 8, left: 20),
                         child: Text(
-                          '부스: $boothName',
+                          '$boothName  주문상품',
                           style: const TextStyle(
                             fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
@@ -208,8 +208,8 @@ class _OnlineBuyerShoppingCartState extends State<OnlineBuyerShoppingCart> {
                                         Column(
                                           children: [
                                             SizedBox(
-                                              height: 50,
-                                              width: 50,
+                                              height: 60,
+                                              width: 60,
                                               child: FutureBuilder<String>(
                                                 future: imagePath != null ? imageCache[imagePath] : Future.value(''),
                                                 builder: (context, snapshot) {
@@ -244,37 +244,69 @@ class _OnlineBuyerShoppingCartState extends State<OnlineBuyerShoppingCart> {
                                                 },
                                               ),
                                             ),
+                                            const SizedBox(height: 8),
                                             Row(
                                               mainAxisAlignment: MainAxisAlignment.center,
                                               children: [
-                                                IconButton(
-                                                  icon: const Icon(Icons.remove, color: Colors.blue),
-                                                  onPressed: () {
-                                                    if (item['quantity'] > 0) {
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                    border: Border.all(color: Color(0xFFD1D1D1)),
+                                                    shape: BoxShape.circle,
+                                                    color: item['quantity'] == 0 ? Color(
+                                                        0x91D1D1D1) : null,
+                                                  ),
+                                                  height: 30,
+                                                  width: 30,
+                                                  child: IconButton(
+                                                    icon: const Icon(
+                                                        Icons.remove,
+                                                        color: Colors.blue
+                                                    ),
+                                                    iconSize: 18,
+                                                    padding: EdgeInsets.zero,
+                                                    constraints: BoxConstraints(),
+                                                    visualDensity: VisualDensity.compact,
+                                                    onPressed: () {
+                                                      if (item['quantity'] > 0) {
+                                                        setState(() {
+                                                          item['quantity']--;
+                                                          totalCost -= item['sellingPrice'] as int;
+                                                        });
+                                                        _updateCartData(sellerId, cartData[sellerId]!);
+                                                      }
+                                                    },
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 4),
+                                                Text('${item['quantity']}'),
+                                                const SizedBox(width: 4),
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                    border: Border.all(color: Color(0xFFD1D1D1)),
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  height: 30,
+                                                  width: 30,
+                                                  child: IconButton(
+                                                    icon: const Icon(Icons.add, color: Colors.red),
+                                                    iconSize: 18,
+                                                    padding: EdgeInsets.zero,
+                                                    constraints: BoxConstraints(),
+                                                    visualDensity: VisualDensity.compact,
+                                                    onPressed: () {
                                                       setState(() {
-                                                        item['quantity']--;
-                                                        totalCost -= item['sellingPrice'] as int;
+                                                        item['quantity']++;
+                                                        totalCost += item['sellingPrice'] as int;
                                                       });
                                                       _updateCartData(sellerId, cartData[sellerId]!);
-                                                    }
-                                                  },
-                                                ),
-                                                Text('${item['quantity']}'),
-                                                IconButton(
-                                                  icon: const Icon(Icons.add, color: Colors.red),
-                                                  onPressed: () {
-                                                    setState(() {
-                                                      item['quantity']++;
-                                                      totalCost += item['sellingPrice'] as int;
-                                                    });
-                                                    _updateCartData(sellerId, cartData[sellerId]!);
-                                                  },
+                                                    },
+                                                  ),
                                                 ),
                                               ],
                                             ),
                                           ],
                                         ),
-                                        const SizedBox(width: 10),
+                                        const SizedBox(width: 20),
                                         Expanded(
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -291,9 +323,10 @@ class _OnlineBuyerShoppingCartState extends State<OnlineBuyerShoppingCart> {
                                                 '종류: ${item['itemType']}',
                                                 style: const TextStyle(fontSize: 14, color: Colors.grey),
                                               ),
+                                              const SizedBox(height: 8),
                                               Text(
-                                                '₩${numberFormat.format(item['sellingPrice'])}',
-                                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                                                '₩${numberFormat.format(item['sellingPrice']*item['quantity'])}',
+                                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                                               ),
                                             ],
                                           ),
@@ -305,7 +338,11 @@ class _OnlineBuyerShoppingCartState extends State<OnlineBuyerShoppingCart> {
                                       top: 0,
                                       right: 0,
                                       child: IconButton(
-                                        icon: const Icon(Icons.close, color: Colors.black),
+                                        icon: const Icon(Icons.close, color: Colors.grey),
+                                        iconSize: 20,
+                                        padding: EdgeInsets.zero,
+                                        constraints: BoxConstraints(),
+                                        visualDensity: VisualDensity.compact,
                                         onPressed: () {
                                           showDialog(
                                             context: context,
@@ -340,6 +377,7 @@ class _OnlineBuyerShoppingCartState extends State<OnlineBuyerShoppingCart> {
                           ],
                         );
                       }).toList(),
+                      const SizedBox(height: 8),
                     ],
                   );
                 }).toList(),

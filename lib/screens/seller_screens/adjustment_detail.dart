@@ -79,11 +79,8 @@ class _AdjustmentDetailState extends State<AdjustmentDetail> {
         types.add(itemType);
       }
     }
-
-    setState(() {
-      itemTypes = types.toList();
-    });
   }
+
 
   Future<List<MapEntry<String, Map<String, dynamic>>>> _getFilteredItems() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
@@ -118,6 +115,7 @@ class _AdjustmentDetailState extends State<AdjustmentDetail> {
       }
     }
 
+
     // 매출순으로 정렬
     filteredItems.sort((a, b) => b.value['sales'].compareTo(a.value['sales']));
     return filteredItems;
@@ -136,9 +134,15 @@ class _AdjustmentDetailState extends State<AdjustmentDetail> {
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Text(
-              artistId ?? '',
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            child: Center(
+              child: Column(
+                children: [
+                  Text(
+                    artistId ?? '',
+                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
             ),
           ),
           Padding(

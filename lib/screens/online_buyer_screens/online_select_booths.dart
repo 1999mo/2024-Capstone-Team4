@@ -140,7 +140,8 @@ class _OnlineSelectBoothsState extends State<OnlineSelectBooths> {
                               },
                               child: Card(
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(8),
+                                  side: BorderSide(color: Color(0xFFD1D1D1), width: 1),
                                 ),
                                 elevation: 4,
                                 child: Padding(
