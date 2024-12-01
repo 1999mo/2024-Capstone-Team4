@@ -1,62 +1,66 @@
-import 'package:catculator/screens/buyer_screens/bag_qr.dart';
-import 'package:catculator/screens/buyer_screens/festival_select.dart';
+import 'package:catculator/screens/buyer_screens/bag_inside.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class Booth {
-  final String name;
-  final String imagePath;
+class BagListScreen extends StatefulWidget {
+  final String? festivalName;
 
-  Booth ({required this.name, required this.imagePath});
-}
-
-class Festival {
-  final String name;
-  final List<Booth> booths;
-
-  Festival({required this.name, required this.booths});
-}
-
-class BagScreen extends StatefulWidget {
-  const BagScreen({
+  const BagListScreen({
+    required this.festivalName,
     Key? key,
   }) : super(key: key);
 
   @override
-  State<BagScreen> createState() => _BagScreen();
+  State<BagListScreen> createState() => _BagScreen();
 }
 
-class _BagScreen extends State<BagScreen> {
-  List<Map<String, dynamic>> orderItems = [];
+class _BagScreen extends State<BagListScreen> {
+  //List<Map<String, dynamic>> orderItems = [];
   bool isLoading = true;
   final user = FirebaseAuth.instance.currentUser;
-  String? currentFestival;
-  List<Festival> festivalNames = [];
 
   @override
   void initState() {
     super.initState();
-    fetchFestivalAndBoothData();
+    fetchBoothData();
   }
 
-  Future<void> fetchFestivalAndBoothData() async {
-    setState(() {
-      isLoading = true;
-    });
+  Future<List<Map<String, dynamic>>> fetchBoothData() async {
     try {
-      // Fetch festival names
-      QuerySnapshot festivalSnapshot = await FirebaseFirestore.instance
-          .collection('Users')
-          .doc(user?.uid)
-          .collection('basket')
-          .get();
+      List<String> boothName;
+      List<Map<String, dynamic>> boothList = [];
+      DocumentSnapshot doc = await FirebaseFirestore.instance.collection('Users').doc(user?.uid).collection('basket').doc(widget.festivalName).get();
 
-      // Process the festival names into Festival objects
-      List<Festival> fetchedFestivals = [];
+      if(!doc.exists) {
+        print("There is no doc");
+        return [];
+      }
 
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      boothName = data.keys.toList();
+
+      List<Map<String, dynamic>> boothData;
+      for(String uid in boothName) {
+        DocumentReference boothDocRef = FirebaseFirestore.instance
+            .collection('Users')
+            .doc(uid)
+            .collection('booths')
+            .doc(widget.festivalName);
+
+        DocumentSnapshot boothSnapshot = await boothDocRef.get();
+        if (boothSnapshot.exists) {
+          Map<String, dynamic> booth = boothSnapshot.data() as Map<String, dynamic>;
+          booth['uid'] = uid;
+
+          boothList.add(booth);
+        }
+      }
+
+      return boothList;
+      /*
+      // Fetch from userBasket of booths
       for (var doc in festivalSnapshot.docs) {
-        String festivalName = doc.id;
 
         // Fetch booths related to this festival
         QuerySnapshot boothSnapshot = await FirebaseFirestore.instance
@@ -100,59 +104,108 @@ class _BagScreen extends State<BagScreen> {
       });
 
       currentFestival = festivalNames.first.name;
+      */
     } catch (e) {
       print('Error fetching festival and booth data: $e');
-      isLoading = false;
+      return [];
     }
   }
 
 
   @override
   Widget build(BuildContext context) {
-    int totalPrice = orderItems.fold<int>(0, (sum, item) {
-      return sum +
-          (int.tryParse(item['price'].toString()) ?? 0) *
-              (int.tryParse(item['itemQuantitySelected'].toString()) ?? 0);
-    });
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text('장바구니 목록'),
+        title: const Text('장바구니 부스 목록'),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: isLoading
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+          future: fetchBoothData(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else if (snapshot.data == null || snapshot.data!.isEmpty) {
+              return Center(child: Text('No booths available.'));
+            } else {
+              List<Map<String, dynamic>> booth = snapshot.data!;
+
+              return GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 10.0,
+                    mainAxisSpacing: 10.0,
+                  ),
+                  itemCount: booth.length,
+                  itemBuilder: (context, index) {
+                    //print(booth[index]['imagePath']);
+                    return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => BagInside(
+                                uid: booth[index]['uid'],
+                                festivalName: widget.festivalName,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Card(
+                            elevation: 5.0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                booth[index]['imagePath']?.isNotEmpty ?? false
+                                      ? Container(
+                              width: 100.0,
+                              height: 100.0,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                  image: NetworkImage(
+                                    booth[index]['imagePath'],
+                                  ),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            )
+                              : Container(
+                          width: 100.0,
+                          height: 100.0,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                              image: AssetImage('assets/catcul_w.jpg'),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      Text(
+                        booth[index]['boothName'],
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Text('${booth[index]['location']}'),
+                      Text('${booth[index]['painters'].join(', ')}'),
+                            ])
+                        )
+                    );
+                  }
+              );
+            }
+            /*body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: DropdownButton<String>(
-                    isExpanded: true,
-                    value: currentFestival,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        currentFestival = newValue;
-                      });
-                    },
-                    items: festivalNames.map((festival) {
-                      return DropdownMenuItem<String>(
-                        value: festival.name, // Use festival name as the value
-                        child: Text(festival.name), // Display the festival name
-                      );
-                    }).toList(),
-                    hint: const Text("Select Festival"),
-                  ),
-                ),
-                const SizedBox(width: 16),
-              ],
-            ),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -164,13 +217,7 @@ class _BagScreen extends State<BagScreen> {
                       crossAxisSpacing: 8,
                       mainAxisSpacing: 8,
                     ),
-                    itemCount: festivalNames
-                        .firstWhere(
-                          (festival) => festival.name == currentFestival,
-                      orElse: () => Festival(name: '', booths: []), // Fallback in case no matching festival is found
-                    )
-                        .booths
-                        .length,
+                    itemCount: ,
                     itemBuilder: (context, index) {
                       var booth = festivalNames
                           .firstWhere(
@@ -178,7 +225,6 @@ class _BagScreen extends State<BagScreen> {
                         orElse: () => Festival(name: '', booths: []), // Fallback
                       )
                           .booths[index];
-
                       return GestureDetector(
                         onTap: () {
                           //go to bag_inside
@@ -192,9 +238,9 @@ class _BagScreen extends State<BagScreen> {
                           child: Column(
                             children: [
                               Image.network(
-                                booth.imagePath, // Display booth image
-                                width: 50, // Adjust size as needed
-                                height: 50, // Adjust size as needed
+                                booth.imagePath,
+                                width: 50,
+                                height: 50,
                                 fit: BoxFit.cover,
                               ),
                               const SizedBox(height: 8),
@@ -240,6 +286,8 @@ class _BagScreen extends State<BagScreen> {
             ),
           ],
         ),
+      ),*/
+          }
       ),
     );
   }

@@ -1,4 +1,4 @@
-import 'package:catculator/screens/buyer_screens/bag_screen.dart';
+import 'package:catculator/screens/buyer_screens/bag_list_screen.dart';
 import 'package:catculator/screens/buyer_screens/booth_list_screen.dart';
 import 'package:catculator/screens/buyer_screens/buyer_navigation_screen.dart';
 import 'package:catculator/screens/buyer_screens/festival_select.dart';

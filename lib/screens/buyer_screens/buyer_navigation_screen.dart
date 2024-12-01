@@ -1,5 +1,6 @@
-import 'package:catculator/screens/buyer_screens/bag_screen.dart';
+import 'package:catculator/screens/buyer_screens/bag_list_screen.dart';
 import 'package:catculator/screens/buyer_screens/booth_list_screen.dart';
+import 'package:catculator/screens/buyer_screens/preBooth_list_screen.dart';
 import 'package:flutter/material.dart';
 
 class BuyerNavigationScreen extends StatefulWidget {
@@ -27,8 +28,8 @@ class BuyerNavigationState extends State<BuyerNavigationScreen> {
     _screens = [
       Center(child: Text('지도 화면')),
       BoothListScreen(painter: _controller.text, festivalName: widget.festivalName),
-      Center(child: Text('사전 구매 화면')),
-      BagScreen(),
+      PreboothListScreen(painter: _controller.text, festivalName: widget.festivalName),
+      BagListScreen(festivalName: widget.festivalName),
     ];
   }
 
@@ -41,6 +42,7 @@ class BuyerNavigationState extends State<BuyerNavigationScreen> {
   void _updateBoothScreen() {
     setState(() {
       _screens[1] = BoothListScreen(painter: _controller.text, festivalName: widget.festivalName);
+      _screens[2] = PreboothListScreen(painter: _controller.text, festivalName: widget.festivalName);
     });
   }
 

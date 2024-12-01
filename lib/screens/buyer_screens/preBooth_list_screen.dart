@@ -1,19 +1,21 @@
 import 'package:catculator/screens/buyer_screens/booth_screen.dart';
+import 'package:catculator/screens/buyer_screens/preBooth_screen.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
-class BoothListScreen extends StatefulWidget {
+class PreboothListScreen extends StatefulWidget {
   final String painter;
   final String? festivalName;
 
-  const BoothListScreen({Key? key, required this.painter, required this.festivalName}) : super(key: key);
+  const PreboothListScreen({Key? key, required this.painter, required this.festivalName}) : super(key: key);
 
   @override
-  _BoothListScreen createState() => _BoothListScreen();
+  _PreboothListScreen createState() => _PreboothListScreen();
 }
 
-class _BoothListScreen extends State<BoothListScreen> {
+class _PreboothListScreen extends State<PreboothListScreen> {
 
   Future<List<Map<String, dynamic>>> _getAllBooths(String painter) async {
     try {
@@ -57,6 +59,9 @@ class _BoothListScreen extends State<BoothListScreen> {
                 'location': boothSnapshot['location'],
                 'painters': List<String>.from(boothSnapshot['painters'] ?? []),
                 'imagePath': imagePath,
+                'isPreSell': boothSnapshot['isPreSell'],
+                'preSellEnd': boothSnapshot['preSellEnd'],
+                'preSellStart': boothSnapshot['preSellStart'],
               });
             }
           }
@@ -113,6 +118,9 @@ class _BoothListScreen extends State<BoothListScreen> {
               'location': boothSnapshot['location'],
               'painters': List<String>.from(boothSnapshot['painters'] ?? []),
               'imagePath': imagePath,
+              'isPreSell': boothSnapshot['isPreSell'],
+              'preSellEnd': boothSnapshot['preSellEnd'],
+              'preSellStart': boothSnapshot['preSellStart'],
             });
           }
         }
@@ -129,7 +137,7 @@ class _BoothListScreen extends State<BoothListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('부스 목록'),
+        title: const Text('사전구매 부스 목록'),
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _getAllBooths(widget.painter),
@@ -146,66 +154,110 @@ class _BoothListScreen extends State<BoothListScreen> {
             return GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
+                mainAxisExtent: 225,
               ),
               itemCount: boothList.length,
               itemBuilder: (context, index) {
                 var booth = boothList[index];
+                bool isBoothOpen = booth['isPreSell'];
+                DateTime startTime;
+                DateTime endTime;
+                String boothTime = '';
+
+                if (isBoothOpen) {
+                  startTime = booth['preSellStart'].toDate();
+                  endTime = booth['preSellEnd'].toDate();
+                  String d1 = DateFormat('yyyy.MM.dd').format(startTime);
+                  String d2 = DateFormat('MM.dd').format(endTime);
+                  boothTime = '$d1-$d2';
+                }
+
                 return GestureDetector(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => BoothScreen(
+                    if (isBoothOpen) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PreboothScreen(
                             uid: booth['userId'],
                             festivalName: widget.festivalName,
+                          ),
                         ),
-                      )
-                    );
+                      );
+                    }
                   },
                   child: SizedBox(
-                    height: 100.0,
-                    child: Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            booth['imagePath'].isNotEmpty
-                            ? Container(
-                              width: 100.0,
-                              height: 100.0,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                  image: NetworkImage(
-                                  booth['imagePath'],
-                                ),
-                                fit: BoxFit.cover,
-                                ),
-                              ),
-                            )
-                            : Container(
-                              width: 100.0,
-                              height: 100.0,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                  image: AssetImage('assets/catcul_w.jpg'),
-                                  fit: BoxFit.cover,
-                                ),
+                    height: 256.0,
+                    width: 256.0,
+                    child: Stack(
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          child: Card(
+                            color: isBoothOpen ? Colors.white : Colors.grey,  // Set grey color if booth is closed
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  booth['imagePath'].isNotEmpty
+                                      ? Container(
+                                    width: 100.0,
+                                    height: 100.0,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      image: DecorationImage(
+                                        image: NetworkImage(booth['imagePath']),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  )
+                                      : Container(
+                                    width: 100.0,
+                                    height: 100.0,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      image: DecorationImage(
+                                        image: AssetImage('assets/catcul_w.jpg'),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    booth['boothName'],
+                                    style: const TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  Text('${booth['location']}'),
+                                  Text('${booth['painters'].join(', ')}'),
+                                  if (isBoothOpen)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 8.0),
+                                      child: Text(boothTime),
+                                    ),
+                                ],
                               ),
                             ),
-                            Text(
-                              booth['boothName'],
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            Text('${booth['location']}'),
-                            Text('${booth['painters'].join(', ')}'),
-                          ],
+                          ),
                         ),
-                      ),
+                        if (!isBoothOpen)  // Display "판매 종료" on top of the card when booth is closed
+                          Positioned(
+                            top: 90.0,
+                            left: 8.0,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                              color: Colors.red,
+                              child: Text(
+                                '사전 구매 기간이 아닙니다',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   ),
                 );
