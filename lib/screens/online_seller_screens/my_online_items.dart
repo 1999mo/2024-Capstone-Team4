@@ -104,6 +104,9 @@ class _MyOnlineItemsState extends State<MyOnlineItems> {
       appBar: AppBar(
         title: const Text('내 온라인 판매 상품'),
         centerTitle: true,
+        actions: [TextButton(onPressed: () {
+          Navigator.pushNamed(context, '/online_seller_screens/online_consumer_list', arguments: boothId);
+        }, child: Text('주문 목록'))],
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('OnlineStore').doc(boothId).collection(uid!).snapshots(),

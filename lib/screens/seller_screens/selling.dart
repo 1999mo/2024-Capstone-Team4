@@ -624,11 +624,32 @@ class _SellingState extends State<Selling> {
             bottom: 16, // 화면 하단에서 16px 위
             left: 16, // 좌우 여백
             right: 16,
-            child: GestureDetector(
-              child: Material(
-                elevation: 4,
-                borderRadius: BorderRadius.circular(16),
-                color: const Color(0xFFFDBE85),
+            child: Material(
+              elevation: 4,
+              borderRadius: BorderRadius.circular(16),
+              color: const Color(0xFFFDBE85),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(16), // 클릭 효과가 모서리에 맞게 적용되도록 설정
+                onTap: () async {
+                  // 결제 화면으로 이동
+                  await Navigator.pushNamed(
+                    context,
+                    '/seller_screens/selling_details',
+                    arguments: {
+                      'boothId': boothId,
+                      'soldItems': soldItems,
+                    },
+                  ).then((_) {
+                    // 돌아올 때 상태 초기화 또는 동기화
+                    setState(() {
+                      _reloadItems(); // Firebase에서 데이터 동기화
+                      totalPrice = 0;
+                      totalSoldItems = 0;
+                      soldItems.clear(); // soldItems 초기화
+                      isFloatingVisible = false;
+                    });
+                  });
+                },
                 child: Stack(
                   children: [
                     // 텍스트를 중앙에 배치
@@ -681,29 +702,9 @@ class _SellingState extends State<Selling> {
                   ],
                 ),
               ),
-              onTap: () async {
-
-                // 결제 화면으로 이동
-                await Navigator.pushNamed(
-                  context,
-                  '/seller_screens/selling_details',
-                  arguments: {
-                    'boothId': boothId,
-                    'soldItems': soldItems,
-                  },
-                ).then((_) {
-                  // 돌아올 때 상태 초기화 또는 동기화
-                  setState(() {
-                    _reloadItems(); // Firebase에서 데이터 동기화
-                    totalPrice = 0;
-                    totalSoldItems = 0;
-                    soldItems.clear(); // soldItems 초기화
-                    isFloatingVisible = false;
-                  });
-                });
-              },
             ),
           ),
+
       ]),
     );
   }

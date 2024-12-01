@@ -307,7 +307,6 @@ class _OnlineBuyerShoppingCartState extends State<OnlineBuyerShoppingCart> {
                                       child: IconButton(
                                         icon: const Icon(Icons.close, color: Colors.black),
                                         onPressed: () {
-                                          // 확인 팝업 표시
                                           showDialog(
                                             context: context,
                                             builder: (BuildContext context) {
@@ -353,7 +352,7 @@ class _OnlineBuyerShoppingCartState extends State<OnlineBuyerShoppingCart> {
             color: const Color(0xFFFDBE85),
             child: InkWell(
               onTap: () {
-                // 구매하기 버튼 기능 추가
+                Navigator.pushNamed(context, '/online_buyer_screens/online_buyer_pay', arguments: [festivalName, totalCost]);
               },
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10.0),

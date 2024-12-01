@@ -46,14 +46,6 @@ class _OnlineLookBoothItemsState extends State<OnlineLookBoothItems> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('상품 둘러보기'),
-        actions: [
-          IconButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/online_buyer_screens/online_buyer_shopping_cart',
-                    arguments: festivalName);
-              },
-              icon: Icon(Icons.shopping_cart)),
-        ],
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream:
