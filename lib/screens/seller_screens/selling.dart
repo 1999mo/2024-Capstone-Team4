@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class Selling extends StatefulWidget {
   const Selling({super.key});
@@ -16,6 +17,7 @@ class _SellingState extends State<Selling> {
   String selectedPainter = '작가 전체'; // 드롭다운 기본 값
   String searchKeyword = ''; // 검색어 상태 추가
   final numberFormat = NumberFormat('#,###');
+  bool isFloatingVisible = false; // 플로팅 위젯의 표시 상태
 
   int totalSoldItems = 0; // 총 판매된 상품 개수
   double totalPrice = 0; // 총 가격
@@ -25,8 +27,6 @@ class _SellingState extends State<Selling> {
 
   Set<String> clickedOutOfStockItems = {}; // 품절된 상품의 클릭 상태 관리
   Set<String> onlineSaleStartedItems = {}; // 온라인 판매 시작 상태 관리
-
-  ScaffoldFeatureController<SnackBar, SnackBarClosedReason>? snackBarController;
 
   @override
   void didChangeDependencies() {
@@ -40,17 +40,11 @@ class _SellingState extends State<Selling> {
     String? uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null || boothId == null) return;
 
-    CollectionReference itemsRef = FirebaseFirestore.instance
-        .collection('Users')
-        .doc(uid)
-        .collection('booths')
-        .doc(boothId)
-        .collection('items');
+    CollectionReference itemsRef =
+        FirebaseFirestore.instance.collection('Users').doc(uid).collection('booths').doc(boothId).collection('items');
 
-    CollectionReference onlineItemsRef = FirebaseFirestore.instance
-        .collection('OnlineStore')
-        .doc(boothId)
-        .collection(uid);
+    CollectionReference onlineItemsRef =
+        FirebaseFirestore.instance.collection('OnlineStore').doc(boothId).collection(uid);
 
     try {
       List<Set<String>> results = await Future.wait([
@@ -97,7 +91,6 @@ class _SellingState extends State<Selling> {
     }
   }
 
-
   Future<void> _initializePainters() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
@@ -117,89 +110,7 @@ class _SellingState extends State<Selling> {
   @override
   void dispose() {
     // 화면을 벗어날 때 스낵바 닫기
-    snackBarController?.close();
     super.dispose();
-  }
-
-  void _showSnackBar() {
-    snackBarController?.close();
-    snackBarController = null;
-
-    Future.delayed(const Duration(milliseconds: 1), () {
-      final snackBar = SnackBar(
-        duration: const Duration(days: 365), // 무한 지속
-        backgroundColor: const Color(0xFFFDBE85),
-        content: GestureDetector(
-          onTap: () async {
-            snackBarController?.close();
-            snackBarController = null;
-
-            // 결제 화면으로 이동
-            await Navigator.pushNamed(
-              context,
-              '/seller_screens/selling_details',
-              arguments: {
-                'boothId': boothId,
-                'soldItems': soldItems,
-              },
-            ).then((_) {
-              // 돌아올 때 상태 초기화 또는 동기화
-              setState(() {
-                _reloadItems(); // Firebase에서 데이터 동기화
-                totalPrice = 0;
-                totalSoldItems = 0;
-                soldItems.clear(); // soldItems 초기화
-              });
-            });
-          },
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '총 가격: ${numberFormat.format(totalPrice)}원',
-                    style: const TextStyle(color: Colors.black, fontSize: 20),
-                  ),
-                  Text(
-                    '총 상품 수: $totalSoldItems개',
-                    style: const TextStyle(color: Colors.black),
-                  ),
-                ],
-              ),
-              IconButton(
-                icon: const Icon(Icons.close, color: Colors.black),
-                onPressed: () {
-                  snackBarController?.close();
-                  snackBarController = null;
-
-                  // 상태 초기화
-                  soldItems.forEach((itemId, soldQuantity) {
-                    if (localStock.containsKey(itemId)) {
-                      localStock[itemId] = (localStock[itemId] ?? 0) + soldQuantity;
-                    }
-
-                    if ((localStock[itemId] ?? 0) > 0) {
-                      exhaustedItems.remove(itemId);
-                    }
-                  });
-
-                  setState(() {
-                    totalPrice = 0;
-                    totalSoldItems = 0;
-                    soldItems.clear();
-                  });
-                },
-              ),
-            ],
-          ),
-        ),
-      );
-
-      snackBarController = ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    });
   }
 
   void _onItemCardClicked(Map<String, dynamic> itemData, String itemId) {
@@ -218,9 +129,9 @@ class _SellingState extends State<Selling> {
       if (localStock[itemId] == 0) {
         exhaustedItems.add(itemId);
       }
-    });
 
-    _showSnackBar();
+      isFloatingVisible = true; // 플로팅 위젯 표시
+    });
   }
 
   void _showOutOfStockDialog(String itemId, Map<String, dynamic> itemData) {
@@ -346,174 +257,151 @@ class _SellingState extends State<Selling> {
         title: const Text('부스 상품 판매'),
         centerTitle: true,
         actions: [
-          IconButton(
-              onPressed: () {
-                //실험용 실험용 실험용
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('품절된 상품 목록'),
-                      content: SingleChildScrollView(child: Text(boothId.toString())),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop(); // 팝업 닫기
-                          },
-                          child: const Text('확인'),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
-              icon: Icon(Icons.ac_unit_outlined))
+          TextButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/seller_screens/sale_record', arguments: boothId);
+            },
+            child: const Text('판매기록', style: TextStyle(color: Colors.black),),
+          ),
         ],
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 정산하기 & 사전구매 버튼
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Color(0xFFF7F8FF), // 배경색 설정
-                border: Border.all(color: Colors.grey), // 전체 아웃라인 추가
-                borderRadius: BorderRadius.circular(8), // 둥근 모서리 설정
+      body: Stack(children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 정산하기 & 사전구매 버튼
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Color(0xFFF7F8FF), // 배경색 설정
+                  border: Border.all(color: Colors.grey), // 전체 아웃라인 추가
+                  borderRadius: BorderRadius.circular(8), // 둥근 모서리 설정
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center, // 수직 정렬 중앙으로
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/seller_screens/adjustment', arguments: boothId).then((_) {
+                            setState(() {
+                              _reloadItems();
+                            });
+                          });
+                        },
+                        child: const Text(
+                          '정산하기',
+                          style: TextStyle(
+                            color: Color(0xFFE84141),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 33, // VerticalDivider의 높이 설정
+                      child: const VerticalDivider(
+                        width: 1,
+                        thickness: 1, // 두께
+                        color: Colors.grey, // 경계선 색상
+                      ),
+                    ),
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () {
+                          // 사전구매 로직
+                          Navigator.pushNamed(context, '/seller_screens/pre_order', arguments: boothId).then((_) {
+                            // 돌아올 때 Firebase 데이터 동기화
+                            setState(() {
+                              _reloadItems();
+                            });
+                          });
+                        },
+                        child: const Text(
+                          '사전구매',
+                          style: TextStyle(
+                            color: Color(0xFFE68C32),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
+            ),
+
+            const SizedBox(height: 8),
+
+            // 검색 필드
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: TextField(
+                onChanged: (value) {
+                  setState(() {
+                    searchKeyword = value.trim(); // 검색어 상태 업데이트
+                  });
+                },
+                decoration: InputDecoration(
+                  labelText: '상품 검색',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(Icons.search), // 돋보기 아이콘
+                    onPressed: () {},
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 30),
+
+            // 드롭다운 버튼과 편집 버튼
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center, // 수직 정렬 중앙으로
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(
-                    child: TextButton(
-                      onPressed: () {
-                        snackBarController?.close();
-                        snackBarController = null;
-                        Navigator.pushNamed(context, '/seller_screens/adjustment', arguments: boothId).then((_) {
-                          setState(() {
-                            _reloadItems();
-                          });
-                        });
-                      },
-                      child: const Text(
-                        '정산하기',
-                        style: TextStyle(
-                          color: Color(0xFFE84141),
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
+                  DropdownButton<String>(
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    value: selectedPainter,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedPainter = value!;
+                      });
+                    },
+                    items: painters.map((painter) => DropdownMenuItem(value: painter, child: Text(painter))).toList(),
                   ),
-                  SizedBox(
-                    height: 33, // VerticalDivider의 높이 설정
-                    child: const VerticalDivider(
-                      width: 1,
-                      thickness: 1, // 두께
-                      color: Colors.grey, // 경계선 색상
-                    ),
-                  ),
-                  Expanded(
-                    child: TextButton(
-                      onPressed: () {
-                        snackBarController?.close();
-                        snackBarController = null;
-                        // 사전구매 로직
-                        Navigator.pushNamed(context, '/seller_screens/pre_order', arguments: boothId).then((_) {
-                          // 돌아올 때 Firebase 데이터 동기화
-                          setState(() {
-                            _reloadItems();
-                          });
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/seller_screens/edit_selling_items', arguments: boothId).then((_) {
+                        setState(() {
+                          _initializePainters();
+                          _reloadItems();
                         });
-                      },
-                      child: const Text(
-                        '사전구매',
-                        style: TextStyle(
-                          color: Color(0xFFE68C32),
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                      });
+                    },
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      backgroundColor: const Color(0xFF434355),
+                    ),
+                    child: const Text(
+                      '상품편집',
+                      style: TextStyle(color: Colors.white),
                     ),
                   ),
                 ],
               ),
             ),
-          ),
 
-          const SizedBox(height: 8),
+            const SizedBox(height: 8),
 
-          // 검색 필드
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: TextField(
-              onChanged: (value) {
-                setState(() {
-                  searchKeyword = value.trim(); // 검색어 상태 업데이트
-                });
-              },
-              decoration: InputDecoration(
-                labelText: '상품 검색',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                suffixIcon: IconButton(
-                  icon: Icon(Icons.search), // 돋보기 아이콘
-                  onPressed: () {},
-                ),
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 30),
-
-          // 드롭다운 버튼과 편집 버튼
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                DropdownButton<String>(
-                  padding: EdgeInsets.symmetric(horizontal: 8),
-                  value: selectedPainter,
-                  onChanged: (value) {
-                    setState(() {
-                      selectedPainter = value!;
-                    });
-                  },
-                  items: painters.map((painter) => DropdownMenuItem(value: painter, child: Text(painter))).toList(),
-                ),
-                TextButton(
-                  onPressed: () {
-                    snackBarController?.close();
-                    snackBarController = null;
-                    Navigator.pushNamed(context, '/seller_screens/edit_selling_items', arguments: boothId).then((_) {
-                      setState(() {
-                        _initializePainters();
-                        _reloadItems();
-                      });
-                    });
-                  },
-                  style: TextButton.styleFrom(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    backgroundColor: const Color(0xFF434355),
-                  ),
-                  child: const Text(
-                    '상품편집',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 8),
-
-          // 그리드뷰
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            // 그리드뷰
+            Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection('Users')
@@ -566,6 +454,11 @@ class _SellingState extends State<Selling> {
 
                   // GridView 렌더링
                   return GridView.builder(
+                    padding: const EdgeInsets.only(
+                      bottom: 100,
+                      left: 8,
+                      right: 8
+                    ),
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       crossAxisSpacing: 8,
@@ -594,40 +487,44 @@ class _SellingState extends State<Selling> {
                               const SizedBox(height: 16),
                               Expanded(
                                 child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Image.network(
-                                    itemData['imagePath'] ?? '',
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
+                                  borderRadius: BorderRadius.circular(8), // 둥근 모서리 유지
+                                  child: CachedNetworkImage(
+                                    imageUrl: itemData['imagePath'] ?? '',
+                                    placeholder: (context, url) => const Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                    errorWidget: (context, url, error) {
                                       return ColorFiltered(
                                         colorFilter: stock == 0
                                             ? const ColorFilter.matrix(<double>[
                                           0.6, 0.2, 0.2, 0, 0, // R
                                           0.2, 0.6, 0.2, 0, 0, // G
                                           0.2, 0.2, 0.6, 0, 0, // B
-                                          0,   0,   0,   1, 0, // Alpha
+                                          0, 0, 0, 1, 0, // Alpha
                                         ])
                                             : const ColorFilter.mode(
                                           Colors.transparent,
                                           BlendMode.multiply,
                                         ),
                                         child: Image.asset(
-                                          'assets/catcul_w.jpg',
+                                          'assets/catcul_w.jpg', // 기본 이미지 경로
                                           fit: BoxFit.cover,
                                         ),
                                       );
                                     },
+                                    fit: BoxFit.cover, // 이미지 크기 조정
                                   ),
                                 ),
+
                               ),
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Column(
                                   children: [
                                     Text(
-                                        itemData['itemName'] ?? '',
+                                      itemData['itemName'] ?? '',
                                       style: TextStyle(
-                                        color: stock == 0 ? Colors.grey[700]: Colors.black,
+                                        color: stock == 0 ? Colors.grey[700] : Colors.black,
                                         fontSize: 16,
                                       ),
                                     ),
@@ -649,14 +546,17 @@ class _SellingState extends State<Selling> {
                                               border: Border.all(color: Color(0xFFD1D1D1)),
                                               borderRadius: BorderRadius.circular(8),
                                             ),
-                                            child: Text('구매 희망자 수 : ${itemData['expect'] ?? 0}',textAlign: TextAlign.center),
+                                            child: Text('구매 희망자 수 : ${itemData['expect'] ?? 0}',
+                                                textAlign: TextAlign.center),
                                           ),
                                           const SizedBox(height: 8.0),
                                           Container(
                                             width: double.infinity,
                                             height: 38.0,
                                             decoration: BoxDecoration(
-                                              color: onlineSaleStartedItems.contains(itemId)? Colors.grey:const Color(0xFFFFDCBD),
+                                              color: onlineSaleStartedItems.contains(itemId)
+                                                  ? Colors.grey
+                                                  : const Color(0xFFFFDCBD),
                                               border: Border.all(color: Color(0xFFD1D1D1)),
                                               borderRadius: BorderRadius.circular(8),
                                             ),
@@ -681,7 +581,8 @@ class _SellingState extends State<Selling> {
                                                                     ? null // 이미 클릭된 경우 비활성화
                                                                     : () {
                                                                         setState(() {
-                                                                          onlineSaleStartedItems.add(itemId); // 클릭 상태 저장
+                                                                          onlineSaleStartedItems
+                                                                              .add(itemId); // 클릭 상태 저장
                                                                         });
                                                                         Navigator.of(context).pop(); // 팝업 닫기
                                                                         _startOnlineSale(itemData); // 온라인 판매 시작
@@ -716,9 +617,94 @@ class _SellingState extends State<Selling> {
                 },
               ),
             ),
+          ],
+        ), // 플로팅 위젯
+        if (isFloatingVisible)
+          Positioned(
+            bottom: 16, // 화면 하단에서 16px 위
+            left: 16, // 좌우 여백
+            right: 16,
+            child: GestureDetector(
+              child: Material(
+                elevation: 4,
+                borderRadius: BorderRadius.circular(16),
+                color: const Color(0xFFFDBE85),
+                child: Stack(
+                  children: [
+                    // 텍스트를 중앙에 배치
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min, // Column 크기를 내용에 맞춤
+                          children: [
+                            Text(
+                              '${numberFormat.format(totalPrice)}원',
+                              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
+                            ),
+                            Text(
+                              '총 상품 수: $totalSoldItems개',
+                              style: const TextStyle(fontSize: 14),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    // 오른쪽 상단에 X 버튼 배치
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: IconButton(
+                        icon: const Icon(Icons.close, color: Colors.black),
+                        onPressed: () {
+                          soldItems.forEach((itemId, soldQuantity) {
+                            if (localStock.containsKey(itemId)) {
+                              localStock[itemId] = (localStock[itemId] ?? 0) + soldQuantity;
+                            }
+
+                            if ((localStock[itemId] ?? 0) > 0) {
+                              exhaustedItems.remove(itemId);
+                            }
+                          });
+
+                          setState(() {
+                            totalPrice = 0;
+                            totalSoldItems = 0;
+                            soldItems.clear();
+                            isFloatingVisible = false;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              onTap: () async {
+
+                // 결제 화면으로 이동
+                await Navigator.pushNamed(
+                  context,
+                  '/seller_screens/selling_details',
+                  arguments: {
+                    'boothId': boothId,
+                    'soldItems': soldItems,
+                  },
+                ).then((_) {
+                  // 돌아올 때 상태 초기화 또는 동기화
+                  setState(() {
+                    _reloadItems(); // Firebase에서 데이터 동기화
+                    totalPrice = 0;
+                    totalSoldItems = 0;
+                    soldItems.clear(); // soldItems 초기화
+                    isFloatingVisible = false;
+                  });
+                });
+              },
+            ),
           ),
-        ],
-      ),
+      ]),
     );
   }
 }

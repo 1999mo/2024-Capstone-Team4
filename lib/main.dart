@@ -66,6 +66,7 @@ class MyApp extends StatelessWidget {
         '/online_buyer_screens/online_select_festival':(context)=>const OnlineSelectFestival(),
         '/online_buyer_screens/online_select_booths':(context)=>const OnlineSelectBooths(),
         '/online_buyer_screens/online_look_booth_items':(context)=>const OnlineLookBoothItems(),
+        '/online_buyer_screens/online_buyer_shopping_cart':(context)=>const OnlineBuyerShoppingCart(),
 
 
       },
