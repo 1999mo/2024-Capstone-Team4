@@ -160,6 +160,8 @@ class _PreboothListScreen extends State<PreboothListScreen> {
               itemBuilder: (context, index) {
                 var booth = boothList[index];
                 bool isBoothOpen = booth['isPreSell'];
+                bool isBoothTime = false;
+
                 DateTime startTime;
                 DateTime endTime;
                 String boothTime = '';
@@ -170,11 +172,16 @@ class _PreboothListScreen extends State<PreboothListScreen> {
                   String d1 = DateFormat('yyyy.MM.dd').format(startTime);
                   String d2 = DateFormat('MM.dd').format(endTime);
                   boothTime = '$d1-$d2';
+
+                  DateTime currentDate = DateTime.now();
+                  if(currentDate.isAfter(startTime) && currentDate.isBefore(endTime)) {
+                    isBoothTime = true;
+                  }
                 }
 
                 return GestureDetector(
                   onTap: () {
-                    if (isBoothOpen) {
+                    if (isBoothTime) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -194,7 +201,7 @@ class _PreboothListScreen extends State<PreboothListScreen> {
                         Container(
                           width: double.infinity,
                           child: Card(
-                            color: isBoothOpen ? Colors.white : Colors.grey,  // Set grey color if booth is closed
+                            color: isBoothTime ? Colors.white : Colors.grey,  // Set grey color if booth is closed
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Column(
@@ -240,7 +247,7 @@ class _PreboothListScreen extends State<PreboothListScreen> {
                             ),
                           ),
                         ),
-                        if (!isBoothOpen)  // Display "판매 종료" on top of the card when booth is closed
+                        if (!isBoothTime)  // Display "판매 종료" on top of the card when booth is closed
                           Positioned(
                             top: 90.0,
                             left: 8.0,
