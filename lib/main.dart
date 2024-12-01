@@ -35,6 +35,7 @@ class MyApp extends StatelessWidget {
       ),
       routes: {
         '/splash': (context) => const Splash(),
+
         //user_auth 시작
         '/user_auth/login_screen': (context) => const LoginScreen(),
         '/user_auth/signup': (context) => const Signup(),
@@ -61,12 +62,14 @@ class MyApp extends StatelessWidget {
         '/online_seller_screens/my_online_items':(context)=>const MyOnlineItems(),
         '/online_seller_screens/online_item_edit':(context)=>const OnlineItemEdit(),
         '/online_seller_screens/online_item_add':(context)=>const OnlineItemAdd(),
+        '/online_seller_screens/online_consumer_list':(context)=>const OnlineConsumerList(),
 
         //online_buyer_screens 시작
         '/online_buyer_screens/online_select_festival':(context)=>const OnlineSelectFestival(),
         '/online_buyer_screens/online_select_booths':(context)=>const OnlineSelectBooths(),
         '/online_buyer_screens/online_look_booth_items':(context)=>const OnlineLookBoothItems(),
         '/online_buyer_screens/online_buyer_shopping_cart':(context)=>const OnlineBuyerShoppingCart(),
+        '/online_buyer_screens/online_buyer_pay':(context)=>const OnlineBuyerPay(),
 
 
       },
