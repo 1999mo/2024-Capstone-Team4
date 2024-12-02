@@ -1,316 +1,374 @@
 import 'package:catculator/screens/buyer_screens/booth_item_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
-class BoothItemsList extends StatelessWidget {
+class BoothItemsList extends StatefulWidget {
+  const BoothItemsList({Key? key}) : super(key: key);
+
+  @override
+  _BoothItemsListState createState() => _BoothItemsListState();
+}
+
+class _BoothItemsListState extends State<BoothItemsList> {
+  late final String uid;
+  late final String? festivalName;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final arguments = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    uid = arguments?['uid'] ?? '';
+    festivalName = arguments?['festivalName'];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        flexibleSpace: BoothAppBar(uid: uid, festivalName: festivalName),
+      ),
+      body: BoothItemsListBody(uid: uid, festivalName: festivalName),
+    );
+  }
+}
+
+class BoothAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String uid;
   final String? festivalName;
 
-  const BoothItemsList({
+  const BoothAppBar({
     Key? key,
     required this.uid,
     required this.festivalName,
   }) : super(key: key);
 
-  Future<List<Map<String, dynamic>>> fetchItems() async {
-    final boothRef = FirebaseFirestore.instance
+  @override
+  _BoothAppBarState createState() => _BoothAppBarState();
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+}
+
+class _BoothAppBarState extends State<BoothAppBar> {
+  late Future<Map<String, dynamic>> boothDetails;
+
+  Future<Map<String, dynamic>> fetchBoothDetails() async {
+    final doc = await FirebaseFirestore.instance
         .collection('Users')
-        .doc(uid)
+        .doc(widget.uid)
         .collection('booths')
-        .doc(festivalName)
-        .collection('items');
+        .doc(widget.festivalName)
+        .get();
 
-    final snapshot = await boothRef.get();
-
-    return snapshot.docs.map((doc) => doc.data()).toList();
+    final data = doc.data() as Map<String, dynamic>? ?? {};
+    return {
+      'boothName': data['boothName'] ?? 'Unknown Booth',
+      'painters': List<String>.from(data['painters'] ?? []),
+      'location': data['location'] ?? 'Unknown Location',
+      'profileImage':
+          await FirebaseStorage.instance.ref('${widget.uid}/profile_image.jpg').getDownloadURL().catchError((_) => ''),
+    };
   }
 
-  Future<String> fetchImage() async {
-    final boothImage = await FirebaseStorage.instance
-        .ref('$uid/profile_image.jpg')
-        .getDownloadURL();
-
-    return boothImage;
+  @override
+  void initState() {
+    super.initState();
+    boothDetails = fetchBoothDetails();
   }
 
   @override
   Widget build(BuildContext context) {
-    final boothInfo = FirebaseFirestore.instance
-        .collection('Users')
-        .doc(uid)
-        .collection('booths')
-        .doc(festivalName);
+    return FutureBuilder<Map<String, dynamic>>(
+      future: boothDetails,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: FutureBuilder<List<dynamic>>(
-          future: Future.wait([
-            boothInfo.get(),
-            fetchImage(),
-          ]),
-          builder:
-              (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
+        if (snapshot.hasError || !snapshot.hasData) {
+          return const Center(child: Text('Error loading booth details.'));
+        }
 
-            if (snapshot.hasError) {
-              return const Center(child: Text('Error loading booth details.'));
-            }
+        final boothName = snapshot.data!['boothName'];
+        final location = snapshot.data!['location'];
+        final profileImage = snapshot.data!['profileImage'];
 
-            if (!snapshot.hasData ||
-                snapshot.data == null ||
-                snapshot.data!.isEmpty) {
-              return const Center(child: Text('No booth details found.'));
-            }
-
-            if (!(snapshot.data![0] as DocumentSnapshot).exists) {
-              return const Center(child: Text('No booth details found.'));
-            }
-
-            // Fetching data from the document
-            final boothData = snapshot.data![0].data() as Map<String, dynamic>;
-            final boothLocation = boothData['location'] ?? 'Unknown Location';
-            final painters = List<String>.from(boothData['painters'] ?? []);
-            final boothImage = snapshot.data![1];
-
-            return Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
-                  child: Container(
-                    height: 100.0,
-                    decoration: BoxDecoration(
-                      borderRadius:
-                          BorderRadius.circular(8.0), // Rounded corners
-                      border: Border.all(color: Colors.grey), // Optional border
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0), // Inner padding
-                      child: Stack(
-                        children: [
-                          // Top Left: Static Text '부스명'
-                          const Positioned(
-                            top: 0,
-                            left: 0,
-                            child: Text(
-                              '부스명',
-                              style: TextStyle(
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                          // Top Right: Booth Location
-                          Positioned(
-                            top: 0,
-                            right: 0,
-                            child: Text(
-                              '부스 위치: $boothLocation',
-                              style: const TextStyle(
-                                fontSize: 14.0,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ),
-                          // Bottom Left: Painters (List of Painters)
-                          Positioned(
-                            bottom: 0,
-                            left: 0,
-                            child: Text(
-                              '작가: ${painters.join(', ')}',
-                              // Join the list of painters with commas
-                              style: const TextStyle(
-                                fontSize: 14.0,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: boothImage.isNotEmpty
-                                ? Container(
-                                    width: 50.0,
-                                    height: 50.0,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      image: DecorationImage(
-                                        image: NetworkImage(
-                                          boothImage,
-                                        ),
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                  )
-                                : Container(
-                                    width: 50.0,
-                                    height: 50.0,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      image: DecorationImage(
-                                        image:
-                                            AssetImage('assets/catcul_w.jpg'),
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                  ),
-                          ),
-                        ],
-                      ),
+        return AppBar(
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                boothName,
+                style: const TextStyle(
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: CircleAvatar(
+                radius: 20,
+                backgroundImage: profileImage.isNotEmpty
+                    ? NetworkImage(profileImage)
+                    : const AssetImage('assets/catcul_w.jpg') as ImageProvider,
+                onBackgroundImageError: (_, __) => const Icon(Icons.error),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text(
+                    '부스위치',
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
                     ),
                   ),
-                ),
-                // Booth Items List (Integrated directly here)
-                Expanded(
-                  child: FutureBuilder<List<Map<String, dynamic>>>(
-                    future: fetchItems(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
+                  Text(
+                    location,
+                    style: const TextStyle(
+                      fontSize: 14.0,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
 
-                      if (snapshot.hasError) {
-                        return const Center(
-                            child: Text('Error loading items.'));
-                      }
+class BoothItemsListBody extends StatefulWidget {
+  final String uid;
+  final String? festivalName;
 
-                      if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return const Center(child: Text('No items found.'));
-                      }
+  const BoothItemsListBody({
+    Key? key,
+    required this.uid,
+    required this.festivalName,
+  }) : super(key: key);
 
-                      final items = snapshot.data!;
+  @override
+  _BoothItemsListBodyState createState() => _BoothItemsListBodyState();
+}
 
-                      return GridView.builder(
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2, // Number of columns
-                          crossAxisSpacing: 8, // Space between columns
-                          mainAxisSpacing: 8, // Space between rows
-                          childAspectRatio: 0.8, // Adjust the ratio as needed
+class _BoothItemsListBodyState extends State<BoothItemsListBody> {
+  late Future<List<Map<String, dynamic>>> items;
+  final Map<String, bool> isExpectedMap = {};
+  final Map<String, int> expectCountMap = {};
+
+  Future<List<Map<String, dynamic>>> fetchItems() async {
+    final boothRef = FirebaseFirestore.instance
+        .collection('Users')
+        .doc(widget.uid)
+        .collection('booths')
+        .doc(widget.festivalName)
+        .collection('items');
+
+    final snapshot = await boothRef.get();
+    return snapshot.docs
+        .map((doc) => {
+              ...doc.data(),
+              'itemId': doc.id,
+            })
+        .toList();
+  }
+
+  String formatNumber(int number) {
+    return NumberFormat('#,###').format(number);
+  }
+
+  Future<bool> checkIfExpected(String itemId, String userId) async {
+    final docRef = FirebaseFirestore.instance
+        .collection('Users')
+        .doc(widget.uid)
+        .collection('booths')
+        .doc(widget.festivalName)
+        .collection('items')
+        .doc(itemId);
+
+    final docSnapshot = await docRef.get();
+    final clicks = docSnapshot.data()?['clicks'] as List<dynamic>?;
+
+    return clicks != null && clicks.contains(userId);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    items = fetchItems();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: items,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (snapshot.hasError) {
+          return const Center(child: Text('Error loading items.'));
+        }
+
+        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text('No items found.'));
+        }
+
+        final items = snapshot.data!;
+
+        return GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 8.0,
+            mainAxisSpacing: 8.0,
+            childAspectRatio: 0.6,
+          ),
+          itemCount: items.length,
+          itemBuilder: (context, index) {
+            final item = items[index];
+            final itemId = item['itemId'];
+            final imagePath = item['imagePath'] ?? '';
+            final itemName = item['itemName'] ?? 'Unknown Item';
+            final sellingPrice = item['sellingPrice'] ?? 0;
+            final stockQuantity = item['stockQuantity'] ?? 0;
+            int expectCount = item['expect'] ?? -1;
+            final userId = FirebaseAuth.instance.currentUser!.uid;
+
+            return FutureBuilder<bool>(
+              future: checkIfExpected(itemId, userId),
+              builder: (context, asyncSnapshot) {
+                if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+                  return const SizedBox.shrink();
+                }
+
+                final isExpected = asyncSnapshot.data ?? false;
+                isExpectedMap[itemId] = isExpected;
+                int count = expectCount;
+
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BoothItemScreen(
+                          uid: widget.uid,
+                          festivalName: widget.festivalName,
+                          itemName: itemName,
                         ),
-                        itemCount: items.length,
-                        shrinkWrap:
-                            true, // Ensures the GridView takes only as much space as it needs
-                        itemBuilder: (context, index) {
-                          final item = items[index];
-                          final imagePath =
-                              item['imagePath'] ?? ''; // Fetch image path
-                          final itemName = item['itemName'] ?? 'Unknown Item';
-                          final sellingPrice = item['sellingPrice'] ?? 'N/A';
-                          final stockQuantity = item['stockQuantity'] ?? 'N/A';
-
-                          return GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => BoothItemScreen(
-                                    uid: uid,
-                                    festivalName: festivalName,
-                                    itemName: itemName,
-                                  ),
-                                ),
+                      ),
+                    );
+                  },
+                  child: Card(
+                    elevation: 4.0,
+                    margin: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        Expanded(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                          child: Image.network(
+                            imagePath,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Image.asset(
+                                'assets/catcul_w.jpg',
+                                fit: BoxFit.cover,
+                                // height: 120.0,
+                                width: double.infinity,
                               );
                             },
-                            child: Card(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                side: const BorderSide(
-                                    color: Color(0xFFD1D1D1), width: 1),
+                          ),
+                        ),
+                        ),
+
+                        const SizedBox(height: 6.0),
+                        Text(
+                          itemName,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16.0,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 6.0),
+                        Text(
+                          '가격: ${formatNumber(sellingPrice)}원',
+                          style: const TextStyle(color: Colors.grey, fontSize: 14.0),
+                        ),
+                        const SizedBox(height: 6.0),
+                        Text(
+                          stockQuantity > 0 ? '수량: ${formatNumber(stockQuantity)}' : '품절',
+                          style: TextStyle(
+                            color: stockQuantity > 0 ? Colors.grey : Colors.red,
+                            fontSize: 14.0,
+                          ),
+                        ),
+                        const SizedBox(height: 8.0),
+                        if (expectCount != -1)
+                          Column(
+                            children: [
+                              Text(
+                                '구매 희망자 수 : $count',
+                                style: TextStyle(fontWeight: FontWeight.bold),
                               ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(8),
-                                        child: imagePath.isNotEmpty
-                                            ? Image.network(
-                                                imagePath,
-                                                fit: BoxFit.cover,
-                                                width: double.infinity,
-                                                errorBuilder: (BuildContext
-                                                        context,
-                                                    Object error,
-                                                    StackTrace? stackTrace) {
-                                                  return Image.asset(
-                                                    'assets/catcul_w.jpg',
-                                                    fit: BoxFit.cover,
-                                                    width: double.infinity,
-                                                  );
-                                                },
-                                              )
-                                            : Image.asset(
-                                                'assets/catcul_w.jpg',
-                                                fit: BoxFit.cover,
-                                                width: double.infinity,
-                                              ),
-                                      ),
-                                    ),
-
-                                    const SizedBox(
-                                        height:
-                                            8.0), // Space between image and text
-
-                                    // 상품명 (Item Name)
-                                    Text(
-                                      itemName,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16.0,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow
-                                          .ellipsis, // Ensure the text doesn't overflow
-                                    ),
-                                    const SizedBox(
-                                        height:
-                                            8.0), // Space between item name and price
-
-                                    // 가격 (Selling Price)
-                                    Text(
-                                      '가격: $sellingPrice',
-                                      style: const TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 14.0,
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                        height:
-                                            8.0), // Space between price and stock quantity
-
-                                    // 수량 (Stock Quantity)
-                                    Text(
-                                      '수량: $stockQuantity',
-                                      style: const TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 14.0,
-                                      ),
-                                    ),
-                                  ],
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: isExpected ? Colors.red[200] : Colors.green[200],
                                 ),
+                                onPressed: isExpected
+                                    ? null
+                                    : () async {
+                                        setState(() {
+                                          isExpectedMap[itemId] = true;
+                                          count++;
+                                        });
+                                        final docRef = FirebaseFirestore.instance
+                                            .collection('Users')
+                                            .doc(widget.uid)
+                                            .collection('booths')
+                                            .doc(widget.festivalName)
+                                            .collection('items')
+                                            .doc(itemId);
+
+                                        await docRef.update({
+                                          'clicks': FieldValue.arrayUnion([userId]),
+                                          'expect': FieldValue.increment(1),
+                                        });
+                                      },
+                                child: Text(isExpected ? '신청 완료' : '구매 희망하기'),
                               ),
-                            ),
-                          );
-                        },
-                      );
-                    },
+                            ],
+                          ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                );
+              },
             );
           },
-        ),
-      ),
+        );
+      },
     );
   }
 }

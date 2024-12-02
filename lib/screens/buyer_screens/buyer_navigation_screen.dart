@@ -1,104 +1,68 @@
+import 'package:flutter/material.dart';
+import 'package:catculator/screens/buyer_screens/map_screen.dart';
 import 'package:catculator/screens/buyer_screens/bag_list_screen.dart';
 import 'package:catculator/screens/buyer_screens/booth_list_screen.dart';
 import 'package:catculator/screens/buyer_screens/preBooth_list_screen.dart';
-import 'package:flutter/material.dart';
+import 'package:catculator/screens/buyer_screens/order_list.dart';
 
 class BuyerNavigationScreen extends StatefulWidget {
-  final String? festivalName;
-
-  const BuyerNavigationScreen({
-    Key? key,
-    required this.festivalName,
-  }) : super(key: key);
+  const BuyerNavigationScreen({super.key});
 
   @override
-  State<BuyerNavigationScreen> createState() => BuyerNavigationState();
+  State<BuyerNavigationScreen> createState() => _BuyerNavigationScreenState();
 }
 
-class BuyerNavigationState extends State<BuyerNavigationScreen> {
-  late int _selectedIndex;
-  final TextEditingController _controller = TextEditingController();
+class _BuyerNavigationScreenState extends State<BuyerNavigationScreen> {
+  int _selectedIndex = 0;
 
-  late List<Widget> _screens;
+  // 탭에 표시될 위젯
+  final List<Widget> _pages = [
+    const MapScreen(),
+    const BoothListScreen(),
+    const PreboothListScreen(),
+    const BagListScreen(),
+    const OrderList(),
+  ];
 
-  @override
-  void initState() {
-    super.initState();
-    _selectedIndex = 1;
-    _screens = [
-      Center(child: Text('지도 화면')),
-      BoothListScreen(painter: _controller.text, festivalName: widget.festivalName),
-      PreboothListScreen(painter: _controller.text, festivalName: widget.festivalName),
-      BagListScreen(festivalName: widget.festivalName),
-    ];
-  }
-
-  void _onTabSelect(int index) {
+  // 탭 클릭 시 동작
+  void _onTabTapped(int index) {
     setState(() {
       _selectedIndex = index;
-    });
-  }
-
-  void _updateBoothScreen() {
-    setState(() {
-      _screens[1] = BoothListScreen(painter: _controller.text, festivalName: widget.festivalName);
-      _screens[2] = PreboothListScreen(painter: _controller.text, festivalName: widget.festivalName);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: TextField(
-          controller: _controller,
-          decoration: InputDecoration(
-            hintText: '작가명 또는 상품명으로 검색',
-            suffixIcon: const Icon(Icons.search),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.0),
-              borderSide: BorderSide.none,
-            ),
-            filled: true,
-            fillColor: Colors.white,
-          ),
-          onChanged: (value) {
-            _updateBoothScreen();
-            },
-        ),
-        backgroundColor: Colors.blue,
-      ),
-      body: _screens[_selectedIndex],
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Navigator.pushNamed(context, '/main_screens/setting');
-            },
-          child: const Icon(Icons.settings),
-        ),
+      body: _pages[_selectedIndex], // 선택된 탭의 위젯 표시
       bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onTabTapped,
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.blue,
+        selectedItemColor: const Color(0xFFFDBE85), // 선택된 아이템 색상
+        unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(
-            label: '지도',
             icon: Icon(Icons.map),
+            label: '지도',
           ),
           BottomNavigationBarItem(
-            label: '부스 목록',
-            icon: Icon(Icons.list),
+            icon: Icon(Icons.store),
+            label: '부스목록',
           ),
           BottomNavigationBarItem(
-            label: '사전 구매',
+            icon: Icon(Icons.shopping_basket),
+            label: '사전구매',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.shopping_cart),
+            label: '장바구니',
           ),
           BottomNavigationBarItem(
-            label: '장바구니',
-            icon: Icon(Icons.shopping_bag),
+            icon: Icon(Icons.list),
+            label: '주문목록',
           ),
         ],
-        currentIndex: _selectedIndex,
-        onTap: _onTabSelect,
       ),
     );
   }
