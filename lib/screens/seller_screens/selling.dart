@@ -130,7 +130,7 @@ class _SellingState extends State<Selling> {
         exhaustedItems.add(itemId);
       }
 
-      isFloatingVisible = true; // 플로팅 위젯 표시
+      isFloatingVisible = true;
     });
   }
 
@@ -300,9 +300,9 @@ class _SellingState extends State<Selling> {
                         ),
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 33, // VerticalDivider의 높이 설정
-                      child: const VerticalDivider(
+                      child: VerticalDivider(
                         width: 1,
                         thickness: 1, // 두께
                         color: Colors.grey, // 경계선 색상

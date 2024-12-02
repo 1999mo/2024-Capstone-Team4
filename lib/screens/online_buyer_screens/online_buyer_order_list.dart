@@ -72,7 +72,8 @@ class _OnlineBuyerOrderListState extends State<OnlineBuyerOrderList> {
       context: context,
       builder: (context) {
         return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
           child: Stack(
             children: [
               Padding(
@@ -81,16 +82,58 @@ class _OnlineBuyerOrderListState extends State<OnlineBuyerOrderList> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      buyerInfo['name'] ?? '이름 없음',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
+                    const SizedBox(height: 4),
+                    const Text('주문자 정보 확인',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w600)),
                     const SizedBox(height: 12),
-                    Text('전화번호: ${_formatPhone(buyerInfo['phone'] ?? '')}'),
+                    Row(
+                      children: [
+                        Container(
+                            width: 70,
+                            child: const Text('주문자',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                ))),
+                        Text('${buyerInfo['name'] ?? '이름 없음'}'),
+                      ],
+                    ),
                     const SizedBox(height: 8),
-                    Text('우편번호: ${buyerInfo['zipcode'] ?? ''}'),
+                    Row(
+                      children: [
+                        Container(
+                            width: 70,
+                            child: const Text('연락처',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                ))),
+                        Text('${_formatPhone(buyerInfo['phone'] ?? '')}'),
+                      ],
+                    ),
                     const SizedBox(height: 8),
-                    Text('주소: ${buyerInfo['address'] ?? ''}'),
+                    Row(
+                      children: [
+                        Container(
+                            width: 70,
+                            child: const Text('우편번호',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                ))),
+                        Text('${buyerInfo['zipcode'] ?? ''}'),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Container(
+                            width: 70,
+                            child: Text('주소',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                ))),
+                        Text('${buyerInfo['address'] ?? ''}'),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -118,7 +161,13 @@ class _OnlineBuyerOrderListState extends State<OnlineBuyerOrderList> {
         title: Column(
           children: [
             const Text('주문 목록'),
-            const Text('(부스별로 나눠져 표시됩니다.)', style: TextStyle(fontSize: 15),)
+            const Text(
+              '(부스별로 나눠져 표시됩니다.)',
+              style: TextStyle(fontSize: 15),
+            ),
+            const SizedBox(
+              height: 8,
+            )
           ],
         ),
         centerTitle: true,
@@ -143,77 +192,116 @@ class _OnlineBuyerOrderListState extends State<OnlineBuyerOrderList> {
             itemBuilder: (context, index) {
               final orderId = orderData.keys.elementAt(index);
               final List<dynamic> orderItems = orderData[orderId]!;
-              final Map<String, dynamic> buyerInfo = orderItems.first as Map<String, dynamic>;
+              final Map<String, dynamic> buyerInfo =
+                  orderItems.first as Map<String, dynamic>;
 
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                elevation: 4,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        flex: 1,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            for (var i = 1; i < orderItems.length; i++) ...[
-                              FutureBuilder<String?>(
-                                future: _getImageUrl(orderItems[i]['imagePath']),
-                                builder: (context, imageSnapshot) {
-                                  final imageUrl = imageSnapshot.data;
-                                  return Padding(
-                                    padding: const EdgeInsets.only(bottom: 8.0),
-                                    child: imageUrl != null
-                                        ? Image.network(
-                                      imageUrl,
-                                      height: 60,
-                                      width: 60,
-                                      fit: BoxFit.cover,
-                                    )
-                                        : Image.asset(
-                                      'assets/catcul_w.jpg',
-                                      height: 60,
-                                      width: 60,
-                                      fit: BoxFit.cover,
+              return Column(
+                children: [
+                  Container(
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                '부스명 있으면 더 좋지 않을까용..?',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 18),
+                              ),
+                              TextButton(
+                                onPressed: () => _showBuyerInfo(buyerInfo),
+                                child: const Row(
+                                  children: [
+                                    Text(
+                                      '주문자 정보',
+                                      style: TextStyle(
+                                          color: Colors.grey,
+                                          fontWeight: FontWeight.bold),
                                     ),
-                                  );
-                                },
+                                    Icon(
+                                      Icons.chevron_right,
+                                      color: Colors.grey,
+                                    )
+                                  ],
+                                ),
                               ),
                             ],
-                          ],
+                          ),
                         ),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            for (var i = 1; i < orderItems.length; i++) ...[
-                              Text('상품명: ${orderItems[i]['itemName'] ?? ''}'),
-                              Text('가격: ₩${orderItems[i]['sellingPrice'] ?? 0}'),
-                              Text('수량: ${orderItems[i]['quantity'] ?? 0}개'),
-                              const Divider(height: 16, thickness: 1),
-                            ],
-                          ],
-                        ),
-                      ),
-                      Column(
-                        children: [
-                          TextButton(
-                            onPressed: () => _showBuyerInfo(buyerInfo),
-                            child: const Text(
-                              '주문자 정보',
-                              style: TextStyle(color: Colors.blue),
+                        for (var i = 1; i < orderItems.length; i++) ...[
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Row(
+                              children: [
+                                FutureBuilder<String?>(
+                                  future:
+                                      _getImageUrl(orderItems[i]['imagePath']),
+                                  builder: (context, imageSnapshot) {
+                                    final imageUrl = imageSnapshot.data;
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 4.0, vertical: 8.0),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(
+                                            8), // 둥근 모서리 유지
+                                        child: imageUrl != null
+                                            ? Image.network(
+                                                imageUrl,
+                                                height: 80,
+                                                width: 80,
+                                                fit: BoxFit.cover,
+                                              )
+                                            : Image.asset(
+                                                'assets/catcul_w.jpg',
+                                                height: 80,
+                                                width: 80,
+                                                fit: BoxFit.cover,
+                                              ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                const SizedBox(width: 10),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '${orderItems[i]['itemName'] ?? ''}',
+                                      style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                    Text(
+                                        '${orderItems[i]['sellingPrice'] ?? 0}원',
+                                        style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600)),
+                                    Text(
+                                        '수량: ${orderItems[i]['quantity'] ?? 0}개',
+                                        style: const TextStyle(color: Colors.grey)),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
+                          if (i < orderItems.length - 1) // 마지막 아이템에는 경계선 제외
+                            const Divider(
+                              height: 0,
+                              thickness: 1,
+                              color: Color(0x7BD1D1D1),
+                            ),
                         ],
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
+                  const Divider(
+                    height: 8,
+                    thickness: 8,
+                    color: Color(0x8BD1D1D1),
+                  )
+                ],
               );
             },
           );

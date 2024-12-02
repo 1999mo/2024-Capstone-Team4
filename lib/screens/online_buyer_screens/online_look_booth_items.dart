@@ -129,7 +129,7 @@ class _OnlineLookBoothItemsState extends State<OnlineLookBoothItems> {
                                                 borderRadius:
                                                     BorderRadius.circular(8),
                                                 border: Border.all(
-                                                    color: Colors.grey,
+                                                    color: Color(0xFFD1D1D1),
                                                     width: 1),
                                               ),
                                               child: imageUrl != null
@@ -152,7 +152,9 @@ class _OnlineLookBoothItemsState extends State<OnlineLookBoothItems> {
                                                           BorderRadius.circular(
                                                               8),
                                                       child: Image.asset(
-                                                          'assets/catcul_w.jpg'),
+                                                          'assets/catcul_w.jpg',
+                                                          fit: BoxFit.cover,
+                                                      ),
                                                     ),
                                             ),
                                             const SizedBox(height: 16),

@@ -320,7 +320,7 @@ class _OnlineBuyerShoppingCartState extends State<OnlineBuyerShoppingCart> {
                                                 style: const TextStyle(fontSize: 14, color: Colors.grey),
                                               ),
                                               Text(
-                                                '종류: ${item['itemType']}',
+                                                '상품 종류: ${item['itemType']}',
                                                 style: const TextStyle(fontSize: 14, color: Colors.grey),
                                               ),
                                               const SizedBox(height: 8),

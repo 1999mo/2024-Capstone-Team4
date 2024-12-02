@@ -234,139 +234,147 @@ class _BoothItemsListBodyState extends State<BoothItemsListBody> {
 
         final items = snapshot.data!;
 
-        return GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 8.0,
-            mainAxisSpacing: 8.0,
-            childAspectRatio: 0.6,
-          ),
-          itemCount: items.length,
-          itemBuilder: (context, index) {
-            final item = items[index];
-            final itemId = item['itemId'];
-            final imagePath = item['imagePath'] ?? '';
-            final itemName = item['itemName'] ?? 'Unknown Item';
-            final sellingPrice = item['sellingPrice'] ?? 0;
-            final stockQuantity = item['stockQuantity'] ?? 0;
-            int expectCount = item['expect'] ?? -1;
-            final userId = FirebaseAuth.instance.currentUser!.uid;
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 8.0,
+              mainAxisSpacing: 8.0,
+              childAspectRatio: 0.6,
+            ),
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              final item = items[index];
+              final itemId = item['itemId'];
+              final imagePath = item['imagePath'] ?? '';
+              final itemName = item['itemName'] ?? 'Unknown Item';
+              final sellingPrice = item['sellingPrice'] ?? 0;
+              final stockQuantity = item['stockQuantity'] ?? 0;
+              int expectCount = item['expect'] ?? -1;
+              final userId = FirebaseAuth.instance.currentUser!.uid;
 
-            return FutureBuilder<bool>(
-              future: checkIfExpected(itemId, userId),
-              builder: (context, asyncSnapshot) {
-                if (asyncSnapshot.connectionState == ConnectionState.waiting) {
-                  return const SizedBox.shrink();
-                }
+              return FutureBuilder<bool>(
+                future: checkIfExpected(itemId, userId),
+                builder: (context, asyncSnapshot) {
+                  if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+                    return const SizedBox.shrink();
+                  }
 
-                final isExpected = asyncSnapshot.data ?? false;
-                isExpectedMap[itemId] = isExpected;
-                int count = expectCount;
+                  final isExpected = asyncSnapshot.data ?? false;
+                  isExpectedMap[itemId] = isExpected;
+                  int count = expectCount;
 
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => BoothItemScreen(
-                          uid: widget.uid,
-                          festivalName: widget.festivalName,
-                          itemName: itemName,
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BoothItemScreen(
+                            uid: widget.uid,
+                            festivalName: widget.festivalName,
+                            itemName: itemName,
+                          ),
                         ),
+                      );
+                    },
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        side: BorderSide(color: Color(0xFFD1D1D1), width: 1),
                       ),
-                    );
-                  },
-                  child: Card(
-                    elevation: 4.0,
-                    margin: const EdgeInsets.all(8.0),
-                    child: Column(
-                      children: [
-                        Expanded(
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                          child: Image.network(
-                            imagePath,
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Image.asset(
-                                'assets/catcul_w.jpg',
-                                fit: BoxFit.cover,
-                                // height: 120.0,
-                                width: double.infinity,
-                              );
-                            },
+                      //elevation: 4.0,
+                      margin: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: [
+                          Expanded(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              imagePath,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Image.asset(
+                                  'assets/catcul_w.jpg',
+                                  fit: BoxFit.cover,
+                                  // height: 120.0,
+                                  width: double.infinity,
+                                );
+                              },
+                            ),
                           ),
-                        ),
-                        ),
+                          ),
 
-                        const SizedBox(height: 6.0),
-                        Text(
-                          itemName,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16.0,
+                          const SizedBox(height: 6.0),
+                          Text(
+                            itemName,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16.0,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
                           ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 6.0),
-                        Text(
-                          '가격: ${formatNumber(sellingPrice)}원',
-                          style: const TextStyle(color: Colors.grey, fontSize: 14.0),
-                        ),
-                        const SizedBox(height: 6.0),
-                        Text(
-                          stockQuantity > 0 ? '수량: ${formatNumber(stockQuantity)}' : '품절',
-                          style: TextStyle(
-                            color: stockQuantity > 0 ? Colors.grey : Colors.red,
-                            fontSize: 14.0,
+                          const SizedBox(height: 6.0),
+                          Text(
+                            '가격: ${formatNumber(sellingPrice)}원',
+                            style: const TextStyle(color: Colors.grey, fontSize: 14.0),
                           ),
-                        ),
-                        const SizedBox(height: 8.0),
-                        if (expectCount != -1)
-                          Column(
-                            children: [
-                              Text(
-                                '구매 희망자 수 : $count',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: isExpected ? Colors.red[200] : Colors.green[200],
+                          const SizedBox(height: 6.0),
+                          Text(
+                            stockQuantity > 0 ? '수량: ${formatNumber(stockQuantity)}' : '품절',
+                            style: TextStyle(
+                              color: stockQuantity > 0 ? Colors.grey : Colors.red,
+                              fontSize: 14.0,
+                            ),
+                          ),
+                          const SizedBox(height: 8.0),
+                          if (expectCount != -1)
+                            Column(
+                              children: [
+                                Text(
+                                  '구매 희망자 수 : $count',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
                                 ),
-                                onPressed: isExpected
-                                    ? null
-                                    : () async {
-                                        setState(() {
-                                          isExpectedMap[itemId] = true;
-                                          count++;
-                                        });
-                                        final docRef = FirebaseFirestore.instance
-                                            .collection('Users')
-                                            .doc(widget.uid)
-                                            .collection('booths')
-                                            .doc(widget.festivalName)
-                                            .collection('items')
-                                            .doc(itemId);
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: isExpected ? Colors.red[200] : Colors.green[200],
+                                  ),
+                                  onPressed: isExpected
+                                      ? null
+                                      : () async {
+                                          setState(() {
+                                            isExpectedMap[itemId] = true;
+                                            count++;
+                                          });
+                                          final docRef = FirebaseFirestore.instance
+                                              .collection('Users')
+                                              .doc(widget.uid)
+                                              .collection('booths')
+                                              .doc(widget.festivalName)
+                                              .collection('items')
+                                              .doc(itemId);
 
-                                        await docRef.update({
-                                          'clicks': FieldValue.arrayUnion([userId]),
-                                          'expect': FieldValue.increment(1),
-                                        });
-                                      },
-                                child: Text(isExpected ? '신청 완료' : '구매 희망하기'),
-                              ),
-                            ],
-                          ),
-                      ],
+                                          await docRef.update({
+                                            'clicks': FieldValue.arrayUnion([userId]),
+                                            'expect': FieldValue.increment(1),
+                                          });
+                                        },
+                                  child: Text(isExpected ? '신청 완료' : '구매 희망하기',
+                                  style: TextStyle(color: Colors.black),),
+                                ),
+                              ],
+                            ),
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              },
-            );
-          },
+                  );
+                },
+              );
+            },
+          ),
         );
       },
     );
