@@ -43,11 +43,8 @@ class _OnlineBuyerOrderListState extends State<OnlineBuyerOrderList> {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null || festivalName == null) return {};
 
-    final docRef = FirebaseFirestore.instance
-        .collection('Users')
-        .doc(uid)
-        .collection('online_order_list')
-        .doc(festivalName);
+    final docRef =
+        FirebaseFirestore.instance.collection('Users').doc(uid).collection('online_order_list').doc(festivalName);
 
     final snapshot = await docRef.get();
     if (!snapshot.exists) return {};
@@ -67,74 +64,92 @@ class _OnlineBuyerOrderListState extends State<OnlineBuyerOrderList> {
     return result;
   }
 
+  Future<String> _getBoothName(String sellerId) async {
+    final refGetBoothName =
+        await FirebaseFirestore.instance.collection('Users').doc(sellerId).collection('booths').doc(festivalName).get();
+    return refGetBoothName['sellerId'];
+  }
+
   void _showBuyerInfo(Map<String, dynamic> buyerInfo) {
     showDialog(
       context: context,
       builder: (context) {
         return Dialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
           child: Stack(
             children: [
               Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const SizedBox(height: 4),
-                    const Text('주문자 정보 확인',
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w600)),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Container(
-                            width: 70,
-                            child: const Text('주문자',
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                ))),
-                        Text('${buyerInfo['name'] ?? '이름 없음'}'),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Container(
-                            width: 70,
-                            child: const Text('연락처',
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                ))),
-                        Text('${_formatPhone(buyerInfo['phone'] ?? '')}'),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Container(
-                            width: 70,
-                            child: const Text('우편번호',
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                ))),
-                        Text('${buyerInfo['zipcode'] ?? ''}'),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Container(
-                            width: 70,
-                            child: Text('주소',
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                ))),
-                        Text('${buyerInfo['address'] ?? ''}'),
-                      ],
-                    ),
-                  ],
+                child: Container(
+                  constraints: BoxConstraints(
+                    minHeight: 0,
+                    maxHeight: double.infinity, // 높이 제한 없음
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(height: 4),
+                      const Text('주문자 정보 확인', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Container(
+                              width: 70,
+                              child: const Text('주문자',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                  ))),
+                          Text('${buyerInfo['name'] ?? '이름 없음'}'),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Container(
+                              width: 70,
+                              child: const Text('연락처',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                  ))),
+                          Text('${_formatPhone(buyerInfo['phone'] ?? '')}'),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Container(
+                              width: 70,
+                              child: const Text('우편번호',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                  ))),
+                          Text('${buyerInfo['zipcode'] ?? ''}'),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Container(
+                              width: 70,
+                              child: Text('주소',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                  ))),
+                          Container(
+                            width: 200,
+                            child: Text(
+                              '${buyerInfo['address'] ?? ''}',
+                              style: TextStyle(fontSize: 16.0),
+                              softWrap: true, // 텍스트가 줄 바꿈되도록 설정
+                              maxLines: 5, // 최대 5줄까지만 표시
+                              overflow: TextOverflow.ellipsis, // 5줄을 초과하면 "..."으로 표시
+                            ),
+                          )
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
               Positioned(
@@ -158,6 +173,13 @@ class _OnlineBuyerOrderListState extends State<OnlineBuyerOrderList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          IconButton(
+              onPressed: () {
+                //실험용 실험용
+              },
+              icon: Icon(Icons.ac_unit_outlined))
+        ],
         title: Column(
           children: [
             const Text('주문 목록'),
@@ -192,8 +214,7 @@ class _OnlineBuyerOrderListState extends State<OnlineBuyerOrderList> {
             itemBuilder: (context, index) {
               final orderId = orderData.keys.elementAt(index);
               final List<dynamic> orderItems = orderData[orderId]!;
-              final Map<String, dynamic> buyerInfo =
-                  orderItems.first as Map<String, dynamic>;
+              final Map<String, dynamic> buyerInfo = orderItems.first as Map<String, dynamic>;
 
               return Column(
                 children: [
@@ -205,10 +226,9 @@ class _OnlineBuyerOrderListState extends State<OnlineBuyerOrderList> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
-                                '부스명 있으면 더 좋지 않을까용..?',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18),
+                              Text(
+                                buyerInfo['boothName']??'이름 없는 부스',
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                               ),
                               TextButton(
                                 onPressed: () => _showBuyerInfo(buyerInfo),
@@ -216,9 +236,7 @@ class _OnlineBuyerOrderListState extends State<OnlineBuyerOrderList> {
                                   children: [
                                     Text(
                                       '주문자 정보',
-                                      style: TextStyle(
-                                          color: Colors.grey,
-                                          fontWeight: FontWeight.bold),
+                                      style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
                                     ),
                                     Icon(
                                       Icons.chevron_right,
@@ -236,16 +254,13 @@ class _OnlineBuyerOrderListState extends State<OnlineBuyerOrderList> {
                             child: Row(
                               children: [
                                 FutureBuilder<String?>(
-                                  future:
-                                      _getImageUrl(orderItems[i]['imagePath']),
+                                  future: _getImageUrl(orderItems[i]['imagePath']),
                                   builder: (context, imageSnapshot) {
                                     final imageUrl = imageSnapshot.data;
                                     return Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 4.0, vertical: 8.0),
+                                      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
                                       child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(
-                                            8), // 둥근 모서리 유지
+                                        borderRadius: BorderRadius.circular(8), // 둥근 모서리 유지
                                         child: imageUrl != null
                                             ? Image.network(
                                                 imageUrl,
@@ -269,17 +284,11 @@ class _OnlineBuyerOrderListState extends State<OnlineBuyerOrderList> {
                                   children: [
                                     Text(
                                       '${orderItems[i]['itemName'] ?? ''}',
-                                      style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w600),
+                                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                                     ),
-                                    Text(
-                                        '${orderItems[i]['sellingPrice'] ?? 0}원',
-                                        style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600)),
-                                    Text(
-                                        '수량: ${orderItems[i]['quantity'] ?? 0}개',
+                                    Text('${orderItems[i]['sellingPrice'] ?? 0}원',
+                                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                                    Text('수량: ${orderItems[i]['quantity'] ?? 0}개',
                                         style: const TextStyle(color: Colors.grey)),
                                   ],
                                 ),

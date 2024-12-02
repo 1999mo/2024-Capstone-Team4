@@ -79,6 +79,8 @@ class _OnlineBuyerPayState extends State<OnlineBuyerPay> {
 
       // Step 1: Copy data to `online_order_list`
       for (var sellerId in basketData.keys) {
+        final boothNameRef = await FirebaseFirestore.instance.collection('Users').doc(sellerId).collection('booths').doc(festivalName).get();
+        buyerInfo['boothName']=boothNameRef['boothName'];
         final sellerBasketItems = List.from(basketData[sellerId]);
 
         final uniqueOrderId =
