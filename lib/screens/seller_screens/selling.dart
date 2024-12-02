@@ -261,7 +261,7 @@ class _SellingState extends State<Selling> {
             onPressed: () {
               Navigator.pushNamed(context, '/seller_screens/sale_record', arguments: boothId);
             },
-            child: const Text('판매기록', style: TextStyle(color: Colors.black),),
+            child: const Text('판매기록', style: TextStyle(color: Colors.grey),),
           ),
         ],
       ),

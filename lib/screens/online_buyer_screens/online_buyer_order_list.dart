@@ -99,6 +99,7 @@ class _OnlineBuyerOrderListState extends State<OnlineBuyerOrderList> {
                               child: const Text('주문자',
                                   style: TextStyle(
                                     color: Colors.grey,
+                                      fontWeight: FontWeight.w600
                                   ))),
                           Text('${buyerInfo['name'] ?? '이름 없음'}'),
                         ],
@@ -111,6 +112,7 @@ class _OnlineBuyerOrderListState extends State<OnlineBuyerOrderList> {
                               child: const Text('연락처',
                                   style: TextStyle(
                                     color: Colors.grey,
+                                      fontWeight: FontWeight.w600
                                   ))),
                           Text('${_formatPhone(buyerInfo['phone'] ?? '')}'),
                         ],
@@ -123,6 +125,7 @@ class _OnlineBuyerOrderListState extends State<OnlineBuyerOrderList> {
                               child: const Text('우편번호',
                                   style: TextStyle(
                                     color: Colors.grey,
+                                    fontWeight: FontWeight.w600
                                   ))),
                           Text('${buyerInfo['zipcode'] ?? ''}'),
                         ],
@@ -135,12 +138,12 @@ class _OnlineBuyerOrderListState extends State<OnlineBuyerOrderList> {
                               child: Text('주소',
                                   style: TextStyle(
                                     color: Colors.grey,
+                                      fontWeight: FontWeight.w600
                                   ))),
                           Container(
                             width: 200,
                             child: Text(
                               '${buyerInfo['address'] ?? ''}',
-                              style: TextStyle(fontSize: 16.0),
                               softWrap: true, // 텍스트가 줄 바꿈되도록 설정
                               maxLines: 5, // 최대 5줄까지만 표시
                               overflow: TextOverflow.ellipsis, // 5줄을 초과하면 "..."으로 표시

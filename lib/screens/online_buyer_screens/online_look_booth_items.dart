@@ -161,11 +161,9 @@ class _OnlineLookBoothItemsState extends State<OnlineLookBoothItems> {
                                             Text(
                                                 '${itemData['itemName'] ?? 'N/A'}',
                                                 style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
-                                            //const SizedBox(height: 2),
                                             Text(
                                                 '작가: ${itemData['artist'] ?? 'N/A'}',
                                                 style: TextStyle(fontSize: 16, color: Colors.grey, fontWeight: FontWeight.bold)),
-                                            //const SizedBox(height: 2),
                                             Text(
                                                 '상품 종류: ${itemData['itemType'] ?? 'N/A'}',
                                                 style: TextStyle(fontSize: 16, color: Colors.grey, )),
@@ -412,7 +410,7 @@ class _OnlineLookBoothItemsState extends State<OnlineLookBoothItems> {
                                 // 판매가
                                 Text(
                                   '${itemData['sellingPrice'] ?? 'N/A'}원',
-                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                                   textAlign: TextAlign.center,
                                 ),
                               ],

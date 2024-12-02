@@ -244,8 +244,8 @@ class _AddItemState extends State<AddItem> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: Center(
-                  child: const Text(
+                child: const Center(
+                  child: Text(
                     '사진 업로드 +',
                     style: TextStyle(
                       color: Colors.black, // 텍스트 색상 검은색
@@ -277,13 +277,13 @@ class _AddItemState extends State<AddItem> {
                           onPressed: () {
                             Navigator.pop(context);
                           },
-                          child: Text(
+                          child: const Text(
                             '뒤로가기',
                             style: TextStyle(fontSize: 14, color: Colors.black),
                           )),
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 10,
                   ),
                   Expanded(

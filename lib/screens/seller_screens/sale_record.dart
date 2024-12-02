@@ -187,7 +187,7 @@ class _SaleRecordState extends State<SaleRecord> {
                   top: 8,
                   right: 8,
                   child: IconButton(
-                    icon: const Icon(Icons.close, color: Colors.red),
+                    icon: const Icon(Icons.close, color: Colors.grey),
                     onPressed: () {
                       showDialog(
                         context: context,
