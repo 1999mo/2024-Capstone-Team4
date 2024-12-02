@@ -525,6 +525,7 @@ class _SellingState extends State<Selling> {
                                       itemData['itemName'] ?? '',
                                       style: TextStyle(
                                         color: stock == 0 ? Colors.grey[700] : Colors.black,
+                                        fontWeight: FontWeight.bold,
                                         fontSize: 16,
                                       ),
                                     ),

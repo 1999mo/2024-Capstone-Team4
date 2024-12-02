@@ -157,20 +157,20 @@ class _OnlineLookBoothItemsState extends State<OnlineLookBoothItems> {
                                             ),
                                             const SizedBox(height: 16),
                                             Text(
-                                                '상품명: ${itemData['itemName'] ?? 'N/A'}',
-                                                style: TextStyle(fontSize: 16)),
-                                            const SizedBox(height: 4),
+                                                '${itemData['itemName'] ?? 'N/A'}',
+                                                style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
+                                            //const SizedBox(height: 2),
                                             Text(
-                                                '작가명: ${itemData['artist'] ?? 'N/A'}',
-                                                style: TextStyle(fontSize: 16)),
-                                            const SizedBox(height: 4),
+                                                '작가: ${itemData['artist'] ?? 'N/A'}',
+                                                style: TextStyle(fontSize: 16, color: Colors.grey, fontWeight: FontWeight.bold)),
+                                            //const SizedBox(height: 2),
                                             Text(
                                                 '상품 종류: ${itemData['itemType'] ?? 'N/A'}',
-                                                style: TextStyle(fontSize: 16)),
-                                            const SizedBox(height: 4),
+                                                style: TextStyle(fontSize: 16, color: Colors.grey, )),
+                                            const SizedBox(height: 16),
                                             Text(
-                                                '판매가: ${itemData['sellingPrice'] ?? 'N/A'}원',
-                                                style: TextStyle(fontSize: 16)),
+                                                '${itemData['sellingPrice'] ?? 'N/A'}원',
+                                                style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold)),
                                             const SizedBox(height: 16),
                                             Row(
                                               mainAxisAlignment:
@@ -205,11 +205,11 @@ class _OnlineLookBoothItemsState extends State<OnlineLookBoothItems> {
                                                         VisualDensity.compact,
                                                   ),
                                                 ),
-                                                const SizedBox(width: 4),
+                                                const SizedBox(width: 8),
                                                 Text('$quantity',
                                                     style: const TextStyle(
                                                         fontSize: 16)),
-                                                const SizedBox(width: 4),
+                                                const SizedBox(width: 8),
                                                 Container(
                                                   decoration: BoxDecoration(
                                                     border: Border.all(
@@ -410,7 +410,7 @@ class _OnlineLookBoothItemsState extends State<OnlineLookBoothItems> {
                                 // 판매가
                                 Text(
                                   '${itemData['sellingPrice'] ?? 'N/A'}원',
-                                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                                   textAlign: TextAlign.center,
                                 ),
                               ],

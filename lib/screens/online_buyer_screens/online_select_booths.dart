@@ -91,8 +91,8 @@ class _OnlineSelectBoothsState extends State<OnlineSelectBooths> {
                 return GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
                   ),
                   itemCount: sellers.length,
                   itemBuilder: (context, index) {
@@ -154,7 +154,7 @@ class _OnlineSelectBoothsState extends State<OnlineSelectBooths> {
                                         backgroundImage: imageUrl != null
                                             ? NetworkImage(imageUrl)
                                             : const AssetImage('assets/catcul_w.jpg') as ImageProvider,
-                                        radius: 40,
+                                        radius: 50,
                                         backgroundColor: Colors.grey[200],
                                       ),
                                       const SizedBox(height: 8),
@@ -163,7 +163,7 @@ class _OnlineSelectBoothsState extends State<OnlineSelectBooths> {
                                         boothName,
                                         textAlign: TextAlign.center,
                                         style: const TextStyle(
-                                          fontSize: 14,
+                                          fontSize: 18,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -172,7 +172,7 @@ class _OnlineSelectBoothsState extends State<OnlineSelectBooths> {
                                       Text(
                                         painterList,
                                         textAlign: TextAlign.center,
-                                        style: const TextStyle(fontSize: 12),
+                                        style: const TextStyle(fontSize: 14),
                                       ),
                                     ],
                                   ),

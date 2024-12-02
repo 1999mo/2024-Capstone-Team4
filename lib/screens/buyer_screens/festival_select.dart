@@ -88,19 +88,41 @@ class _MyDropdownDialogState extends State<MyDropdownDialog> {
                 });
               },
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 200),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop('');
-                  },
-                  child: const Text('뒤로'),
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFD1D1D1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop('');
+                      },
+                      child: const Text(
+                          '뒤로',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                  ),
                 ),
-                TextButton(
-                  onPressed: _validateAndClose,
-                  child: const Text('확인'),
+                const SizedBox(width: 8,),
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFDBE85),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: TextButton(
+                      onPressed: _validateAndClose,
+                      child: const Text(
+                        '확인',
+                        style: TextStyle(color: Colors.black),),
+                    ),
+                  ),
                 ),
               ],
             ),

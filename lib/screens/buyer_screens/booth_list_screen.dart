@@ -131,88 +131,105 @@ class _BoothListScreen extends State<BoothListScreen> {
       appBar: AppBar(
         title: const Text('부스 목록'),
       ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: _getAllBooths(widget.painter),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No booths available.'));
-          } else {
-            var boothList = snapshot.data!;
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: FutureBuilder<List<Map<String, dynamic>>>(
+          future: _getAllBooths(widget.painter),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Center(child: Text('No booths available.'));
+            } else {
+              var boothList = snapshot.data!;
 
-            return GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-              ),
-              itemCount: boothList.length,
-              itemBuilder: (context, index) {
-                var booth = boothList[index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => BoothScreen(
-                            uid: booth['userId'],
-                            festivalName: widget.festivalName,
+              return GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                  childAspectRatio: 0.9,
+                ),
+                itemCount: boothList.length,
+                itemBuilder: (context, index) {
+                  var booth = boothList[index];
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BoothScreen(
+                              uid: booth['userId'],
+                              festivalName: widget.festivalName,
+                          ),
+                        )
+                      );
+                    },
+                    child: SizedBox(
+                      height: 100.0,
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          side: BorderSide(color: Color(0xFFD1D1D1), width: 1),
                         ),
-                      )
-                    );
-                  },
-                  child: SizedBox(
-                    height: 100.0,
-                    child: Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            booth['imagePath'].isNotEmpty
-                            ? Container(
-                              width: 100.0,
-                              height: 100.0,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                  image: NetworkImage(
-                                  booth['imagePath'],
-                                ),
-                                fit: BoxFit.cover,
-                                ),
-                              ),
-                            )
-                            : Container(
-                              width: 100.0,
-                              height: 100.0,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                  image: AssetImage('assets/catcul_w.jpg'),
+                        elevation: 4,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              booth['imagePath'].isNotEmpty
+                              ? Container(
+                                width: 100.0,
+                                height: 100.0,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  image: DecorationImage(
+                                    image: NetworkImage(
+                                    booth['imagePath'],
+                                  ),
                                   fit: BoxFit.cover,
+                                  ),
+                                ),
+                              )
+                              : Container(
+                                width: 100.0,
+                                height: 100.0,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  image: DecorationImage(
+                                    image: AssetImage('assets/catcul_w.jpg'),
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Text(
-                              booth['boothName'],
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            Text('${booth['location']}'),
-                            Text('${booth['painters'].join(', ')}'),
-                          ],
+                              const SizedBox(height: 8),
+                              Text(
+                                booth['boothName'],
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,),
+                              ),
+                              const SizedBox(height: 4),
+                              Text('${booth['location']}'),
+                              Text('${booth['painters'].join(', ')}',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                );
-              },
-            );
-          }
-          },
+                  );
+                },
+              );
+            }
+            },
+        ),
       ),
     );
   }

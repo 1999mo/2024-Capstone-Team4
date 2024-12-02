@@ -128,6 +128,7 @@ class _AdjustmentDetailState extends State<AdjustmentDetail> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('작가별 매출 상세'),
+        centerTitle: true,
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
