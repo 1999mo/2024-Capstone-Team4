@@ -28,7 +28,11 @@ class _EditSellingItemsState extends State<EditSellingItems> {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null || boothId == null) return;
 
-    final boothRef = FirebaseFirestore.instance.collection('Users').doc(uid).collection('booths').doc(boothId);
+    final boothRef = FirebaseFirestore.instance
+        .collection('Users')
+        .doc(uid)
+        .collection('booths')
+        .doc(boothId);
 
     final boothDoc = await boothRef.get();
     if (boothDoc.exists) {
@@ -104,127 +108,163 @@ class _EditSellingItemsState extends State<EditSellingItems> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start, // 텍스트의 기본 정렬을 왼쪽으로 설정
-              children: [
-                Align(
-                  alignment: Alignment.topRight,
-                  child: IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ),
-                Center(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      itemData['imagePath'] ?? '',
-                      fit: BoxFit.cover,
-                      height: 150,
-                      width: 150,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Image.asset(
-                          'assets/catcul_w.jpg',
-                          height: 150,
-                          width: 150,
-                        );
-                      },
+        return AlertDialog(
+          //child: Column(
+          //children: [
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('상품 정보'),
+              IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.close),
+              ),
+            ],
+          ),
+          content: SizedBox(
+            width: MediaQuery.of(context).size.width * 0.65,
+            height: MediaQuery.of(context).size.height * 0.5,
+            child: SingleChildScrollView(
+              //padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment:
+                    CrossAxisAlignment.start, // 텍스트의 기본 정렬을 왼쪽으로 설정
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius:
+                      BorderRadius.circular(8),
+                      border: Border.all(
+                          color: Color(0xFFD1D1D1),
+                          width: 1),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        itemData['imagePath'] ?? '',
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: 250,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Image.asset(
+                            'assets/catcul_w.jpg',
+                            fit: BoxFit.cover,
+                            height: 250,
+                            width: double.infinity,
+                          );
+                        },
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 20),
-                Container(
-                  padding: EdgeInsets.all(8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  const SizedBox(height: 20),
+                  Container(
+                    padding: EdgeInsets.all(8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('상품종류: ${itemData['itemType'] ?? ''}',
+                                      style: const TextStyle(
+                                          fontSize: 14, color: Colors.grey)),
+                                  Text(
+                                    '상품명: ${itemData['itemName'] ?? ''}',
+                                    style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold),
+                                    softWrap: true,
+                                    maxLines: 5,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  Text(
+                                    '작가정보: ${itemData['artist'] ?? ''}',
+                                    style: const TextStyle(fontSize: 16),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text('재고수: ${itemData['stockQuantity'] ?? ''}',
+                                    style: const TextStyle(fontSize: 14)),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('원가: ${itemData['costPrice'] ?? ''}',
+                                style: const TextStyle(
+                                    fontSize: 14, color: Colors.grey)),
+                            Text('판매가: ${itemData['sellingPrice'] ?? ''}',
+                                style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFFFF5353))),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('상품종류: ${itemData['itemType'] ?? ''}',
-                                  style: const TextStyle(fontSize: 14, color: Colors.grey)
-                              ),
-                              Text(
-                                '상품명: ${itemData['itemName'] ?? ''}',
-                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                              ),
-                              Text(
-                                '작가정보: ${itemData['artist'] ?? ''}',
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                            ],
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFD1D1D1),
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text('재고수: ${itemData['stockQuantity'] ?? ''}', style: const TextStyle(fontSize: 14)),
-                            ],
+                          child: TextButton(
+                            onPressed: () {
+                              _showDeleteConfirmation(
+                                  itemId, itemData['imagePath']);
+                            },
+                            child: const Text('삭제',
+                                style: TextStyle(
+                                    fontSize: 14, color: Colors.black)),
                           ),
-                        ],
+                        ),
                       ),
-                      const SizedBox(height: 16),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('원가: ${itemData['costPrice'] ?? ''}',
-                              style: const TextStyle(fontSize: 14, color: Colors.grey)),
-                          Text('판매가: ${itemData['sellingPrice'] ?? ''}',
-                              style:
-                                  const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFFF5353))),
-                        ],
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFDBE85),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              Navigator.pushNamed(
+                                  context, '/seller_screens/edit_item',
+                                  arguments: [boothId, itemId]);
+                            },
+                            child: const Text('수정',
+                                style: TextStyle(
+                                    fontSize: 14, color: Colors.black)),
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFD1D1D1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: TextButton(
-                          onPressed: () {
-                            _showDeleteConfirmation(itemId, itemData['imagePath']);
-                          },
-                          child: const Text('삭제', style: TextStyle(fontSize: 14, color: Colors.black)),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFDBE85),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            Navigator.pushNamed(context, '/seller_screens/edit_item', arguments: [boothId, itemId]);
-                          },
-                          child: const Text('수정', style: TextStyle(fontSize: 14, color: Colors.black)),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                ],
+              ),
             ),
           ),
+          // ],
+          //)
         );
       },
     );
@@ -266,10 +306,6 @@ class _EditSellingItemsState extends State<EditSellingItems> {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
-                // const Text(
-                //   '작가 선택: ',
-                //   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                // ),
                 DropdownButton<String>(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   value: selectedPainter,
@@ -278,7 +314,10 @@ class _EditSellingItemsState extends State<EditSellingItems> {
                       selectedPainter = value!;
                     });
                   },
-                  items: painters.map((painter) => DropdownMenuItem(value: painter, child: Text(painter))).toList(),
+                  items: painters
+                      .map((painter) => DropdownMenuItem(
+                          value: painter, child: Text(painter)))
+                      .toList(),
                 ),
               ],
             ),
@@ -286,94 +325,112 @@ class _EditSellingItemsState extends State<EditSellingItems> {
           // 상품 목록
           Expanded(
             child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('Users')
-                  .doc(FirebaseAuth.instance.currentUser?.uid)
-                  .collection('booths')
-                  .doc(boothId)
-                  .collection('items')
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  //처음에는 로딩화면을 띄우는 것으로 했으나 없는 것이 UX적으로 좋아보임
-                }
-                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return const Center(child: Text('등록된 상품이 없습니다.'));
-                }
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('Users')
+                    .doc(FirebaseAuth.instance.currentUser?.uid)
+                    .collection('booths')
+                    .doc(boothId)
+                    .collection('items')
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    //처음에는 로딩화면을 띄우는 것으로 했으나 없는 것이 UX적으로 좋아보임
+                  }
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return const Center(child: Text('등록된 상품이 없습니다.'));
+                  }
 
-                final items = snapshot.data!.docs.where((doc) {
-                  final docData = doc.data() as Map<String, dynamic>;
-                  final itemName = docData['itemName']?.toLowerCase() ?? '';
-                  return (selectedPainter == '작가 전체' || (docData['artist'] ?? '') == selectedPainter) &&
-                      itemName.contains(searchKeyword.toLowerCase());
-                }).toList();
+                  final items = snapshot.data!.docs.where((doc) {
+                    final docData = doc.data() as Map<String, dynamic>;
+                    final itemName = docData['itemName']?.toLowerCase() ?? '';
+                    return (selectedPainter == '작가 전체' ||
+                            (docData['artist'] ?? '') == selectedPainter) &&
+                        itemName.contains(searchKeyword.toLowerCase());
+                  }).toList();
 
-                if (items.isEmpty) {
-                  return const Center(child: Text('검색 결과가 없습니다.'));
-                }
+                  if (items.isEmpty) {
+                    return const Center(child: Text('검색 결과가 없습니다.'));
+                  }
 
-                return GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 8,
-                  ),
-                  itemCount: items.length,
-                  itemBuilder: (context, index) {
-                    final itemData = items[index].data() as Map<String, dynamic>;
-                    final itemId = items[index].id;
+                  return GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 8,
+                      mainAxisSpacing: 8,
+                          childAspectRatio: 0.9,
+                    ),
+                    itemCount: items.length,
+                    itemBuilder: (context, index) {
+                      final itemData =
+                          items[index].data() as Map<String, dynamic>;
+                      final itemId = items[index].id;
 
-                    return GestureDetector(
-                      onTap: () {
-                        _showItemDetails(itemData, itemId);
-                      },
-                      child: Card(
-                        //elevation: 3,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          side: BorderSide(color: Color(0xFFD1D1D1), width: 1),
-                        ),
-                        child: Column(
-                          children: [
-                            const SizedBox(height: 16),
-                            Expanded(
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: itemData['imagePath']?.isNotEmpty == true
-                                    ? Image.network(
-                                        itemData['imagePath'],
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (context, error, stackTrace) {
-                                          return Image.asset(
-                                            'assets/catcul_w.jpg',
-                                            fit: BoxFit.cover,
-                                          );
-                                        },
-                                      )
-                                    : Image.asset(
-                                        'assets/catcul_w.jpg',
-                                        fit: BoxFit.cover,
-                                      ),
+                      return GestureDetector(
+                        onTap: () {
+                          _showItemDetails(itemData, itemId);
+                        },
+                        child: Card(
+                          //elevation: 3,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            side:
+                                BorderSide(color: Color(0xFFD1D1D1), width: 1),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            children: [
+                              //const SizedBox(height: 16),
+                              Expanded(
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child:
+                                      itemData['imagePath']?.isNotEmpty == true
+                                          ? Image.network(
+                                              itemData['imagePath'],
+                                        width: double.infinity,
+                                              fit: BoxFit.cover,
+                                              errorBuilder:
+                                                  (context, error, stackTrace) {
+                                                return Image.asset(
+                                                  'assets/catcul_w.jpg',
+                                                  width: double.infinity,
+                                                  fit: BoxFit.cover,
+                                                );
+                                              },
+                                            )
+                                          : Image.asset(
+                                              'assets/catcul_w.jpg',
+                                        width: double.infinity,
+                                              fit: BoxFit.cover,
+                                            ),
+                                ),
                               ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                itemData['itemName'] ?? '',
-                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                                textAlign: TextAlign.center,
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  itemData['itemName'] ?? '',
+                                  softWrap: true,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
+                                  textAlign: TextAlign.center,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
+                              ),
                         ),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ),
         ],
@@ -384,7 +441,8 @@ class _EditSellingItemsState extends State<EditSellingItems> {
           borderRadius: BorderRadius.all(Radius.circular(30)),
         ),
         onPressed: () {
-          Navigator.pushNamed(context, '/seller_screens/add_item', arguments: boothId);
+          Navigator.pushNamed(context, '/seller_screens/add_item',
+              arguments: boothId);
         },
         child: const Icon(Icons.add),
         tooltip: '상품 추가하기',

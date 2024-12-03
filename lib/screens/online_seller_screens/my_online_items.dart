@@ -111,7 +111,10 @@ class _MyOnlineItemsState extends State<MyOnlineItems> {
                     context, '/online_seller_screens/online_consumer_list',
                     arguments: boothId);
               },
-              child: Text('주문 목록', style: TextStyle(color: Colors.grey),))
+              child: Text(
+                '주문 목록',
+                style: TextStyle(color: Colors.grey),
+              ))
         ],
       ),
       body: StreamBuilder<QuerySnapshot>(
@@ -141,6 +144,7 @@ class _MyOnlineItemsState extends State<MyOnlineItems> {
                     crossAxisCount: 2, // 그리드 뷰 열 개수
                     crossAxisSpacing: 8, // 그리드 간격
                     mainAxisSpacing: 8, // 그리드 간격
+                    childAspectRatio: 0.9,
                   ),
                   itemCount: items.length,
                   itemBuilder: (context, index) {
@@ -191,7 +195,8 @@ class _MyOnlineItemsState extends State<MyOnlineItems> {
                                               borderRadius:
                                                   BorderRadius.circular(8),
                                               border: Border.all(
-                                                  color: Color(0xFFD1D1D1), width: 1),
+                                                  color: Color(0xFFD1D1D1),
+                                                  width: 1),
                                             ),
                                             child: imageUrl != null
                                                 ? ClipRRect(
@@ -226,8 +231,18 @@ class _MyOnlineItemsState extends State<MyOnlineItems> {
                                             children: [
                                               Container(
                                                   width: 80,
-                                                  child: const Text('상품명', style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.w600))),
-                                              Text('${itemData['itemName'] ?? 'N/A'}',style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                                                  child: const Text('상품명',
+                                                      style: TextStyle(
+                                                          color: Colors.grey,
+                                                          fontSize: 16,
+                                                          fontWeight: FontWeight
+                                                              .w600))),
+                                              Text(
+                                                  '${itemData['itemName'] ?? 'N/A'}',
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.w600)),
                                             ],
                                           ),
                                           const SizedBox(height: 4),
@@ -235,8 +250,18 @@ class _MyOnlineItemsState extends State<MyOnlineItems> {
                                             children: [
                                               Container(
                                                   width: 80,
-                                                  child: const Text('작가', style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.w600))),
-                                              Text('${itemData['artist'] ?? 'N/A'}',style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                                                  child: const Text('작가',
+                                                      style: TextStyle(
+                                                          color: Colors.grey,
+                                                          fontSize: 16,
+                                                          fontWeight: FontWeight
+                                                              .w600))),
+                                              Text(
+                                                  '${itemData['artist'] ?? 'N/A'}',
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.w600)),
                                             ],
                                           ),
                                           const SizedBox(height: 4),
@@ -244,8 +269,18 @@ class _MyOnlineItemsState extends State<MyOnlineItems> {
                                             children: [
                                               Container(
                                                   width: 80,
-                                                  child: const Text('상품종류', style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.w600))),
-                                              Text('${itemData['itemType'] ?? 'N/A'}',style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                                                  child: const Text('상품종류',
+                                                      style: TextStyle(
+                                                          color: Colors.grey,
+                                                          fontSize: 16,
+                                                          fontWeight: FontWeight
+                                                              .w600))),
+                                              Text(
+                                                  '${itemData['itemType'] ?? 'N/A'}',
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.w600)),
                                             ],
                                           ),
                                           const SizedBox(height: 4),
@@ -253,8 +288,18 @@ class _MyOnlineItemsState extends State<MyOnlineItems> {
                                             children: [
                                               Container(
                                                   width: 80,
-                                                  child: const Text('원가', style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.w600))),
-                                              Text('${itemData['costPrice'] ?? 'N/A'}',style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                                                  child: const Text('원가',
+                                                      style: TextStyle(
+                                                          color: Colors.grey,
+                                                          fontSize: 16,
+                                                          fontWeight: FontWeight
+                                                              .w600))),
+                                              Text(
+                                                  '${itemData['costPrice'] ?? 'N/A'}',
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.w600)),
                                             ],
                                           ),
                                           const SizedBox(height: 4),
@@ -262,8 +307,18 @@ class _MyOnlineItemsState extends State<MyOnlineItems> {
                                             children: [
                                               Container(
                                                   width: 80,
-                                                  child: const Text('판매가', style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.w600))),
-                                              Text('${itemData['sellingPrice'] ?? 'N/A'}',style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                                                  child: const Text('판매가',
+                                                      style: TextStyle(
+                                                          color: Colors.grey,
+                                                          fontSize: 16,
+                                                          fontWeight: FontWeight
+                                                              .w600))),
+                                              Text(
+                                                  '${itemData['sellingPrice'] ?? 'N/A'}',
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.w600)),
                                             ],
                                           ),
                                         ],
@@ -272,57 +327,63 @@ class _MyOnlineItemsState extends State<MyOnlineItems> {
                                   ),
                                   actions: [
                                     Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Expanded(
                                           child: Container(
                                             decoration: BoxDecoration(
                                               color: const Color(0xFFD1D1D1),
-                                              borderRadius: BorderRadius.circular(8),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                             ),
                                             child: TextButton(
-                                          onPressed: () {
-                                            showDialog(
-                                              context: context,
-                                              builder: (context) {
-                                                return AlertDialog(
-                                                  title: const Text('삭제 확인'),
-                                                  content: const Text(
-                                                      '정말로 이 상품을 삭제하시겠습니까?'),
-                                                  actions: [
-                                                    TextButton(
-                                                      onPressed: () =>
-                                                          Navigator.pop(
-                                                              context), // 팝업 닫기
-                                                      child: const Text('취소'),
-                                                    ),
-                                                    TextButton(
-                                                      onPressed: () {
-                                                        _deleteItem(
-                                                            itemId); // 실제 삭제 수행
-                                                        Navigator.pop(
-                                                            context); // 팝업 닫기
-                                                        Navigator.pop(
-                                                            context); // 상품 정보 팝업 닫기
-                                                      },
-                                                      child: const Text(
-                                                        '삭제',
-                                                        style: TextStyle(
-                                                            color: Colors.red),
-                                                      ),
-                                                    ),
-                                                  ],
+                                              onPressed: () {
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return AlertDialog(
+                                                      title:
+                                                          const Text('삭제 확인'),
+                                                      content: const Text(
+                                                          '정말로 이 상품을 삭제하시겠습니까?'),
+                                                      actions: [
+                                                        TextButton(
+                                                          onPressed: () =>
+                                                              Navigator.pop(
+                                                                  context), // 팝업 닫기
+                                                          child:
+                                                              const Text('취소'),
+                                                        ),
+                                                        TextButton(
+                                                          onPressed: () {
+                                                            _deleteItem(
+                                                                itemId); // 실제 삭제 수행
+                                                            Navigator.pop(
+                                                                context); // 팝업 닫기
+                                                            Navigator.pop(
+                                                                context); // 상품 정보 팝업 닫기
+                                                          },
+                                                          child: const Text(
+                                                            '삭제',
+                                                            style: TextStyle(
+                                                                color:
+                                                                    Colors.red),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    );
+                                                  },
                                                 );
                                               },
-                                            );
-                                          },
-                                          child: const Text(
-                                            '삭제',
-                                            style: TextStyle(color: Colors.black),
+                                              child: const Text(
+                                                '삭제',
+                                                style: TextStyle(
+                                                    color: Colors.black),
+                                              ),
+                                            ),
                                           ),
                                         ),
-                                          ),
-                                          ),
                                         const SizedBox(
                                           width: 10,
                                         ),
@@ -330,23 +391,26 @@ class _MyOnlineItemsState extends State<MyOnlineItems> {
                                           child: Container(
                                             decoration: BoxDecoration(
                                               color: const Color(0xFFFDBE85),
-                                              borderRadius: BorderRadius.circular(8),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                             ),
                                             child: TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context); // 팝업 닫기
-                                            Navigator.pushNamed(
-                                              context,
-                                              '/online_seller_screens/online_item_edit',
-                                              arguments: [boothId, itemId],
-                                            );
-                                          },
-                                          child: const Text('수정',
-                                            style: TextStyle(
-                                                color: Colors.black),),
+                                              onPressed: () {
+                                                Navigator.pop(context); // 팝업 닫기
+                                                Navigator.pushNamed(
+                                                  context,
+                                                  '/online_seller_screens/online_item_edit',
+                                                  arguments: [boothId, itemId],
+                                                );
+                                              },
+                                              child: const Text(
+                                                '수정',
+                                                style: TextStyle(
+                                                    color: Colors.black),
+                                              ),
+                                            ),
+                                          ),
                                         ),
-                                                                        ),
-                                                                        ),
                                       ],
                                     ),
                                   ],
@@ -373,19 +437,28 @@ class _MyOnlineItemsState extends State<MyOnlineItems> {
                                           ? Image.network(
                                               imageUrl,
                                               fit: BoxFit.cover,
+                                              width: double.infinity,
                                               errorBuilder:
                                                   (context, error, stackTrace) {
                                                 return Image.asset(
                                                     'assets/catcul_w.jpg');
                                               },
                                             )
-                                          : Image.asset('assets/catcul_w.jpg'),
+                                          : Container(
+                                              width: double.infinity,
+                                              child: Image.asset(
+                                                'assets/catcul_w.jpg',
+                                                fit: BoxFit.cover,
+                                              )),
                                     ),
                                   ),
                                   const SizedBox(height: 8),
                                   // itemName
                                   Text(
                                     itemData['itemName'] ?? '상품명 없음',
+                                    softWrap: false,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
                                     style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,

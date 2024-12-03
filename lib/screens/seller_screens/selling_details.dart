@@ -130,8 +130,13 @@ class _SellingDetailsState extends State<SellingDetails> {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    productName,
-                                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                    productName.length > 10
+                                        ? '${productName.substring(0, 15)}...' // 10글자 초과 시 잘라내기
+                                        : productName,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                   Row(
                                     children: [

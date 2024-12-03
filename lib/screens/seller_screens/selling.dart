@@ -31,7 +31,8 @@ class _SellingState extends State<Selling> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    boothId = ModalRoute.of(context)?.settings.arguments as String? ?? 'Unknown';
+    boothId =
+        ModalRoute.of(context)?.settings.arguments as String? ?? 'Unknown';
     _initializePainters();
     _initializeItemsState();
   }
@@ -40,11 +41,17 @@ class _SellingState extends State<Selling> {
     String? uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null || boothId == null) return;
 
-    CollectionReference itemsRef =
-        FirebaseFirestore.instance.collection('Users').doc(uid).collection('booths').doc(boothId).collection('items');
+    CollectionReference itemsRef = FirebaseFirestore.instance
+        .collection('Users')
+        .doc(uid)
+        .collection('booths')
+        .doc(boothId)
+        .collection('items');
 
-    CollectionReference onlineItemsRef =
-        FirebaseFirestore.instance.collection('OnlineStore').doc(boothId).collection(uid);
+    CollectionReference onlineItemsRef = FirebaseFirestore.instance
+        .collection('OnlineStore')
+        .doc(boothId)
+        .collection(uid);
 
     try {
       List<Set<String>> results = await Future.wait([
@@ -73,7 +80,8 @@ class _SellingState extends State<Selling> {
 
         // 2. Initialize onlineSaleStartedItems
         onlineItemsRef.get().then((onlineSnapshot) {
-          Set<String> onlineItems = onlineSnapshot.docs.map((doc) => doc.id).toSet();
+          Set<String> onlineItems =
+              onlineSnapshot.docs.map((doc) => doc.id).toSet();
           return onlineItems;
         }),
       ]);
@@ -95,7 +103,11 @@ class _SellingState extends State<Selling> {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
 
-    final boothRef = FirebaseFirestore.instance.collection('Users').doc(uid).collection('booths').doc(boothId);
+    final boothRef = FirebaseFirestore.instance
+        .collection('Users')
+        .doc(uid)
+        .collection('booths')
+        .doc(boothId);
 
     // painters 필드 가져오기
     final boothDoc = await boothRef.get();
@@ -176,17 +188,23 @@ class _SellingState extends State<Selling> {
 
     setState(() {
       // 로컬 재고 업데이트
-      localStock = {for (var doc in itemsSnapshot.docs) doc.id: doc['stockQuantity'] ?? 0};
+      localStock = {
+        for (var doc in itemsSnapshot.docs) doc.id: doc['stockQuantity'] ?? 0
+      };
 
       // Firebase에서 재고가 0인 항목으로 exhaustedItems 동기화
-      exhaustedItems = localStock.entries.where((entry) => entry.value == 0).map((entry) => entry.key).toSet();
+      exhaustedItems = localStock.entries
+          .where((entry) => entry.value == 0)
+          .map((entry) => entry.key)
+          .toSet();
 
       // `soldItems` 초기화
       soldItems.clear();
     });
   }
 
-  Future<void> _startOnlineDemand(String itemId, Map<String, dynamic> itemData) async {
+  Future<void> _startOnlineDemand(
+      String itemId, Map<String, dynamic> itemData) async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null || boothId == null) return;
 
@@ -221,7 +239,8 @@ class _SellingState extends State<Selling> {
       return;
     }
 
-    final onlineStoreRef = FirebaseFirestore.instance.collection('OnlineStore').doc(boothId);
+    final onlineStoreRef =
+        FirebaseFirestore.instance.collection('OnlineStore').doc(boothId);
 
     try {
       // **1. Firebase 작업 수행**
@@ -259,9 +278,13 @@ class _SellingState extends State<Selling> {
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.pushNamed(context, '/seller_screens/sale_record', arguments: boothId);
+              Navigator.pushNamed(context, '/seller_screens/sale_record',
+                  arguments: boothId);
             },
-            child: const Text('판매기록', style: TextStyle(color: Colors.grey),),
+            child: const Text(
+              '판매기록',
+              style: TextStyle(color: Colors.grey),
+            ),
           ),
         ],
       ),
@@ -284,7 +307,10 @@ class _SellingState extends State<Selling> {
                     Expanded(
                       child: TextButton(
                         onPressed: () {
-                          Navigator.pushNamed(context, '/seller_screens/adjustment', arguments: boothId).then((_) {
+                          Navigator.pushNamed(
+                                  context, '/seller_screens/adjustment',
+                                  arguments: boothId)
+                              .then((_) {
                             setState(() {
                               _reloadItems();
                             });
@@ -312,7 +338,10 @@ class _SellingState extends State<Selling> {
                       child: TextButton(
                         onPressed: () {
                           // 사전구매 로직
-                          Navigator.pushNamed(context, '/seller_screens/pre_order', arguments: boothId).then((_) {
+                          Navigator.pushNamed(
+                                  context, '/seller_screens/pre_order',
+                                  arguments: boothId)
+                              .then((_) {
                             // 돌아올 때 Firebase 데이터 동기화
                             setState(() {
                               _reloadItems();
@@ -374,11 +403,17 @@ class _SellingState extends State<Selling> {
                         selectedPainter = value!;
                       });
                     },
-                    items: painters.map((painter) => DropdownMenuItem(value: painter, child: Text(painter))).toList(),
+                    items: painters
+                        .map((painter) => DropdownMenuItem(
+                            value: painter, child: Text(painter)))
+                        .toList(),
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, '/seller_screens/edit_selling_items', arguments: boothId).then((_) {
+                      Navigator.pushNamed(
+                              context, '/seller_screens/edit_selling_items',
+                              arguments: boothId)
+                          .then((_) {
                         setState(() {
                           _initializePainters();
                           _reloadItems();
@@ -420,7 +455,8 @@ class _SellingState extends State<Selling> {
                     final itemName = docData['itemName']?.toLowerCase() ?? '';
                     final itemPainter = docData['artist'] ?? '작가 전체';
 
-                    return (selectedPainter == '작가 전체' || itemPainter == selectedPainter) &&
+                    return (selectedPainter == '작가 전체' ||
+                            itemPainter == selectedPainter) &&
                         itemName.contains(searchKeyword.toLowerCase());
                   }).toList();
 
@@ -432,7 +468,8 @@ class _SellingState extends State<Selling> {
                     for (var doc in snapshot.data!.docs) {
                       final data = doc.data() as Map<String, dynamic>?;
                       if (data != null) {
-                        if (data.containsKey('expect') && (data['stockQuantity'] ?? 1) == 0) {
+                        if (data.containsKey('expect') &&
+                            (data['stockQuantity'] ?? 1) == 0) {
                           clickedItems.add(doc.id);
                           exhaustedItemsLocal.add(doc.id);
                         }
@@ -440,7 +477,8 @@ class _SellingState extends State<Selling> {
                     }
 
                     // 상태 동기화
-                    if (clickedOutOfStockItems != clickedItems || exhaustedItems != exhaustedItemsLocal) {
+                    if (clickedOutOfStockItems != clickedItems ||
+                        exhaustedItems != exhaustedItemsLocal) {
                       setState(() {
                         clickedOutOfStockItems = clickedItems;
                         exhaustedItems = exhaustedItemsLocal;
@@ -454,12 +492,10 @@ class _SellingState extends State<Selling> {
 
                   // GridView 렌더링
                   return GridView.builder(
-                    padding: const EdgeInsets.only(
-                      bottom: 100,
-                      left: 8,
-                      right: 8
-                    ),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    padding:
+                        const EdgeInsets.only(bottom: 100, left: 8, right: 8),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       crossAxisSpacing: 8,
                       mainAxisSpacing: 8,
@@ -467,9 +503,11 @@ class _SellingState extends State<Selling> {
                     ),
                     itemCount: items.length,
                     itemBuilder: (context, index) {
-                      final itemData = items[index].data() as Map<String, dynamic>;
+                      final itemData =
+                          items[index].data() as Map<String, dynamic>;
                       final itemId = items[index].id;
-                      final stock = localStock[itemId] ?? itemData['stockQuantity'] ?? 0;
+                      final stock =
+                          localStock[itemId] ?? itemData['stockQuantity'] ?? 0;
 
                       return GestureDetector(
                         onTap: clickedOutOfStockItems.contains(itemId)
@@ -480,136 +518,179 @@ class _SellingState extends State<Selling> {
                           color: stock == 0 ? Colors.grey[300] : null,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
-                            side: BorderSide(color: Color(0xFFD1D1D1), width: 1),
+                            side:
+                                BorderSide(color: Color(0xFFD1D1D1), width: 1),
                           ),
-                          child: Column(
-                            children: [
-                              const SizedBox(height: 16),
-                              Expanded(
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8), // 둥근 모서리 유지
-                                  child: CachedNetworkImage(
-                                    imageUrl: itemData['imagePath'] ?? '',
-                                    placeholder: (context, url) => const Center(
-                                      child: CircularProgressIndicator(),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              children: [
+                                Expanded(
+                                  child: ClipRRect(
+                                    borderRadius:
+                                        BorderRadius.circular(8),
+                                    child: CachedNetworkImage(
+                                      width: double.infinity,
+                                      imageUrl: itemData['imagePath'] ?? '',
+                                      placeholder: (context, url) =>
+                                          const Center(
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                      errorWidget: (context, url, error) {
+                                        return Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            Image.asset(
+                                              'assets/catcul_w.jpg',
+                                              fit: BoxFit.cover,
+                                              width: double.infinity,
+                                            ),
+                                            if (stock == 0)
+                                              Container(
+                                                color: Colors.black.withOpacity(0.5),
+                                                alignment: Alignment.center,
+                                                child: const Text(
+                                                  '품절',
+                                                  style: TextStyle(
+                                                    color: Colors.red,
+                                                    fontSize: 24, // 글씨 크기
+                                                    fontWeight: FontWeight.w500 ,
+                                                  ),
+                                                ),
+                                              ),
+                                          ],
+                                        );
+                                      },
+                                      fit: BoxFit.cover, // 이미지 크기 조정
                                     ),
-                                    errorWidget: (context, url, error) {
-                                      return ColorFiltered(
-                                        colorFilter: stock == 0
-                                            ? const ColorFilter.matrix(<double>[
-                                          0.6, 0.2, 0.2, 0, 0, // R
-                                          0.2, 0.6, 0.2, 0, 0, // G
-                                          0.2, 0.2, 0.6, 0, 0, // B
-                                          0, 0, 0, 1, 0, // Alpha
-                                        ])
-                                            : const ColorFilter.mode(
-                                          Colors.transparent,
-                                          BlendMode.multiply,
-                                        ),
-                                        child: Image.asset(
-                                          'assets/catcul_w.jpg', // 기본 이미지 경로
-                                          fit: BoxFit.cover,
-                                        ),
-                                      );
-                                    },
-                                    fit: BoxFit.cover, // 이미지 크기 조정
                                   ),
                                 ),
-
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      itemData['itemName'] ?? '',
-                                      style: TextStyle(
-                                        color: stock == 0 ? Colors.grey[700] : Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
+                                  Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        itemData['itemName'] ?? '',
+                                        //------------------글자 잘림-------------------------
+                                        softWrap: true,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        //------------------------------------------------
+                                        style: TextStyle(
+                                          color: stock == 0
+                                              ? Colors.grey[700]
+                                              : Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
                                       ),
-                                    ),
-                                    Text(
-                                      '${numberFormat.format(stock)}개',
-                                      style: TextStyle(
-                                        color: stock == 0 ? Colors.red : Colors.black,
+                                      stock == 0
+                                          ? const SizedBox.shrink() // 아무것도 표시하지 않음
+                                          : Text(
+                                        '${numberFormat.format(stock)}개',
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                        ),
                                       ),
-                                    ),
-                                    if (itemData['expect'] != null && exhaustedItems.contains(itemId))
-                                      Column(
-                                        children: [
-                                          Container(
-                                            padding: const EdgeInsets.all(8.0),
-                                            width: double.infinity,
-                                            height: 38.0,
-                                            decoration: BoxDecoration(
-                                              color: Color(0xFFFFFFFF),
-                                              border: Border.all(color: Color(0xFFD1D1D1)),
-                                              borderRadius: BorderRadius.circular(8),
-                                            ),
-                                            child: Text('구매 희망자 수 : ${itemData['expect'] ?? 0}',
-                                                textAlign: TextAlign.center),
-                                          ),
-                                          const SizedBox(height: 8.0),
-                                          Container(
-                                            width: double.infinity,
-                                            height: 38.0,
-                                            decoration: BoxDecoration(
-                                              color: onlineSaleStartedItems.contains(itemId)
-                                                  ? Colors.grey
-                                                  : const Color(0xFFFFDCBD),
-                                              border: Border.all(color: Color(0xFFD1D1D1)),
-                                              borderRadius: BorderRadius.circular(8),
-                                            ),
-                                            child: TextButton(
-                                              onPressed: onlineSaleStartedItems.contains(itemId)
-                                                  ? null
-                                                  : () => showDialog(
-                                                        context: context,
-                                                        builder: (BuildContext context) {
-                                                          return AlertDialog(
-                                                            title: Text('온라인 판매 시작'),
-                                                            content: const Text('온라인 판매를 시작하시겠습니까?'),
-                                                            actions: [
-                                                              TextButton(
-                                                                onPressed: () {
-                                                                  Navigator.of(context).pop(); // 팝업 닫기
-                                                                },
-                                                                child: const Text('취소'),
-                                                              ),
-                                                              ElevatedButton(
-                                                                onPressed: onlineSaleStartedItems.contains(itemId)
-                                                                    ? null // 이미 클릭된 경우 비활성화
-                                                                    : () {
-                                                                        setState(() {
-                                                                          onlineSaleStartedItems
-                                                                              .add(itemId); // 클릭 상태 저장
-                                                                        });
-                                                                        Navigator.of(context).pop(); // 팝업 닫기
-                                                                        _startOnlineSale(itemData); // 온라인 판매 시작
-                                                                      },
-                                                                child: Text(
-                                                                  onlineSaleStartedItems.contains(itemId)
-                                                                      ? '진행 중...'
-                                                                      : '확인',
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          );
-                                                        },
-                                                      ),
+                                      if (itemData['expect'] != null &&
+                                          exhaustedItems.contains(itemId))
+                                        Column(
+                                          children: [
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              width: double.infinity,
+                                              height: 38.0,
+                                              decoration: BoxDecoration(
+                                                color: Color(0xFFFFFFFF),
+                                                border: Border.all(
+                                                    color: Color(0xFFD1D1D1)),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
                                               child: Text(
-                                                onlineSaleStartedItems.contains(itemId) ? '온라인 판매 진행중!' : '온라인 판매 시작',
-                                                style: TextStyle(color: Colors.black),
+                                                  '구매 희망자 수 : ${itemData['expect'] ?? 0}',
+                                                  textAlign: TextAlign.center),
+                                            ),
+                                            const SizedBox(height: 8.0),
+                                            Container(
+                                              width: double.infinity,
+                                              height: 38.0,
+                                              decoration: BoxDecoration(
+                                                color: onlineSaleStartedItems
+                                                        .contains(itemId)
+                                                    ? Colors.grey
+                                                    : const Color(0xFFFFDCBD),
+                                                border: Border.all(
+                                                    color: Color(0xFFD1D1D1)),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              child: TextButton(
+                                                onPressed:
+                                                    onlineSaleStartedItems
+                                                            .contains(itemId)
+                                                        ? null
+                                                        : () => showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (BuildContext
+                                                                      context) {
+                                                                return AlertDialog(
+                                                                  title: Text(
+                                                                      '온라인 판매 시작'),
+                                                                  content:
+                                                                      const Text(
+                                                                          '온라인 판매를 시작하시겠습니까?'),
+                                                                  actions: [
+                                                                    TextButton(
+                                                                      onPressed:
+                                                                          () {
+                                                                        Navigator.of(context)
+                                                                            .pop(); // 팝업 닫기
+                                                                      },
+                                                                      child: const Text(
+                                                                          '취소'),
+                                                                    ),
+                                                                    ElevatedButton(
+                                                                      onPressed: onlineSaleStartedItems
+                                                                              .contains(itemId)
+                                                                          ? null // 이미 클릭된 경우 비활성화
+                                                                          : () {
+                                                                              setState(() {
+                                                                                onlineSaleStartedItems.add(itemId); // 클릭 상태 저장
+                                                                              });
+                                                                              Navigator.of(context).pop(); // 팝업 닫기
+                                                                              _startOnlineSale(itemData); // 온라인 판매 시작
+                                                                            },
+                                                                      child:
+                                                                          Text(
+                                                                        onlineSaleStartedItems.contains(itemId)
+                                                                            ? '진행 중...'
+                                                                            : '확인',
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                );
+                                                              },
+                                                            ),
+                                                child: Text(
+                                                  onlineSaleStartedItems
+                                                          .contains(itemId)
+                                                      ? '온라인 판매 진행중!'
+                                                      : '온라인 판매 시작',
+                                                  style: TextStyle(
+                                                      color: Colors.black),
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                                          ],
+                                        ),
+                                    ],
+                                  ),
+                          ),
+                              ],
+                            ),
                           ),
                         ),
                       );
@@ -630,7 +711,8 @@ class _SellingState extends State<Selling> {
               borderRadius: BorderRadius.circular(16),
               color: const Color(0xFFFDBE85),
               child: InkWell(
-                borderRadius: BorderRadius.circular(16), // 클릭 효과가 모서리에 맞게 적용되도록 설정
+                borderRadius:
+                    BorderRadius.circular(16), // 클릭 효과가 모서리에 맞게 적용되도록 설정
                 onTap: () async {
                   // 결제 화면으로 이동
                   await Navigator.pushNamed(
@@ -656,13 +738,15 @@ class _SellingState extends State<Selling> {
                     // 텍스트를 중앙에 배치
                     Center(
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 10),
                         child: Column(
                           mainAxisSize: MainAxisSize.min, // Column 크기를 내용에 맞춤
                           children: [
                             Text(
                               '${numberFormat.format(totalPrice)}원',
-                              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                  fontSize: 22, fontWeight: FontWeight.bold),
                               textAlign: TextAlign.center,
                             ),
                             Text(
@@ -683,7 +767,8 @@ class _SellingState extends State<Selling> {
                         onPressed: () {
                           soldItems.forEach((itemId, soldQuantity) {
                             if (localStock.containsKey(itemId)) {
-                              localStock[itemId] = (localStock[itemId] ?? 0) + soldQuantity;
+                              localStock[itemId] =
+                                  (localStock[itemId] ?? 0) + soldQuantity;
                             }
 
                             if ((localStock[itemId] ?? 0) > 0) {
@@ -705,7 +790,6 @@ class _SellingState extends State<Selling> {
               ),
             ),
           ),
-
       ]),
     );
   }

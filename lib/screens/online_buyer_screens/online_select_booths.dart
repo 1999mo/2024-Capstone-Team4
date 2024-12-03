@@ -93,6 +93,7 @@ class _OnlineSelectBoothsState extends State<OnlineSelectBooths> {
                     crossAxisCount: 2,
                     crossAxisSpacing: 8,
                     mainAxisSpacing: 8,
+                    childAspectRatio: 0.9,
                   ),
                   itemCount: sellers.length,
                   itemBuilder: (context, index) {
@@ -162,6 +163,9 @@ class _OnlineSelectBoothsState extends State<OnlineSelectBooths> {
                                       Text(
                                         boothName,
                                         textAlign: TextAlign.center,
+                                        softWrap: false,
+                                        overflow:  TextOverflow.ellipsis,
+                                        maxLines: 1,
                                         style: const TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold,
@@ -172,6 +176,9 @@ class _OnlineSelectBoothsState extends State<OnlineSelectBooths> {
                                       Text(
                                         painterList,
                                         textAlign: TextAlign.center,
+                                        softWrap: true,
+                                        maxLines: 2,
+                                        overflow:  TextOverflow.ellipsis,
                                         style: const TextStyle(fontSize: 14),
                                       ),
                                     ],
