@@ -80,8 +80,8 @@ class _AddItemState extends State<AddItem> {
     if (uid == null || boothId == null) return;
 
     final itemsRef =
-        FirebaseFirestore.instance.collection('Users').doc(uid).collection('booths').doc(boothId).collection('items');
-
+    FirebaseFirestore.instance.collection('Users').doc(uid).collection('booths').doc(boothId).collection('items');
+    final itemPointerRef = FirebaseFirestore.instance.collection('Items').doc(boothId);
     final existingDoc = await itemsRef.doc(itemName).get();
 
     if (existingDoc.exists) {
@@ -90,6 +90,7 @@ class _AddItemState extends State<AddItem> {
       );
       return;
     }
+
     Navigator.pop(context);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('상품이 성공적으로 추가되었습니다.')),
@@ -98,7 +99,8 @@ class _AddItemState extends State<AddItem> {
     final imageUrl = await _uploadImage();
 
     // 이미지 업로드 결과와 관계없이 데이터 저장
-    await itemsRef.doc(itemName).set({
+    final newItemRef = itemsRef.doc(itemName); // 새로 추가되는 문서의 참조
+    await newItemRef.set({
       'itemName': itemName,
       'artist': selectedPainter,
       'costPrice': costPrice,
@@ -107,7 +109,22 @@ class _AddItemState extends State<AddItem> {
       'itemType': itemType,
       'imagePath': imageUrl, // 업로드 실패 시 빈 문자열 저장
     });
+
+    // itemPointerRef의 배열 업데이트
+    final docSnapshot = await itemPointerRef.get();
+    if (docSnapshot.exists) {
+      // uid 배열이 존재하는 경우, 참조 추가
+      await itemPointerRef.update({
+        uid: FieldValue.arrayUnion([newItemRef]), // uid 필드에 참조 경로 추가
+      });
+    } else {
+      // uid 배열이 존재하지 않는 경우, 필드 생성 후 참조 추가
+      await itemPointerRef.set({
+        uid: [newItemRef], // 새 배열 생성
+      });
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {

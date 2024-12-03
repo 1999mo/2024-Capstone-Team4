@@ -12,12 +12,16 @@ class BoothListScreen extends StatefulWidget {
 
 class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  String searchQuery = '';
+  String boothSearchQuery = '';
+  String characterSearchQuery = '';
   String? festivalName;
-  bool isLoading = false;
+  bool isLoadingCharacters = false;
+  bool hasMoreCharacters = true;
   List<DocumentSnapshot> characterResults = [];
-  bool hasMoreResults = true;
-  DocumentSnapshot? lastDocument;
+  DocumentSnapshot? lastCharacterDocument;
+  final _boothSearchController=TextEditingController();
+  final _characterSearchController=TextEditingController();
+  int visibleCharacterCount=10;
 
   @override
   void initState() {
@@ -34,56 +38,67 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
   @override
   void dispose() {
     _tabController.dispose();
+    _boothSearchController.dispose();
+    _characterSearchController.dispose();
     super.dispose();
   }
 
+  void _resetBoothSearch() {
+    _boothSearchController.clear();
+    setState(() {
+      boothSearchQuery = '';
+    });
+  }
+
+  // 검색어 초기화 함수
+  void _resetCharacterSearch() {
+    _characterSearchController.clear();
+    setState(() {
+      characterSearchQuery = '';
+      visibleCharacterCount = 10; // 초기화
+    });
+  }
+
+
+
   Future<void> _fetchCharacterResults() async {
-    if (!hasMoreResults || isLoading || festivalName == null) return;
+    if (!hasMoreCharacters || isLoadingCharacters || festivalName == null) return;
 
     setState(() {
-      isLoading = true;
+      isLoadingCharacters = true;
     });
 
     try {
       final query = FirebaseFirestore.instance
           .collectionGroup('items')
-          .where('itemName', isGreaterThanOrEqualTo: searchQuery.toLowerCase())
-          .where('itemName', isLessThan: '${searchQuery.toLowerCase()}z')
+          .where('itemName', isGreaterThanOrEqualTo: characterSearchQuery.toLowerCase())
+          .where('itemName', isLessThan: '${characterSearchQuery.toLowerCase()}z')
           .limit(10);
 
       QuerySnapshot snapshot;
-      if (lastDocument == null) {
+      if (lastCharacterDocument == null) {
         snapshot = await query.get();
       } else {
-        snapshot = await query.startAfterDocument(lastDocument!).get();
+        snapshot = await query.startAfterDocument(lastCharacterDocument!).get();
       }
 
       if (snapshot.docs.isEmpty) {
         setState(() {
-          hasMoreResults = false;
+          hasMoreCharacters = false;
         });
       } else {
         setState(() {
           characterResults.addAll(snapshot.docs);
-          lastDocument = snapshot.docs.last;
+          lastCharacterDocument = snapshot.docs.last;
         });
       }
     } catch (e) {
       debugPrint('Error fetching character results: $e');
     } finally {
       setState(() {
-        isLoading = false;
+        isLoadingCharacters = false;
       });
     }
-  }
-
-  void _searchCharacters() {
-    setState(() {
-      characterResults.clear();
-      lastDocument = null;
-      hasMoreResults = true;
-    });
-    _fetchCharacterResults();
   }
 
   @override
@@ -127,15 +142,22 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: TextField(
+            controller: _boothSearchController,
             onChanged: (value) {
               setState(() {
-                searchQuery = value.toLowerCase();
+                boothSearchQuery = value.toLowerCase();
               });
             },
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               hintText: '부스명 또는 작가명으로 검색',
-              prefixIcon: Icon(Icons.search),
-              border: OutlineInputBorder(),
+              prefixIcon: const Icon(Icons.search),
+              suffixIcon: boothSearchQuery.isNotEmpty
+                  ? IconButton(
+                icon: const Icon(Icons.clear),
+                onPressed: _resetBoothSearch,
+              )
+                  : null,
+              border: const OutlineInputBorder(),
             ),
           ),
         ),
@@ -172,21 +194,16 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
                         .map((painter) => painter.toString().toLowerCase())
                         .toList();
 
-                    // 검색 조건 확인: 검색어가 포함되지 않으면 제외
-                    if (searchQuery.isNotEmpty &&
-                        !boothName.contains(searchQuery) &&
-                        !painters.any((painter) => painter.contains(searchQuery))) {
+                    if (boothSearchQuery.isNotEmpty &&
+                        !boothName.contains(boothSearchQuery) &&
+                        !painters.any((painter) => painter.contains(boothSearchQuery))) {
                       return null;
                     }
 
-                    return {'sellerUid': sellerUid, 'data': data}; // 조건에 맞는 데이터만 반환
+                    return {'sellerUid': sellerUid, 'data': data};
                   }).toList(),
-                ).then(
-                      (results) => results
-                      .where((element) => element != null) // null 값 필터링
-                      .map((element) => element!) // null 값이 아님을 명시적으로 선언
-                      .toList(),
-                ),
+                ).then((results) =>
+                    results.where((element) => element != null).map((element) => element!).toList()),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -212,9 +229,6 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
                   );
                 },
               );
-
-
-
             },
           ),
         ),
@@ -268,7 +282,7 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
                   context,
                   '/buyer_screens/booth_items_list',
                   arguments: {
-                    'uid': sellerUid,
+                    'sellerUid': sellerUid,
                     'festivalName': festivalName,
                   },
                 );
@@ -281,12 +295,16 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
                     const SizedBox(height: 8),
                     Text(
                       boothName,
-                      style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 18),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
                     Text(
                       painters,
                       style: const TextStyle(color: Colors.grey),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -296,9 +314,7 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
         );
       },
     );
-
   }
-
 
   Widget _buildCharacterView() {
     if (festivalName == null) {
@@ -309,46 +325,87 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
 
     return Column(
       children: [
+        // 검색 텍스트 필드
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: TextField(
+            controller: _characterSearchController,
             onChanged: (value) {
-              searchQuery = value.toLowerCase();
+              setState(() {
+                characterSearchQuery = value.toLowerCase();
+                characterResults.clear();
+                lastCharacterDocument = null;
+                hasMoreCharacters = true;
+              });
+              _fetchCharacterResults();
             },
             decoration: InputDecoration(
               hintText: '캐릭터명으로 검색',
-              suffixIcon: IconButton(
-                icon: const Icon(Icons.search),
-                onPressed: _searchCharacters,
-              ),
+              prefixIcon: const Icon(Icons.search),
+              suffixIcon: characterSearchQuery.isNotEmpty
+                  ? IconButton(
+                icon: const Icon(Icons.clear),
+                onPressed: _resetCharacterSearch,
+              )
+                  : null,
+              border: const OutlineInputBorder(),
             ),
           ),
         ),
+        // 그리드뷰 표시
         Expanded(
-          child: characterResults.isEmpty
-              ? const Center(child: Text('나의 최애케를 검색해보세요!'))
-              : ListView.builder(
-            itemCount: characterResults.length + 1,
-            itemBuilder: (context, index) {
-              if (index == characterResults.length) {
-                if (isLoading) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-                return hasMoreResults
-                    ? ElevatedButton(
-                  onPressed: _fetchCharacterResults,
-                  child: const Text('더 보기'),
-                )
-                    : const Center(
-                  child: Text('더 이상 검색 결과가 없습니다.'),
-                );
+          child: FutureBuilder<List<Map<String, dynamic>>>(
+            future: _fetchItemsFromReferences(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if(snapshot.hasError) {
+                return const Center(child: Text('오류 발생'));
+              }
+              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Center(child: Text('상품이 없습니다.'));
               }
 
-              final item = characterResults[index].data()
-              as Map<String, dynamic>;
-              return _buildCharacterCard(item);
+              final items = snapshot.data!;
+
+              // 검색어 필터링
+              final filteredItems = items.where((item) {
+                final itemName = item['itemName']?.toString().toLowerCase() ?? '';
+                return characterSearchQuery.isEmpty || itemName.contains(characterSearchQuery);
+              }).toList();
+
+              // "더 보기"를 위해 보여줄 개수 제한
+              final displayedItems = filteredItems.take(visibleCharacterCount).toList();
+
+              return Column(
+                children: [
+                  Expanded(
+                    child: GridView.builder(
+                      padding: const EdgeInsets.all(8.0),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 8,
+                        mainAxisSpacing: 8,
+                      ),
+                      itemCount: displayedItems.length,
+                      itemBuilder: (context, index) {
+                        return _buildCharacterCard(displayedItems[index]);
+                      },
+                    ),
+                  ),
+                  // "더 보기" 버튼
+                  if (filteredItems.length > visibleCharacterCount)
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          visibleCharacterCount += 10; // 추가로 10개 더 보기
+                        });
+                      },
+                      child: const Text('더 보기'),
+                    ),
+                ],
+              );
             },
           ),
         ),
@@ -356,32 +413,69 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
     );
   }
 
+// 각 배열에서 참조된 문서의 데이터를 가져오는 함수
+  Future<List<Map<String, dynamic>>> _fetchItemsFromReferences() async {
+    try {
+      // 'Items' 컬렉션의 festivalName 문서 가져오기
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('Items')
+          .doc(festivalName)
+          .get();
+
+      if (!querySnapshot.exists) return [];
+
+      final data = querySnapshot.data() as Map<String, dynamic>;
+      List<Map<String, dynamic>> items = [];
+
+      for (var arrayKey in data.keys) {
+        print(arrayKey.toString());
+        // 배열 필드의 요소 가져오기
+        final references = data[arrayKey] as List<dynamic>? ?? [];
+        for (var referencePath in references) {
+          // 참조된 문서 데이터 가져오기
+          final referenceDoc = await referencePath.get();
+          if (referenceDoc.exists) {
+            items.add(referenceDoc.data() as Map<String, dynamic>);
+          }
+        }
+      }
+
+      return items;
+    } catch (e) {
+      debugPrint('Error fetching items: $e');
+      return [];
+    }
+  }
+
+
+// 캐릭터 카드 생성 함수
   Widget _buildCharacterCard(Map<String, dynamic> item) {
-    final stock = item['stockQuantity'] ?? 0;
     return Card(
       child: Column(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8.0),
-            child: Image.network(
-              item['imagePath'] ?? '',
-              errorBuilder: (context, error, stackTrace) =>
-                  Image.asset('assets/catcul_w.jpg'),
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8.0),
+              child: Image.network(
+                item['imagePath'] ?? '',
+                errorBuilder: (context, error, stackTrace) =>
+                    Image.asset('assets/catcul_w.jpg'), // 대체 이미지
+              ),
             ),
           ),
           const SizedBox(height: 8),
-          Text(item['itemName'] ?? '',
-          ),
-          const SizedBox(height: 4),
           Text(
-            '${item['sellingPrice']}원',
-          ),
-          Text(
-            stock > 0 ? '남은 수 $stock' : '품절',
-            style: TextStyle(color: stock > 0 ? Colors.black : Colors.red),
+            item['itemName'] ?? '',
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
     );
   }
+
+
+
 }

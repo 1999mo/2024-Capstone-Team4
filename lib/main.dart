@@ -61,7 +61,8 @@ class MyApp extends StatelessWidget {
         //buyer_screens 시작
         '/buyer_screens/buyer_navigation_screen':(context)=>const BuyerNavigationScreen(),
         '/buyer_screens/booth_items_list':(context)=>const BoothItemsList(),
-
+        '/buyer_screens/booth_item_screen':(context)=>const BoothItemScreen(),
+        
         //online_seller_screens 시작
         '/online_seller_screens/online_select_booth':(context)=>const OnlineSelectBooth(),
         '/online_seller_screens/my_online_items':(context)=>const MyOnlineItems(),
