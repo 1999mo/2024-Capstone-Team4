@@ -1,371 +1,294 @@
-import 'package:catculator/screens/buyer_screens/booth_item_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';
 
 class BoothItemsList extends StatefulWidget {
-  const BoothItemsList({Key? key}) : super(key: key);
+  const BoothItemsList({super.key});
 
   @override
-  _BoothItemsListState createState() => _BoothItemsListState();
+  State<BoothItemsList> createState() => _BoothItemsListState();
 }
 
 class _BoothItemsListState extends State<BoothItemsList> {
-  late final String uid;
-  late final String? festivalName;
+  late String sellerUid;
+  late String festivalName;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final arguments = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-    uid = arguments?['uid'] ?? '';
-    festivalName = arguments?['festivalName'];
+    final arguments = ModalRoute.of(context)?.settings.arguments as Map<String, String?>;
+    sellerUid = arguments['sellerUid'] ?? '';
+    festivalName = arguments['festivalName'] ?? '';
+  }
+
+  Future<String> _fetchBoothName() async {
+    final doc = await FirebaseFirestore.instance.collection('Users').doc(sellerUid).collection('booths').doc(festivalName).get();
+
+    return doc.data()?['boothName'] ?? 'Unknown Booth';
+  }
+
+  Future<String> _getImageUrl(String imagePath) async {
+    try {
+      // 이미 URL인지 확인
+      if (imagePath.startsWith('http') || imagePath.startsWith('https')) {
+        return imagePath;
+      }
+
+      // URL이 아니라면 Firebase Storage에서 가져오기
+      return await FirebaseStorage.instance.ref(imagePath).getDownloadURL();
+    } catch (e) {
+      // 에러 발생 시 로컬 이미지 경로 반환
+      return 'assets/catcul_w.jpg';
+    }
+  }
+
+  Future<bool> _isOnlineSelling(String itemId) async {
+    final docRef = FirebaseFirestore.instance.collection('OnlineStore').doc(festivalName).collection(sellerUid).doc(itemId);
+
+    final docSnapshot = await docRef.get();
+    return docSnapshot.exists;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        flexibleSpace: BoothAppBar(uid: uid, festivalName: festivalName),
+        title: FutureBuilder<String>(
+          future: _fetchBoothName(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator();
+            }
+            return Text(snapshot.data ?? 'Booth');
+          },
+        ),
       ),
-      body: BoothItemsListBody(uid: uid, festivalName: festivalName),
-    );
-  }
-}
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('Users')
+            .doc(sellerUid)
+            .collection('booths')
+            .doc(festivalName)
+            .collection('items')
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-class BoothAppBar extends StatefulWidget implements PreferredSizeWidget {
-  final String uid;
-  final String? festivalName;
+          if (snapshot.hasError || !snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(child: Text('No items available.'));
+          }
 
-  const BoothAppBar({
-    Key? key,
-    required this.uid,
-    required this.festivalName,
-  }) : super(key: key);
+          final items = snapshot.data!.docs;
 
-  @override
-  _BoothAppBarState createState() => _BoothAppBarState();
-
-  @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
-}
-
-class _BoothAppBarState extends State<BoothAppBar> {
-  late Future<Map<String, dynamic>> boothDetails;
-
-  Future<Map<String, dynamic>> fetchBoothDetails() async {
-    final doc = await FirebaseFirestore.instance
-        .collection('Users')
-        .doc(widget.uid)
-        .collection('booths')
-        .doc(widget.festivalName)
-        .get();
-
-    final data = doc.data() as Map<String, dynamic>? ?? {};
-    return {
-      'boothName': data['boothName'] ?? 'Unknown Booth',
-      'painters': List<String>.from(data['painters'] ?? []),
-      'location': data['location'] ?? 'Unknown Location',
-      'profileImage':
-          await FirebaseStorage.instance.ref('${widget.uid}/profile_image.jpg').getDownloadURL().catchError((_) => ''),
-    };
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    boothDetails = fetchBoothDetails();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<Map<String, dynamic>>(
-      future: boothDetails,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (snapshot.hasError || !snapshot.hasData) {
-          return const Center(child: Text('Error loading booth details.'));
-        }
-
-        final boothName = snapshot.data!['boothName'];
-        final location = snapshot.data!['location'];
-        final profileImage = snapshot.data!['profileImage'];
-
-        return AppBar(
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                boothName,
-                style: const TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: CircleAvatar(
-                radius: 20,
-                backgroundImage: profileImage.isNotEmpty
-                    ? NetworkImage(profileImage)
-                    : const AssetImage('assets/catcul_w.jpg') as ImageProvider,
-                onBackgroundImageError: (_, __) => const Icon(Icons.error),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text(
-                    '부스위치',
-                    style: TextStyle(
-                      fontSize: 14.0,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  Text(
-                    location,
-                    style: const TextStyle(
-                      fontSize: 14.0,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class BoothItemsListBody extends StatefulWidget {
-  final String uid;
-  final String? festivalName;
-
-  const BoothItemsListBody({
-    Key? key,
-    required this.uid,
-    required this.festivalName,
-  }) : super(key: key);
-
-  @override
-  _BoothItemsListBodyState createState() => _BoothItemsListBodyState();
-}
-
-class _BoothItemsListBodyState extends State<BoothItemsListBody> {
-  late Future<List<Map<String, dynamic>>> items;
-  final Map<String, bool> isExpectedMap = {};
-  final Map<String, int> expectCountMap = {};
-
-  Future<List<Map<String, dynamic>>> fetchItems() async {
-    final boothRef = FirebaseFirestore.instance
-        .collection('Users')
-        .doc(widget.uid)
-        .collection('booths')
-        .doc(widget.festivalName)
-        .collection('items');
-
-    final snapshot = await boothRef.get();
-    return snapshot.docs
-        .map((doc) => {
-              ...doc.data(),
-              'itemId': doc.id,
-            })
-        .toList();
-  }
-
-  String formatNumber(int number) {
-    return NumberFormat('#,###').format(number);
-  }
-
-  Future<bool> checkIfExpected(String itemId, String userId) async {
-    final docRef = FirebaseFirestore.instance
-        .collection('Users')
-        .doc(widget.uid)
-        .collection('booths')
-        .doc(widget.festivalName)
-        .collection('items')
-        .doc(itemId);
-
-    final docSnapshot = await docRef.get();
-    final clicks = docSnapshot.data()?['clicks'] as List<dynamic>?;
-
-    return clicks != null && clicks.contains(userId);
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    items = fetchItems();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<List<Map<String, dynamic>>>(
-      future: items,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (snapshot.hasError) {
-          return const Center(child: Text('Error loading items.'));
-        }
-
-        if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(child: Text('No items found.'));
-        }
-
-        final items = snapshot.data!;
-
-        return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: GridView.builder(
+          return GridView.builder(
+            padding: const EdgeInsets.all(8.0),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               crossAxisSpacing: 8.0,
               mainAxisSpacing: 8.0,
-              childAspectRatio: 0.6,
+              childAspectRatio: 0.7,
             ),
             itemCount: items.length,
             itemBuilder: (context, index) {
-              final item = items[index];
-              final itemId = item['itemId'];
-              final imagePath = item['imagePath'] ?? '';
-              final itemName = item['itemName'] ?? 'Unknown Item';
+              final item = items[index].data() as Map<String, dynamic>;
+              final itemId = items[index].id;
+              final itemName = item['itemName'] ?? 'Unknown';
               final sellingPrice = item['sellingPrice'] ?? 0;
-              final stockQuantity = item['stockQuantity'] ?? 0;
-              int expectCount = item['expect'] ?? -1;
-              final userId = FirebaseAuth.instance.currentUser!.uid;
+              int stockQuantity = item['stockQuantity'] ?? 0;
+              final imagePath = item['imagePath'] ?? '';
+              final expect = item['expect'];
+              final userId = FirebaseAuth.instance.currentUser?.uid;
 
               return FutureBuilder<bool>(
-                future: checkIfExpected(itemId, userId),
-                builder: (context, asyncSnapshot) {
-                  if (asyncSnapshot.connectionState == ConnectionState.waiting) {
-                    return const SizedBox.shrink();
-                  }
-
-                  final isExpected = asyncSnapshot.data ?? false;
-                  isExpectedMap[itemId] = isExpected;
-                  int count = expectCount;
+                future: _isOnlineSelling(itemId),
+                builder: (context, sellingSnapshot) {
+                  final isOnlineSelling = sellingSnapshot.data ?? false;
 
                   return GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => BoothItemScreen(
-                            uid: widget.uid,
-                            festivalName: widget.festivalName,
-                            itemName: itemName,
-                          ),
-                        ),
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return Dialog(
+                            insetPadding: const EdgeInsets.all(16.0),
+                            child: ListView(children: [
+                              Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  // X 버튼
+                                  Align(
+                                    alignment: Alignment.topRight,
+                                    child: IconButton(
+                                      icon: const Icon(Icons.close),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                  ),
+                                  // 이미지
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                      child: SizedBox(
+                                        width: double.infinity,
+                                        child: CachedNetworkImage(
+                                          imageUrl: item['imagePath'] ?? 'assets/catcul_w.jpg',
+                                          placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                                          errorWidget: (context, url, error) => Image.asset('assets/catcul_w.jpg', fit: BoxFit.contain),
+                                          fit: BoxFit.contain,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+                                  // 상품명
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      item['itemName'] ?? 'Unknown',
+                                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  // 상품타입
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                                    child: Text(
+                                      '상품 타입: ${item['itemType'] ?? 'Unknown'}',
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                  ),
+                                  // 작가명
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                                    child: Text(
+                                      '작가: ${item['artist'] ?? 'Unknown'}',
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                  ),
+                                  // 재고수
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                                    child: Text(
+                                      stockQuantity > 0 ? '재고 수: ${stockQuantity}' : '품절',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: stockQuantity > 0 ? Colors.black : Colors.red,
+                                      ),
+                                    ),
+                                  ),
+                                  Text('판매가: ${sellingPrice}'),
+                                  const SizedBox(height: 16),
+                                ],
+                              ),
+                            ]),
+                          );
+                        },
                       );
                     },
                     child: Card(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
-                        side: BorderSide(color: Color(0xFFD1D1D1), width: 1),
                       ),
-                      //elevation: 4.0,
-                      margin: const EdgeInsets.all(8.0),
                       child: Column(
                         children: [
                           Expanded(
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              imagePath,
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Image.asset(
-                                  'assets/catcul_w.jpg',
-                                  fit: BoxFit.cover,
-                                  // height: 120.0,
-                                  width: double.infinity,
-                                );
-                              },
+                            child: ClipRRect(
+                              borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                              child: FutureBuilder<String>(
+                                future: _getImageUrl(imagePath),
+                                builder: (context, imageSnapshot) {
+                                  if (imageSnapshot.connectionState == ConnectionState.waiting) {
+                                    return const Center(child: CircularProgressIndicator());
+                                  }
+                                  final imageUrl = imageSnapshot.data ?? 'assets/catcul_w.jpg';
+                                  return CachedNetworkImage(
+                                    imageUrl: imageUrl,
+                                    placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                                    errorWidget: (context, url, error) => Image.asset('assets/catcul_w.jpg'),
+                                    fit: BoxFit.cover,
+                                  );
+                                },
+                              ),
                             ),
                           ),
-                          ),
-
-                          const SizedBox(height: 6.0),
+                          const SizedBox(height: 8),
                           Text(
                             itemName,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16.0,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 6.0),
+                          const SizedBox(height: 4),
+                          Text('$sellingPrice원'),
+                          const SizedBox(height: 4),
                           Text(
-                            '가격: ${formatNumber(sellingPrice)}원',
-                            style: const TextStyle(color: Colors.grey, fontSize: 14.0),
+                            stockQuantity > 0 ? '수량: $stockQuantity' : '품절',
+                            style: TextStyle(color: stockQuantity > 0 ? Colors.black : Colors.red),
                           ),
-                          const SizedBox(height: 6.0),
-                          Text(
-                            stockQuantity > 0 ? '수량: ${formatNumber(stockQuantity)}' : '품절',
-                            style: TextStyle(
-                              color: stockQuantity > 0 ? Colors.grey : Colors.red,
-                              fontSize: 14.0,
-                            ),
-                          ),
-                          const SizedBox(height: 8.0),
-                          if (expectCount != -1)
-                            Column(
-                              children: [
-                                Text(
-                                  '구매 희망자 수 : $count',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: isExpected ? Colors.red[200] : Colors.green[200],
-                                  ),
-                                  onPressed: isExpected
-                                      ? null
-                                      : () async {
-                                          setState(() {
-                                            isExpectedMap[itemId] = true;
-                                            count++;
-                                          });
-                                          final docRef = FirebaseFirestore.instance
-                                              .collection('Users')
-                                              .doc(widget.uid)
-                                              .collection('booths')
-                                              .doc(widget.festivalName)
-                                              .collection('items')
-                                              .doc(itemId);
+                          const SizedBox(height: 8),
+                          if (isOnlineSelling)
+                            const Text(
+                              '현재 온라인 판매중!',
+                              style: TextStyle(color: Colors.green),
+                            )
+                          else if (stockQuantity == 0 && expect != null)
+                            FutureBuilder<DocumentSnapshot>(
+                              future: FirebaseFirestore.instance
+                                  .collection('Users')
+                                  .doc(sellerUid)
+                                  .collection('booths')
+                                  .doc(festivalName)
+                                  .collection('items')
+                                  .doc(itemId)
+                                  .get(),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return const Center(child: CircularProgressIndicator());
+                                }
+                                if (!snapshot.hasData) {
+                                  return const SizedBox.shrink();
+                                }
 
-                                          await docRef.update({
-                                            'clicks': FieldValue.arrayUnion([userId]),
-                                            'expect': FieldValue.increment(1),
-                                          });
-                                        },
-                                  child: Text(isExpected ? '신청 완료' : '구매 희망하기',
-                                  style: TextStyle(color: Colors.black),),
-                                ),
-                              ],
+                                final data = snapshot.data!.data() as Map<String, dynamic>? ?? {};
+                                final clicks = List<String>.from(data['clicks'] ?? []);
+
+                                final hasClicked = clicks.contains(userId);
+
+                                return Column(
+                                  children: [
+                                    Text('구매 희망자 수: $expect'),
+                                    ElevatedButton(
+                                      onPressed: hasClicked
+                                          ? null
+                                          : () async {
+                                              final docRef = FirebaseFirestore.instance
+                                                  .collection('Users')
+                                                  .doc(sellerUid)
+                                                  .collection('booths')
+                                                  .doc(festivalName)
+                                                  .collection('items')
+                                                  .doc(itemId);
+
+                                              await docRef.update({
+                                                'expect': FieldValue.increment(1),
+                                                'clicks': FieldValue.arrayUnion([userId]),
+                                              });
+                                            },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: hasClicked ? Colors.grey : Colors.blue,
+                                      ),
+                                      child: Text(
+                                        hasClicked ? '신청 완료' : '구매 희망하기',
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
                             ),
                         ],
                       ),
@@ -374,9 +297,9 @@ class _BoothItemsListBodyState extends State<BoothItemsListBody> {
                 },
               );
             },
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
