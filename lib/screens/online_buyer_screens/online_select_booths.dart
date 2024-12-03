@@ -165,7 +165,7 @@ class _OnlineSelectBoothsState extends State<OnlineSelectBooths> {
                                         textAlign: TextAlign.center,
                                         softWrap: false,
                                         overflow:  TextOverflow.ellipsis,
-                                        maxLines: 1,
+                                        maxLines: 2,
                                         style: const TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold,

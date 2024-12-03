@@ -220,6 +220,7 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
                       crossAxisCount: 2,
                       crossAxisSpacing: 8,
                       mainAxisSpacing: 8,
+                      childAspectRatio: 0.9,
                     ),
                     itemCount: filteredData.length,
                     itemBuilder: (context, index) {
@@ -295,6 +296,7 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
                     const SizedBox(height: 8),
                     Text(
                       boothName,
+                      textAlign: TextAlign.center,
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -302,6 +304,7 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
                     const SizedBox(height: 4),
                     Text(
                       painters,
+                      textAlign: TextAlign.center,
                       style: const TextStyle(color: Colors.grey),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -387,6 +390,7 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
                         crossAxisCount: 2,
                         crossAxisSpacing: 8,
                         mainAxisSpacing: 8,
+                        childAspectRatio: 0.9,
                       ),
                       itemCount: displayedItems.length,
                       itemBuilder: (context, index) {
@@ -451,12 +455,16 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
 // 캐릭터 카드 생성 함수
   Widget _buildCharacterCard(Map<String, dynamic> item) {
     return Card(
+      child: Padding(
+          padding: const EdgeInsets.all(8.0),
       child: Column(
         children: [
           Expanded(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8.0),
               child: Image.network(
+                width: double.infinity,
+                fit: BoxFit.cover,
                 item['imagePath'] ?? '',
                 errorBuilder: (context, error, stackTrace) =>
                     Image.asset('assets/catcul_w.jpg'), // 대체 이미지
@@ -473,6 +481,7 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
           ),
         ],
       ),
+    ),
     );
   }
 

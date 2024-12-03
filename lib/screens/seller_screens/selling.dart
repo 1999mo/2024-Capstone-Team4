@@ -552,8 +552,8 @@ class _SellingState extends State<Selling> {
                                                 child: const Text(
                                                   '품절',
                                                   style: TextStyle(
-                                                    color: Colors.red,
-                                                    fontSize: 24, // 글씨 크기
+                                                    color: Color(0xFFFFFFFF),
+                                                    fontSize: 20, // 글씨 크기
                                                     fontWeight: FontWeight.w500 ,
                                                   ),
                                                 ),
