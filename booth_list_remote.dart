@@ -22,7 +22,6 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
   final _boothSearchController=TextEditingController();
   final _characterSearchController=TextEditingController();
   int visibleCharacterCount=10;
-  final _scrollController=ScrollController();
 
   @override
   void initState() {
@@ -115,8 +114,8 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
               text: '부스별 보기',
             ),
             Tab(
-              icon: Icon(Icons.card_giftcard),
-              text: '상품별 보기',
+              icon: Icon(Icons.person),
+              text: '캐릭터별 보기',
             ),
           ],
         ),
@@ -163,11 +162,11 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
           ),
         ),
         Expanded(
-          child: FutureBuilder<DocumentSnapshot>(
-            future: FirebaseFirestore.instance
+          child: StreamBuilder<DocumentSnapshot>(
+            stream: FirebaseFirestore.instance
                 .collection('Festivals')
                 .doc(festivalName)
-                .get(),
+                .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
@@ -177,7 +176,6 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
               }
 
               final sellers = snapshot.data!['sellers'] as List<dynamic>;
-
               return FutureBuilder<List<Map<String, dynamic>>>(
                 future: Future.wait(
                   sellers.map((sellerUid) async {
@@ -191,23 +189,21 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
                     if (!doc.exists) return null;
 
                     final data = doc.data() as Map<String, dynamic>? ?? {};
-                    final boothName =
-                        data['boothName']?.toString().toLowerCase() ?? '';
+                    final boothName = data['boothName']?.toString().toLowerCase() ?? '';
                     final painters = (data['painters'] as List<dynamic>? ?? [])
                         .map((painter) => painter.toString().toLowerCase())
                         .toList();
 
                     if (boothSearchQuery.isNotEmpty &&
                         !boothName.contains(boothSearchQuery) &&
-                        !painters.any(
-                                (painter) => painter.contains(boothSearchQuery))) {
+                        !painters.any((painter) => painter.contains(boothSearchQuery))) {
                       return null;
                     }
 
                     return {'sellerUid': sellerUid, 'data': data};
                   }).toList(),
                 ).then((results) =>
-                    results.whereType<Map<String, dynamic>>().toList()), // 수정된 부분
+                    results.where((element) => element != null).map((element) => element!).toList()),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -224,11 +220,11 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
                       crossAxisCount: 2,
                       crossAxisSpacing: 8,
                       mainAxisSpacing: 8,
+                      childAspectRatio: 0.9,
                     ),
                     itemCount: filteredData.length,
                     itemBuilder: (context, index) {
-                      final sellerUid =
-                      filteredData[index]['sellerUid'] as String;
+                      final sellerUid = filteredData[index]['sellerUid'] as String;
                       return _buildBoothCard(sellerUid);
                     },
                   );
@@ -240,8 +236,6 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
       ],
     );
   }
-
-
 
   Widget _buildBoothCard(String sellerUid) {
     return FutureBuilder<DocumentSnapshot>(
@@ -391,47 +385,29 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
                 children: [
                   Expanded(
                     child: GridView.builder(
-                      controller: _scrollController,
                       padding: const EdgeInsets.all(8.0),
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
                         crossAxisSpacing: 8,
                         mainAxisSpacing: 8,
+                        childAspectRatio: 0.9,
                       ),
-                      itemCount: filteredItems.length > visibleCharacterCount
-                          ? visibleCharacterCount + 1 // "더 보기" 버튼 포함
-                          : filteredItems.length,
+                      itemCount: displayedItems.length,
                       itemBuilder: (context, index) {
-                        // "더 보기" 버튼
-                        if (index == visibleCharacterCount && filteredItems.length > visibleCharacterCount) {
-                          return Center(
-                            child: ElevatedButton(
-                              onPressed: () {
-                                final currentScrollPosition = _scrollController.offset; // 현재 스크롤 위치 저장
-
-                                setState(() {
-                                  visibleCharacterCount += 10; // 추가로 10개 더 보기
-                                });
-
-                                // 스크롤 위치 유지
-                                WidgetsBinding.instance.addPostFrameCallback((_) {
-                                  if (_scrollController.hasClients) {
-                                    _scrollController.jumpTo(currentScrollPosition);
-                                  }
-                                });
-                              },
-                              child: const Text('더 보기'),
-                            ),
-                          );
-                        }
-
-                        // 일반 캐릭터 카드
-                        final item = displayedItems[index];
-                        return _buildCharacterCard(item);
+                        return _buildCharacterCard(displayedItems[index]);
                       },
                     ),
                   ),
-
+                  // "더 보기" 버튼
+                  if (filteredItems.length > visibleCharacterCount)
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          visibleCharacterCount += 10; // 추가로 10개 더 보기
+                        });
+                      },
+                      child: const Text('더 보기'),
+                    ),
                 ],
               );
             },
@@ -441,7 +417,7 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
     );
   }
 
-  // 각 배열에서 참조된 문서의 데이터를 가져오는 함수
+// 각 배열에서 참조된 문서의 데이터를 가져오는 함수
   Future<List<Map<String, dynamic>>> _fetchItemsFromReferences() async {
     try {
       // 'Items' 컬렉션의 festivalName 문서 가져오기
@@ -456,15 +432,14 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
       List<Map<String, dynamic>> items = [];
 
       for (var arrayKey in data.keys) {
+        print(arrayKey.toString());
+        // 배열 필드의 요소 가져오기
         final references = data[arrayKey] as List<dynamic>? ?? [];
         for (var referencePath in references) {
           // 참조된 문서 데이터 가져오기
           final referenceDoc = await referencePath.get();
           if (referenceDoc.exists) {
-            items.add({
-              ...referenceDoc.data() as Map<String, dynamic>,
-              'sellerUid': arrayKey,
-            });
+            items.add(referenceDoc.data() as Map<String, dynamic>);
           }
         }
       }
@@ -477,156 +452,36 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
   }
 
 
-
 // 캐릭터 카드 생성 함수
   Widget _buildCharacterCard(Map<String, dynamic> item) {
-    return GestureDetector(
-      child: Card(
-        child: Padding(
+    return Card(
+      child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              Expanded(
-                child: ClipRRect(
-
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: Image.network(
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    item['imagePath'] ?? '',
-                    errorBuilder: (context, error, stackTrace) =>
-                        Image.asset('assets/catcul_w.jpg'), // 대체 이미지
-                  ),
-                ),
+      child: Column(
+        children: [
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8.0),
+              child: Image.network(
+                width: double.infinity,
+                fit: BoxFit.cover,
+                item['imagePath'] ?? '',
+                errorBuilder: (context, error, stackTrace) =>
+                    Image.asset('assets/catcul_w.jpg'), // 대체 이미지
               ),
-              const SizedBox(height: 8),
-              Text(
-                item['itemName'] ?? '',
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+            ),
           ),
-        ),
+          const SizedBox(height: 8),
+          Text(
+            item['itemName'] ?? '',
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
       ),
-      onTap: () async {
-        final ref = await FirebaseFirestore.instance
-            .collection('Users')
-            .doc(item['sellerUid'])
-            .collection('booths')
-            .doc(festivalName)
-            .get();
-
-        if (!ref.exists) {
-          return;
-        }
-
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return Dialog(
-              insetPadding: const EdgeInsets.all(16.0), // 양옆 마진
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // X 버튼
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () {
-                        Navigator.of(context).pop(); // 다이어로그 닫기
-                      },
-                    ),
-                  ),
-                  // 부스명과 위치
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          ref['boothName'] ?? '부스명 없음',
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          ref['location'] ?? '위치 정보 없음',
-                          style: const TextStyle(fontSize: 16, color: Colors.grey),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  // 사진
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8.0),
-                        child: Image.network(
-                          item['imagePath'] ?? '',
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Image.asset(
-                              'assets/catcul_w.jpg',
-                              fit: BoxFit.contain,
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  // 상품 종류
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(
-                      '상품 종류: ${item['itemType'] ?? '정보 없음'}',
-                      style: const TextStyle(fontSize: 18),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  // 상품명
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(
-                      item['itemName'] ?? '상품명 없음',
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  // 작가명
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(
-                      '작가명: ${item['artist'] ?? '정보 없음'}',
-                      style: const TextStyle(fontSize: 18),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  // 판매가
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(
-                      '판매가: ${item['sellingPrice'] ?? '가격 없음'}원',
-                      style: const TextStyle(fontSize: 18, color: Colors.green),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-              ),
-            );
-          },
-        );
-      },
+    ),
     );
   }
 

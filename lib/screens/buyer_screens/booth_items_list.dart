@@ -113,36 +113,51 @@ class _BoothItemsListState extends State<BoothItemsList> {
                       showDialog(
                         context: context,
                         builder: (context) {
-                          return Dialog(
-                            insetPadding: const EdgeInsets.all(16.0),
+                          return AlertDialog(
+                            title: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text('상품 정보'),
+                                IconButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                  icon: const Icon(Icons.close),
+                                ),
+                              ],
+                            ),
+                              content: SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.7,
+                          height: MediaQuery.of(context).size.height * 0.6,
+                            //insetPadding: const EdgeInsets.all(16.0),
                             child: ListView(children: [
                               Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  // X 버튼
-                                  Align(
-                                    alignment: Alignment.topRight,
-                                    child: IconButton(
-                                      icon: const Icon(Icons.close),
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                    ),
-                                  ),
                                   // 이미지
                                   Padding(
                                     padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius:
+                                        BorderRadius.circular(8),
+                                        border: Border.all(
+                                            color: Color(0xFFD1D1D1),
+                                            width: 1),
+                                      ),
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(8.0),
                                       child: SizedBox(
                                         width: double.infinity,
+                                        height: 250,
                                         child: CachedNetworkImage(
                                           imageUrl: item['imagePath'] ?? 'assets/catcul_w.jpg',
                                           placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-                                          errorWidget: (context, url, error) => Image.asset('assets/catcul_w.jpg', fit: BoxFit.contain),
-                                          fit: BoxFit.contain,
+                                          errorWidget: (context, url, error) => Container(width: double.infinity, child: Image.asset('assets/catcul_w.jpg', fit: BoxFit.cover)),
+                                          fit: BoxFit.cover,
                                         ),
                                       ),
+                                    ),
                                     ),
                                   ),
 
@@ -186,7 +201,9 @@ class _BoothItemsListState extends State<BoothItemsList> {
                                   const SizedBox(height: 16),
                                 ],
                               ),
-                            ]),
+                            ]
+                          ),
+                          ),
                           );
                         },
                       );
@@ -194,103 +211,137 @@ class _BoothItemsListState extends State<BoothItemsList> {
                     child: Card(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
+                        side: BorderSide(color: Color(0xFFD1D1D1), width: 1),
                       ),
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: ClipRRect(
-                              borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-                              child: FutureBuilder<String>(
-                                future: _getImageUrl(imagePath),
-                                builder: (context, imageSnapshot) {
-                                  if (imageSnapshot.connectionState == ConnectionState.waiting) {
-                                    return const Center(child: CircularProgressIndicator());
-                                  }
-                                  final imageUrl = imageSnapshot.data ?? 'assets/catcul_w.jpg';
-                                  return CachedNetworkImage(
-                                    imageUrl: imageUrl,
-                                    placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-                                    errorWidget: (context, url, error) => Image.asset('assets/catcul_w.jpg'),
-                                    fit: BoxFit.cover,
-                                  );
-                                },
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                          child: Column(
+                            children: [
+                              Expanded(
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Stack(
+                                    children: [
+                                      FutureBuilder<String>(
+                                        future: _getImageUrl(imagePath),
+                                        builder: (context, imageSnapshot) {
+                                          if (imageSnapshot.connectionState == ConnectionState.waiting) {
+                                            return const Center(child: CircularProgressIndicator());
+                                          }
+                                          final imageUrl = imageSnapshot.data ?? 'assets/catcul_w.jpg';
+                                          return Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                              BorderRadius.circular(8),
+                                              border: Border.all(
+                                                  color: Color(0xFFD1D1D1),
+                                                  width: 1),
+                                            ),
+                                          child: CachedNetworkImage(
+                                            imageUrl: imageUrl,
+                                            placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                                            errorWidget: (context, url, error) => Container(width: double.infinity, child: Image.asset('assets/catcul_w.jpg',fit: BoxFit.cover,)),
+                                            width: double.infinity,
+                                            height: 250,
+                                            fit: BoxFit.cover,
+                                          ),
+                                          );
+                                        },
+                                      ),
+                                      if (stockQuantity == 0)
+                                        Container(
+                                          color: Colors.black.withOpacity(0.5),
+                                          alignment: Alignment.center,
+                                          child: const Text(
+                                            '품절',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 20,
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
                               ),
-                            ),
+
+                              const SizedBox(height: 8),
+                              Text(
+                                itemName,
+                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 4),
+                              Text('$sellingPrice원'),
+                              const SizedBox(height: 4),
+                              Text(
+                                stockQuantity > 0 ? '수량: $stockQuantity' : '품절',
+                                style: TextStyle(color: stockQuantity > 0 ? Colors.black : Colors.red),
+                              ),
+                              const SizedBox(height: 8),
+                              if (isOnlineSelling)
+                                const Text(
+                                  '현재 온라인 판매중!',
+                                  style: TextStyle(color: Colors.green),
+                                )
+                              else if (stockQuantity == 0 && expect != null)
+                                FutureBuilder<DocumentSnapshot>(
+                                  future: FirebaseFirestore.instance
+                                      .collection('Users')
+                                      .doc(sellerUid)
+                                      .collection('booths')
+                                      .doc(festivalName)
+                                      .collection('items')
+                                      .doc(itemId)
+                                      .get(),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState == ConnectionState.waiting) {
+                                      return const Center(child: CircularProgressIndicator());
+                                    }
+                                    if (!snapshot.hasData) {
+                                      return const SizedBox.shrink();
+                                    }
+
+                                    final data = snapshot.data!.data() as Map<String, dynamic>? ?? {};
+                                    final clicks = List<String>.from(data['clicks'] ?? []);
+
+                                    final hasClicked = clicks.contains(userId);
+
+                                    return Column(
+                                      children: [
+                                        Text('구매 희망자 수: $expect'),
+                                        ElevatedButton(
+                                          onPressed: hasClicked
+                                              ? null
+                                              : () async {
+                                                  final docRef = FirebaseFirestore.instance
+                                                      .collection('Users')
+                                                      .doc(sellerUid)
+                                                      .collection('booths')
+                                                      .doc(festivalName)
+                                                      .collection('items')
+                                                      .doc(itemId);
+
+                                                  await docRef.update({
+                                                    'expect': FieldValue.increment(1),
+                                                    'clicks': FieldValue.arrayUnion([userId]),
+                                                  });
+                                                },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: hasClicked ? Colors.grey : Color(0xFFFDBE85),
+                                          ),
+                                          child: Text(
+                                            hasClicked ? '신청 완료' : '구매 희망하기',
+                                            style: TextStyle(color: Colors.black),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                            ],
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            itemName,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 4),
-                          Text('$sellingPrice원'),
-                          const SizedBox(height: 4),
-                          Text(
-                            stockQuantity > 0 ? '수량: $stockQuantity' : '품절',
-                            style: TextStyle(color: stockQuantity > 0 ? Colors.black : Colors.red),
-                          ),
-                          const SizedBox(height: 8),
-                          if (isOnlineSelling)
-                            const Text(
-                              '현재 온라인 판매중!',
-                              style: TextStyle(color: Colors.green),
-                            )
-                          else if (stockQuantity == 0 && expect != null)
-                            FutureBuilder<DocumentSnapshot>(
-                              future: FirebaseFirestore.instance
-                                  .collection('Users')
-                                  .doc(sellerUid)
-                                  .collection('booths')
-                                  .doc(festivalName)
-                                  .collection('items')
-                                  .doc(itemId)
-                                  .get(),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState == ConnectionState.waiting) {
-                                  return const Center(child: CircularProgressIndicator());
-                                }
-                                if (!snapshot.hasData) {
-                                  return const SizedBox.shrink();
-                                }
-
-                                final data = snapshot.data!.data() as Map<String, dynamic>? ?? {};
-                                final clicks = List<String>.from(data['clicks'] ?? []);
-
-                                final hasClicked = clicks.contains(userId);
-
-                                return Column(
-                                  children: [
-                                    Text('구매 희망자 수: $expect'),
-                                    ElevatedButton(
-                                      onPressed: hasClicked
-                                          ? null
-                                          : () async {
-                                              final docRef = FirebaseFirestore.instance
-                                                  .collection('Users')
-                                                  .doc(sellerUid)
-                                                  .collection('booths')
-                                                  .doc(festivalName)
-                                                  .collection('items')
-                                                  .doc(itemId);
-
-                                              await docRef.update({
-                                                'expect': FieldValue.increment(1),
-                                                'clicks': FieldValue.arrayUnion([userId]),
-                                              });
-                                            },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: hasClicked ? Colors.grey : Colors.blue,
-                                      ),
-                                      child: Text(
-                                        hasClicked ? '신청 완료' : '구매 희망하기',
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              },
-                            ),
-                        ],
                       ),
                     ),
                   );

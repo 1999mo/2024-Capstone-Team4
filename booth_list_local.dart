@@ -28,13 +28,15 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+
+    // festivalName 초기화
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        festivalName = ModalRoute.of(context)?.settings.arguments as String?;
+      });
+    });
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    festivalName = ModalRoute.of(context)?.settings.arguments as String?;
-  }
 
   @override
   void dispose() {
@@ -302,18 +304,18 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
                     const SizedBox(height: 8),
                     Text(
                       boothName,
-                      textAlign: TextAlign.center,
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 4),
                     Text(
                       painters,
-                      textAlign: TextAlign.center,
                       style: const TextStyle(color: Colors.grey),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),
@@ -468,7 +470,6 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
           }
         }
       }
-
       return items;
     } catch (e) {
       debugPrint('Error fetching items: $e');
@@ -482,33 +483,27 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
   Widget _buildCharacterCard(Map<String, dynamic> item) {
     return GestureDetector(
       child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              Expanded(
-                child: ClipRRect(
-
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: Image.network(
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    item['imagePath'] ?? '',
-                    errorBuilder: (context, error, stackTrace) =>
-                        Image.asset('assets/catcul_w.jpg'), // 대체 이미지
-                  ),
+        child: Column(
+          children: [
+            Expanded(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8.0),
+                child: Image.network(
+                  item['imagePath'] ?? '',
+                  errorBuilder: (context, error, stackTrace) =>
+                      Image.asset('assets/catcul_w.jpg'), // 대체 이미지
                 ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                item['itemName'] ?? '',
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              item['itemName'] ?? '',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
         ),
       ),
       onTap: () async {
@@ -629,7 +624,4 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
       },
     );
   }
-
-
-
 }
