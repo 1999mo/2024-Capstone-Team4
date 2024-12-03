@@ -1,290 +1,323 @@
-import 'package:catculator/screens/buyer_screens/booth_item_screen.dart';
-import 'package:catculator/screens/buyer_screens/preBooth_item_screen.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class PreboothItemsList extends StatelessWidget {
-  final String uid;
-  final String? festivalName;
+class PreboothItemsList extends StatefulWidget {
+  const PreboothItemsList({super.key});
 
-  const PreboothItemsList({
-    Key? key,
-    required this.uid,
-    required this.festivalName,
-  }) : super(key: key);
+  @override
+  State<PreboothItemsList> createState() => _PreboothItemsListState();
+}
 
+class _PreboothItemsListState extends State<PreboothItemsList> {
+  late String sellerUid;
+  late String festivalName;
+  String searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
 
-  Future<List<Map<String, dynamic>>> fetchItems() async {
-    final boothRef = FirebaseFirestore.instance
-        .collection('Users')
-        .doc(uid)
-        .collection('booths')
-        .doc(festivalName)
-        .collection('items');
-
-    final snapshot = await boothRef.get();
-
-    return snapshot.docs.map((doc) => doc.data()).toList();
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final arguments = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+    sellerUid = arguments['sellerUid']!;
+    festivalName = arguments['festivalName']!;
   }
 
-  Future<String> fetchImage() async {
-    final boothImage = await FirebaseStorage.instance
-        .ref('$uid/profile_image.jpg')
-        .getDownloadURL();
+  Future<List<Map<String, dynamic>>> _fetchItems() async {
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(sellerUid)
+          .collection('booths')
+          .doc(festivalName)
+          .collection('items')
+          .get();
 
-    return boothImage;
+      return querySnapshot.docs.map((doc) {
+        final data = doc.data();
+        return {
+          'id': doc.id,
+          ...data,
+        };
+      }).toList();
+    } catch (e) {
+      debugPrint('Error fetching items: $e');
+      return [];
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final boothInfo = FirebaseFirestore.instance
-        .collection('Users')
-        .doc(uid)
-        .collection('booths')
-        .doc(festivalName);
-
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
+        title: Text('$festivalName - Items'),
       ),
-      body: FutureBuilder<List<dynamic>>(
-        future: Future.wait([
-          boothInfo.get(),
-          fetchImage(),
-        ]),
-        builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (snapshot.hasError) {
-            return const Center(child: Text('Error loading booth details.'));
-          }
-
-          if (!snapshot.hasData || snapshot.data == null || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No booth details found.'));
-          }
-
-          if (!(snapshot.data![0] as DocumentSnapshot).exists) {
-            return const Center(child: Text('No booth details found.'));
-          }
-
-          // Fetching data from the document
-          final boothData = snapshot.data![0].data() as Map<String, dynamic>;
-          final boothLocation = boothData['location'] ?? 'Unknown Location';
-          final painters = List<String>.from(boothData['painters'] ?? []);
-          final boothImage = snapshot.data![1];
-
-          return Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  height: 100.0,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8.0), // Rounded corners
-                    border: Border.all(color: Colors.grey), // Optional border
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0), // Inner padding
-                    child: Stack(
-                      children: [
-                        // Top Left: Static Text '부스명'
-                        const Positioned(
-                          top: 0,
-                          left: 0,
-                          child: Text(
-                            '부스명',
-                            style: TextStyle(
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                        // Top Right: Booth Location
-                        Positioned(
-                          top: 0,
-                          right: 0,
-                          child: Text(
-                            '부스 위치: $boothLocation',
-                            style: const TextStyle(
-                              fontSize: 14.0,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ),
-                        // Bottom Left: Painters (List of Painters)
-                        Positioned(
-                          bottom: 0,
-                          left: 0,
-                          child: Text(
-                            '작가: ${painters.join(', ')}',
-                            // Join the list of painters with commas
-                            style: const TextStyle(
-                              fontSize: 14.0,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: boothImage.isNotEmpty
-                              ? Container(
-                            width: 50.0,
-                            height: 50.0,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              image: DecorationImage(
-                                image: NetworkImage(
-                                  boothImage,
-                                ),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          )
-                              : Container(
-                            width: 50.0,
-                            height: 50.0,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              image: DecorationImage(
-                                image: AssetImage('assets/catcul_w.jpg'),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+      body: Column(
+        children: [
+          // 검색 입력 필드
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _searchController,
+              onChanged: (value) {
+                setState(() {
+                  searchQuery = value.toLowerCase();
+                });
+              },
+              decoration: InputDecoration(
+                hintText: '상품명을 검색하세요',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: searchQuery.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          _searchController.clear();
+                          setState(() {
+                            searchQuery = '';
+                          });
+                        },
+                      )
+                    : null,
+                border: const OutlineInputBorder(),
               ),
-              // Booth Items List (Integrated directly here)
-              Expanded(
-                child: FutureBuilder<List<Map<String, dynamic>>>(
-                  future: fetchItems(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
+            ),
+          ),
+          Expanded(
+            child: FutureBuilder<List<Map<String, dynamic>>>(
+              future: _fetchItems(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(child: Text('등록된 상품이 없습니다.'));
+                }
 
-                    if (snapshot.hasError) {
-                      return const Center(child: Text('Error loading items.'));
-                    }
+                final items = snapshot.data!;
+                final filteredItems = items.where((item) {
+                  final itemName = (item['itemName'] ?? '').toLowerCase();
+                  return searchQuery.isEmpty || itemName.contains(searchQuery);
+                }).toList();
 
-                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Center(child: Text('No items found.'));
-                    }
-
-                    final items = snapshot.data!;
-
-                    return GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2, // Number of columns
-                        crossAxisSpacing: 8.0, // Space between columns
-                        mainAxisSpacing: 8.0, // Space between rows
-                        childAspectRatio: 2 / 3, // Adjust the ratio as needed
-                      ),
-                      itemCount: items.length,
-                      shrinkWrap: true, // Ensures that the gridview takes only as much space as it needs
-                      itemBuilder: (context, index) {
-                        final item = items[index];
-                        final imagePath = item['imagePath'] ?? ''; // Fetch image path
-                        final itemName = item['itemName'] ?? 'Unknown Item';
-                        final sellingPrice = item['sellingPrice'] ?? 'N/A';
-                        final stockQuantity = item['stockQuantity'] ?? 'N/A';
-
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => PreboothItemScreen(
-                                  uid: uid,
-                                  festivalName: festivalName,
-                                  itemName: itemName,
+                return GridView.builder(
+                  padding: const EdgeInsets.all(8.0),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2, // 한 줄에 2개씩 배치
+                    crossAxisSpacing: 8, // 카드 간의 가로 간격
+                    mainAxisSpacing: 8, // 카드 간의 세로 간격
+                  ),
+                  itemCount: filteredItems.length,
+                  itemBuilder: (context, index) {
+                    final item = filteredItems[index];
+                    return GestureDetector(
+                      onTap: () => _showItemDialog(context, item),
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: ClipRRect(
+                                borderRadius: const BorderRadius.vertical(top: Radius.circular(12.0)),
+                                child: Image.network(
+                                  item['imagePath'] ?? '',
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Image.asset('assets/catcul_w.jpg', fit: BoxFit.cover),
                                 ),
                               ),
-                            );
-                          },
-                          child: Card(
-                            elevation: 4.0,
-                            margin: const EdgeInsets.all(8.0),
-                            child: Padding(
+                            ),
+                            Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  imagePath.isNotEmpty
-                                      ? Image.network(
-                                    imagePath,
-                                    fit: BoxFit.cover,
-                                    height: 120.0, // Fixed height for the image
-                                    width: double.infinity,
-                                    errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
-                                      return Image.asset(
-                                        'assets/catcul_w.jpg',
-                                        fit: BoxFit.cover,
-                                        height: 120.0,
-                                        width: double.infinity,
-                                      );
-                                    },
-                                  )
-                                      : Image.asset(
-                                    'assets/catcul_w.jpg',
-                                    fit: BoxFit.cover,
-                                    height: 120.0,
-                                    width: double.infinity,
-                                  ),
-                                  const SizedBox(height: 8.0), // Space between image and text
-
-                                  // 상품명 (Item Name)
                                   Text(
-                                    itemName,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16.0,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis, // Ensure the text doesn't overflow
+                                    item['itemName'] ?? '',
+                                    style: const TextStyle(fontWeight: FontWeight.bold),
+                                    textAlign: TextAlign.center,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                  const SizedBox(height: 8.0), // Space between item name and price
-
-                                  // 가격 (Selling Price)
+                                  const SizedBox(height: 4),
                                   Text(
-                                    '가격: $sellingPrice',
-                                    style: const TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 14.0,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8.0), // Space between price and stock quantity
-
-                                  // 수량 (Stock Quantity)
-                                  Text(
-                                    '수량: $stockQuantity',
-                                    style: const TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 14.0,
-                                    ),
+                                    '${item['sellingPrice'] ?? 0}원',
+                                    style: const TextStyle(color: Colors.green),
                                   ),
                                 ],
                               ),
                             ),
-                          ),
-                        );
-                      },
+                          ],
+                        ),
+                      ),
                     );
                   },
-                ),
-              )
-            ],
-          );
-        },
+                );
+              },
+            ),
+          ),
+        ],
       ),
+    );
+  }
+
+  void _showItemDialog(BuildContext context, Map<String, dynamic> item) {
+    int quantity = 1;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          insetPadding: const EdgeInsets.all(16.0),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return Column(
+                  children: [
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ),
+                    Expanded(
+                      child: ListView(
+                        shrinkWrap: true,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(12.0),
+                            child: Image.network(
+                              item['imagePath'] ?? '',
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Image.asset('assets/catcul_w.jpg', fit: BoxFit.contain),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          // 상품명
+                          Text(
+                            item['itemName'] ?? '',
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 8),
+                          // 상품 타입
+                          Text(
+                            '상품 타입: ${item['itemType'] ?? '정보 없음'}',
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                          const SizedBox(height: 8),
+                          // 작가
+                          Text(
+                            '작가: ${item['artist'] ?? '정보 없음'}',
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                          const SizedBox(height: 8),
+                          // 판매가
+                          Text(
+                            '판매가: ${item['sellingPrice'] ?? 0}원',
+                            style: const TextStyle(fontSize: 16, color: Colors.green),
+                          ),
+                          const SizedBox(height: 16),
+                          // 수량 조절 버튼
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.remove),
+                                onPressed: quantity > 1
+                                    ? () {
+                                        setState(() {
+                                          quantity--;
+                                        });
+                                      }
+                                    : null,
+                              ),
+                              Text('$quantity', style: const TextStyle(fontSize: 18)),
+                              IconButton(
+                                icon: const Icon(Icons.add),
+                                onPressed: () {
+                                  setState(() {
+                                    quantity++;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          // 장바구니 담기 버튼
+                          ElevatedButton(
+                            onPressed: () async {
+                              try {
+                                // 현재 접속 중인 계정의 uid 가져오기
+                                final uid = FirebaseAuth.instance.currentUser?.uid;
+                                if (uid == null) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('로그인이 필요합니다.')),
+                                  );
+                                  return;
+                                }
+
+                                // Firebase Firestore reference 생성
+                                final basketRef = FirebaseFirestore.instance
+                                    .collection('Users')
+                                    .doc(uid)
+                                    .collection('basket')
+                                    .doc(festivalName);
+
+                                final documentSnapshot = await basketRef.get();
+
+                                // 현재 sellerUid에 해당하는 배열 가져오기
+                                Map<String, dynamic> basketData =
+                                    documentSnapshot.exists ? documentSnapshot.data() as Map<String, dynamic> : {};
+
+                                List<dynamic> sellerItems = basketData[sellerUid] ?? [];
+
+                                // 현재 문서 속성을 map으로 추가
+                                final itemData = {
+                                  'itemName': item['itemName'],
+                                  'itemType': item['itemType'],
+                                  'artist': item['artist'],
+                                  'sellingPrice': item['sellingPrice'],
+                                  'quantity': quantity,
+                                  'imagePath': item['imagePath'] ?? ''
+                                };
+
+                                sellerItems.add(itemData);
+
+                                // Firebase에 업데이트
+                                basketData[sellerUid] = sellerItems;
+                                await basketRef.set(basketData);
+
+                                // 장바구니 추가 완료 스낵바 표시
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('장바구니에 추가되었습니다.'), duration: Duration(seconds: 1)),
+                                );
+
+                                // 다이얼로그 닫기
+                                Navigator.of(context).pop();
+                              } catch (e) {
+                                // 오류 발생 시 스낵바로 알림
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('오류가 발생했습니다: $e')),
+                                );
+                              }
+                            },
+                            child: const Text('장바구니 담기'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 }

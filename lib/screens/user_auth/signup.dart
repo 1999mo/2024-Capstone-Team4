@@ -276,7 +276,52 @@ class _SignupState extends State<Signup> {
                       ),
                       child: TextButton(
                         onPressed: () async {
-                          // 회원가입 로직
+                          _formKey.currentState!.save();
+                          final authentication = FirebaseAuth.instance;
+                          try {
+                            if (password != confirmPassword) {
+                              setState(() {
+                                passwordSame = false;
+                              });
+                              return;
+                            } else {
+                              setState(() {
+                                passwordSame = true;
+                              });
+                            }
+
+                            if(emailDuplicate==true) return;
+                            if(emailAuth==false) return;
+
+                            final newUser = await authentication
+                                .createUserWithEmailAndPassword(
+                                email: email, password: password);
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('회원가입 완료'),
+                                  content: const Text('회원가입이 완료되었습니다!'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop(); // 팝업 닫기
+                                      },
+                                      child: const Text('확인'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                            Navigator.pop(context);
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('오류 : $e'),
+                                duration: const Duration(seconds: 2), // 표시 시간
+                              ),
+                            );
+                          }
                         },
                         child: const Text(
                           '완료',
