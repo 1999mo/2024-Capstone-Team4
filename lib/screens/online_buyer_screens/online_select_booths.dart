@@ -88,105 +88,87 @@ class _OnlineSelectBoothsState extends State<OnlineSelectBooths> {
                   return const Center(child: Text('등록된 판매자가 없습니다.'));
                 }
 
-                return GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 8,
-                    childAspectRatio: 0.9,
-                  ),
-                  itemCount: sellers.length,
-                  itemBuilder: (context, index) {
-                    final sellerUid = sellers[index] as String;
+                // 필터링된 데이터 생성
+                return FutureBuilder<List<Map<String, dynamic>>>(
+                  future: _getFilteredBoothData(sellers),
+                  builder: (context, boothSnapshot) {
+                    if (boothSnapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (!boothSnapshot.hasData || boothSnapshot.data!.isEmpty) {
+                      return const Center(child: Text('검색 결과가 없습니다.'));
+                    }
 
-                    return FutureBuilder<DocumentSnapshot>(
-                      future: FirebaseFirestore.instance
-                          .collection('Users')
-                          .doc(sellerUid)
-                          .collection('booths')
-                          .doc(festivalName)
-                          .get(),
-                      builder: (context, boothSnapshot) {
-                        if (boothSnapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(child: CircularProgressIndicator());
-                        }
-                        if (!boothSnapshot.hasData || !(boothSnapshot.data?.exists ?? false)) {
-                          return const SizedBox.shrink(); // 부스 정보가 없으면 표시하지 않음
-                        }
+                    final filteredBooths = boothSnapshot.data!;
+                    return GridView.builder(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 8,
+                        mainAxisSpacing: 8,
+                        childAspectRatio: 0.9,
+                      ),
+                      itemCount: filteredBooths.length,
+                      itemBuilder: (context, index) {
+                        final boothData = filteredBooths[index];
+                        final sellerUid = boothData['sellerUid'];
+                        final boothName = boothData['boothName'];
+                        final painterList = boothData['painters'];
+                        final imageUrl = boothData['imageUrl'];
 
-                        final boothData = boothSnapshot.data!.data() as Map<String, dynamic>;
-                        final String boothName = boothData['boothName'] ?? '이름 없음';
-                        final List<dynamic> painters = boothData['painters'] ?? [];
-                        final String painterList = painters.join(', ');
-
-                        // 검색 조건
-                        if (searchQuery.isNotEmpty &&
-                            !boothName.toLowerCase().contains(searchQuery) &&
-                            !painters.any((painter) => painter.toString().toLowerCase().contains(searchQuery))) {
-                          return const SizedBox.shrink();
-                        }
-
-                        return FutureBuilder<String?>(
-                          future: _getProfileImageUrl(sellerUid),
-                          builder: (context, imageSnapshot) {
-                            final imageUrl = imageSnapshot.data;
-
-                            return GestureDetector(
-                              onTap: () {
-                                Navigator.pushNamed(
-                                  context,
-                                  '/online_buyer_screens/online_look_booth_items',
-                                  arguments: {'sellerUid': sellerUid, 'festivalName': festivalName},
-                                );
-                              },
-                              child: Card(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  side: BorderSide(color: Color(0xFFD1D1D1), width: 1),
-                                ),
-                                elevation: 4,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      // 원형 이미지
-                                      CircleAvatar(
-                                        backgroundImage: imageUrl != null
-                                            ? NetworkImage(imageUrl)
-                                            : const AssetImage('assets/catcul_w.jpg') as ImageProvider,
-                                        radius: 50,
-                                        backgroundColor: Colors.grey[200],
-                                      ),
-                                      const SizedBox(height: 8),
-                                      // 부스 이름
-                                      Text(
-                                        boothName,
-                                        textAlign: TextAlign.center,
-                                        softWrap: false,
-                                        overflow:  TextOverflow.ellipsis,
-                                        maxLines: 2,
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      // 작가 목록
-                                      Text(
-                                        painterList,
-                                        textAlign: TextAlign.center,
-                                        softWrap: true,
-                                        maxLines: 2,
-                                        overflow:  TextOverflow.ellipsis,
-                                        style: const TextStyle(fontSize: 14),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.pushNamed(
+                              context,
+                              '/online_buyer_screens/online_look_booth_items',
+                              arguments: {'sellerUid': sellerUid, 'festivalName': festivalName},
                             );
                           },
+                          child: Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              side: BorderSide(color: const Color(0xFFD1D1D1), width: 1),
+                            ),
+                            elevation: 4,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  // 원형 이미지
+                                  CircleAvatar(
+                                    backgroundImage: imageUrl != null
+                                        ? NetworkImage(imageUrl)
+                                        : const AssetImage('assets/catcul_w.jpg') as ImageProvider,
+                                    radius: 50,
+                                    backgroundColor: Colors.grey[200],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  // 부스 이름
+                                  Text(
+                                    boothName,
+                                    textAlign: TextAlign.center,
+                                    softWrap: false,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 2,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  // 작가 목록
+                                  Text(
+                                    painterList,
+                                    textAlign: TextAlign.center,
+                                    softWrap: true,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(fontSize: 14),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         );
                       },
                     );
@@ -198,5 +180,44 @@ class _OnlineSelectBoothsState extends State<OnlineSelectBooths> {
         ],
       ),
     );
+  }
+
+  Future<List<Map<String, dynamic>>> _getFilteredBoothData(List<dynamic> sellers) async {
+    final List<Map<String, dynamic>> filteredBooths = [];
+
+    for (final sellerUid in sellers) {
+      final boothDoc = await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(sellerUid)
+          .collection('booths')
+          .doc(festivalName)
+          .get();
+
+      if (!boothDoc.exists) continue;
+
+      final boothData = boothDoc.data()!;
+      final String boothName = boothData['boothName'] ?? '이름 없음';
+      final List<dynamic> painters = boothData['painters'] ?? [];
+      final String painterList = painters.join(', ');
+
+      // 검색 조건 확인
+      if (searchQuery.isNotEmpty &&
+          !boothName.toLowerCase().contains(searchQuery) &&
+          !painters.any((painter) => painter.toString().toLowerCase().contains(searchQuery))) {
+        continue;
+      }
+
+      // 이미지 URL 가져오기
+      final imageUrl = await _getProfileImageUrl(sellerUid);
+
+      filteredBooths.add({
+        'sellerUid': sellerUid,
+        'boothName': boothName,
+        'painters': painterList,
+        'imageUrl': imageUrl,
+      });
+    }
+
+    return filteredBooths;
   }
 }

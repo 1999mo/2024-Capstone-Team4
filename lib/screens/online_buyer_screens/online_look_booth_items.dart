@@ -18,10 +18,10 @@ class _OnlineLookBoothItemsState extends State<OnlineLookBoothItems> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final args =
-        ModalRoute.of(context)?.settings.arguments as Map<String, String?>;
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
     if (args != null) {
-      festivalName = args['festivalName'];
-      sellerUid = args['sellerUid'];
+      festivalName = args['festivalName'] as String?;
+      sellerUid = args['sellerUid'] as String?;
     }
   }
 

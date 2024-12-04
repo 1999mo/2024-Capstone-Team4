@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class PreOrder extends StatefulWidget {
   const PreOrder({super.key});
@@ -121,18 +120,7 @@ class _PreOrderState extends State<PreOrder> {
     await _deleteOrder(orderId);
   }
 
-  void _navigateToQrScanner() async {
-    final qrResult = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const QrScannerScreen()),
-    );
-    if (qrResult != null && qrResult is String) {
-      setState(() {
-        _searchController.text = qrResult;
-        searchQuery = qrResult.toLowerCase();
-      });
-    }
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -143,7 +131,7 @@ class _PreOrderState extends State<PreOrder> {
         actions: [
           IconButton(
             icon: const Icon(Icons.qr_code_scanner),
-            onPressed: _navigateToQrScanner,
+            onPressed: null,
           ),
         ],
       ),
@@ -288,26 +276,3 @@ class _PreOrderState extends State<PreOrder> {
   }
 }
 
-class QrScannerScreen extends StatelessWidget {
-  const QrScannerScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('QR 코드 스캔'),
-      ),
-      body: QRView(
-        key: qrKey,
-        onQRViewCreated: (controller) {
-          controller.scannedDataStream.listen((scanData) {
-            controller.pauseCamera();
-            Navigator.pop(context, scanData.code);
-          });
-        },
-      ),
-    );
-  }
-}
