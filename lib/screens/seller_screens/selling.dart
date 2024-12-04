@@ -545,16 +545,26 @@ class _SellingState extends State<Selling> {
                                               width: double.infinity,
                                             ),
                                             if (stock == 0)
+                                              // Container(
+                                              //   color: Colors.black.withOpacity(0.6),
+                                              //   alignment: Alignment.center,
+                                              //   child: const Text(
+                                              //     'Sold Out',
+                                              //     style: TextStyle(
+                                              //       color: Color(0xFFF35050),
+                                              //       fontSize: 24, // 글씨 크기
+                                              //       fontWeight: FontWeight.w500 ,
+                                              //     ),
+                                              //   ),
+                                              // ),
                                               Container(
                                                 color: Colors.black.withOpacity(0.5),
                                                 alignment: Alignment.center,
-                                                child: const Text(
-                                                  '품절',
-                                                  style: TextStyle(
-                                                    color: Colors.red,
-                                                    fontSize: 24, // 글씨 크기
-                                                    fontWeight: FontWeight.w500 ,
-                                                  ),
+                                                child: Image.asset(
+                                                  'assets/sold-out.png',
+                                                  fit: BoxFit.contain,
+                                                  width: 65,
+                                                  height: 65,
                                                 ),
                                               ),
                                           ],

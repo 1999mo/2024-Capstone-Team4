@@ -244,14 +244,20 @@ class _BoothItemsListState extends State<BoothItemsList> {
                                       Container(
                                         color: Colors.black.withOpacity(0.5),
                                         alignment: Alignment.center,
-                                        child: const Text(
-                                          '',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 20,
-                                          ),
+                                        child: Image.asset(
+                                          'assets/sold-out.png',
+                                          fit: BoxFit.contain,
+                                          width: 65,
+                                          height: 65,
                                         ),
+                                        // child: const Text(
+                                        //   '',
+                                        //   style: TextStyle(
+                                        //     color: Colors.white,
+                                        //     fontWeight: FontWeight.w500,
+                                        //     fontSize: 20,
+                                        //   ),
+                                        // ),
                                       ),
                                   ],
                                 ),
