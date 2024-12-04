@@ -10,7 +10,8 @@ class BoothListScreen extends StatefulWidget {
   State<BoothListScreen> createState() => _BoothListScreenState();
 }
 
-class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProviderStateMixin {
+class _BoothListScreenState extends State<BoothListScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   String boothSearchQuery = '';
   String characterSearchQuery = '';
@@ -19,10 +20,10 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
   bool hasMoreCharacters = true;
   List<DocumentSnapshot> characterResults = [];
   DocumentSnapshot? lastCharacterDocument;
-  final _boothSearchController=TextEditingController();
-  final _characterSearchController=TextEditingController();
-  int visibleCharacterCount=10;
-  final _scrollController=ScrollController();
+  final _boothSearchController = TextEditingController();
+  final _characterSearchController = TextEditingController();
+  int visibleCharacterCount = 10;
+  final _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -60,10 +61,9 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
     });
   }
 
-
-
   Future<void> _fetchCharacterResults() async {
-    if (!hasMoreCharacters || isLoadingCharacters || festivalName == null) return;
+    if (!hasMoreCharacters || isLoadingCharacters || festivalName == null)
+      return;
 
     setState(() {
       isLoadingCharacters = true;
@@ -72,8 +72,10 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
     try {
       final query = FirebaseFirestore.instance
           .collectionGroup('items')
-          .where('itemName', isGreaterThanOrEqualTo: characterSearchQuery.toLowerCase())
-          .where('itemName', isLessThan: '${characterSearchQuery.toLowerCase()}z')
+          .where('itemName',
+              isGreaterThanOrEqualTo: characterSearchQuery.toLowerCase())
+          .where('itemName',
+              isLessThan: '${characterSearchQuery.toLowerCase()}z')
           .limit(10);
 
       QuerySnapshot snapshot;
@@ -154,9 +156,9 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
               prefixIcon: const Icon(Icons.search),
               suffixIcon: boothSearchQuery.isNotEmpty
                   ? IconButton(
-                icon: const Icon(Icons.clear),
-                onPressed: _resetBoothSearch,
-              )
+                      icon: const Icon(Icons.clear),
+                      onPressed: _resetBoothSearch,
+                    )
                   : null,
               border: const OutlineInputBorder(),
             ),
@@ -200,14 +202,15 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
                     if (boothSearchQuery.isNotEmpty &&
                         !boothName.contains(boothSearchQuery) &&
                         !painters.any(
-                                (painter) => painter.contains(boothSearchQuery))) {
+                            (painter) => painter.contains(boothSearchQuery))) {
                       return null;
                     }
 
                     return {'sellerUid': sellerUid, 'data': data};
                   }).toList(),
-                ).then((results) =>
-                    results.whereType<Map<String, dynamic>>().toList()), // 수정된 부분
+                ).then((results) => results
+                    .whereType<Map<String, dynamic>>()
+                    .toList()), // 수정된 부분
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -220,15 +223,17 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
 
                   return GridView.builder(
                     padding: const EdgeInsets.all(8.0),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       crossAxisSpacing: 8,
                       mainAxisSpacing: 8,
+                      childAspectRatio: 0.9,
                     ),
                     itemCount: filteredData.length,
                     itemBuilder: (context, index) {
                       final sellerUid =
-                      filteredData[index]['sellerUid'] as String;
+                          filteredData[index]['sellerUid'] as String;
                       return _buildBoothCard(sellerUid);
                     },
                   );
@@ -240,8 +245,6 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
       ],
     );
   }
-
-
 
   Widget _buildBoothCard(String sellerUid) {
     return FutureBuilder<DocumentSnapshot>(
@@ -268,18 +271,19 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
             Widget avatar;
             if (imageSnapshot.connectionState == ConnectionState.waiting) {
               avatar = const CircleAvatar(
-                radius: 40,
+                radius: 50,
                 child: CircularProgressIndicator(),
               );
             } else if (imageSnapshot.hasError || !imageSnapshot.hasData) {
               avatar = const CircleAvatar(
-                radius: 40,
+                radius: 50,
                 child: Icon(Icons.error),
               );
             } else {
               avatar = CircleAvatar(
-                radius: 40,
-                backgroundImage: CachedNetworkImageProvider(imageSnapshot.data!),
+                radius: 50,
+                backgroundImage:
+                    CachedNetworkImageProvider(imageSnapshot.data!),
               );
             }
 
@@ -295,6 +299,11 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
                 );
               },
               child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(color: const Color(0xFFD1D1D1), width: 1),
+                ),
+                elevation: 4,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -303,7 +312,8 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
                     Text(
                       boothName,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 18),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -332,6 +342,28 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
       );
     }
 
+    List<Map<String, dynamic>>? _cachedItems;
+
+    Future<List<Map<String, dynamic>>> _fetchItemsWithCache() async {
+      if (_cachedItems != null) {
+        return _cachedItems!;
+      }
+      _cachedItems = await _fetchItemsFromReferences();
+      return _cachedItems!;
+    }
+
+    Future<void> loadMoreItems() async {
+      setState(() {
+        visibleCharacterCount += 10; // 아이템 10개씩 더 보기
+      });
+    }
+
+    void resetVisibleItems() {
+      setState(() {
+        visibleCharacterCount = 10; // 초기 상태
+      });
+    }
+
     return Column(
       children: [
         // 검색 텍스트 필드
@@ -342,96 +374,101 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
             onChanged: (value) {
               setState(() {
                 characterSearchQuery = value.toLowerCase();
-                characterResults.clear();
-                lastCharacterDocument = null;
-                hasMoreCharacters = true;
+                _cachedItems = null; // 캐시 초기화
               });
-              _fetchCharacterResults();
             },
             decoration: InputDecoration(
               hintText: '캐릭터명으로 검색',
               prefixIcon: const Icon(Icons.search),
               suffixIcon: characterSearchQuery.isNotEmpty
                   ? IconButton(
-                icon: const Icon(Icons.clear),
-                onPressed: _resetCharacterSearch,
-              )
+                      icon: const Icon(Icons.clear),
+                      onPressed: _resetCharacterSearch,
+                    )
                   : null,
               border: const OutlineInputBorder(),
             ),
           ),
         ),
-        // 그리드뷰 표시
         Expanded(
           child: FutureBuilder<List<Map<String, dynamic>>>(
-            future: _fetchItemsFromReferences(),
+            future: _fetchItemsWithCache(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               }
-              if(snapshot.hasError) {
+              if (snapshot.hasError) {
                 return const Center(child: Text('오류 발생'));
               }
               if (!snapshot.hasData || snapshot.data!.isEmpty) {
                 return const Center(child: Text('상품이 없습니다.'));
               }
 
-              final items = snapshot.data!;
-
-              // 검색어 필터링
-              final filteredItems = items.where((item) {
-                final itemName = item['itemName']?.toString().toLowerCase() ?? '';
-                return characterSearchQuery.isEmpty || itemName.contains(characterSearchQuery);
-              }).toList();
-
-              // "더 보기"를 위해 보여줄 개수 제한
-              final displayedItems = filteredItems.take(visibleCharacterCount).toList();
+              final filteredItems = snapshot.data!
+                  .where((item) =>
+                      item['itemName']
+                          ?.toString()
+                          .toLowerCase()
+                          .contains(characterSearchQuery) ??
+                      false)
+                  .toList();
 
               return Column(
                 children: [
                   Expanded(
                     child: GridView.builder(
+                      key: const PageStorageKey('characterGridView'),
                       controller: _scrollController,
+                      physics: const ClampingScrollPhysics(),
                       padding: const EdgeInsets.all(8.0),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
                         crossAxisSpacing: 8,
                         mainAxisSpacing: 8,
                       ),
                       itemCount: filteredItems.length > visibleCharacterCount
-                          ? visibleCharacterCount + 1 // "더 보기" 버튼 포함
+                          ? visibleCharacterCount
                           : filteredItems.length,
                       itemBuilder: (context, index) {
-                        // "더 보기" 버튼
-                        if (index == visibleCharacterCount && filteredItems.length > visibleCharacterCount) {
-                          return Center(
-                            child: ElevatedButton(
-                              onPressed: () {
-                                final currentScrollPosition = _scrollController.offset; // 현재 스크롤 위치 저장
-
-                                setState(() {
-                                  visibleCharacterCount += 10; // 추가로 10개 더 보기
-                                });
-
-                                // 스크롤 위치 유지
-                                WidgetsBinding.instance.addPostFrameCallback((_) {
-                                  if (_scrollController.hasClients) {
-                                    _scrollController.jumpTo(currentScrollPosition);
-                                  }
-                                });
-                              },
-                              child: const Text('더 보기'),
-                            ),
-                          );
+                        if (index < filteredItems.length) {
+                          final item = filteredItems[index];
+                          return _buildCharacterCard(item);
                         }
-
-                        // 일반 캐릭터 카드
-                        final item = displayedItems[index];
-                        return _buildCharacterCard(item);
+                        return Container(); //버튼
                       },
                     ),
                   ),
-
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12.0),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFFDBE85),
+                      ),
+                      onPressed: filteredItems.length > visibleCharacterCount
+                          ? loadMoreItems
+                          : resetVisibleItems,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center, // 중앙 정렬
+                        children: [
+                          Text(
+                            filteredItems.length > visibleCharacterCount
+                                ? '더 보기'
+                                : '접기',
+                            style: const TextStyle(color: Colors.black),
+                          ),
+                          const SizedBox(width: 4),
+                          Icon(
+                            filteredItems.length > visibleCharacterCount
+                                ? Icons.expand_more
+                                : Icons.expand_less,
+                            color: Colors.black,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               );
             },
@@ -476,19 +513,20 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
     }
   }
 
-
-
 // 캐릭터 카드 생성 함수
   Widget _buildCharacterCard(Map<String, dynamic> item) {
     return GestureDetector(
       child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+          side: BorderSide(color: const Color(0xFFD1D1D1), width: 1),
+        ),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
               Expanded(
                 child: ClipRRect(
-
                   borderRadius: BorderRadius.circular(8.0),
                   child: Image.network(
                     width: double.infinity,
@@ -503,7 +541,8 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
               Text(
                 item['itemName'] ?? '',
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -526,102 +565,88 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
         showDialog(
           context: context,
           builder: (BuildContext context) {
-            return Dialog(
-              insetPadding: const EdgeInsets.all(16.0), // 양옆 마진
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+            return AlertDialog(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // X 버튼
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () {
-                        Navigator.of(context).pop(); // 다이어로그 닫기
-                      },
-                    ),
-                  ),
-                  // 부스명과 위치
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          ref['boothName'] ?? '부스명 없음',
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          ref['location'] ?? '위치 정보 없음',
-                          style: const TextStyle(fontSize: 16, color: Colors.grey),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  // 사진
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8.0),
-                        child: Image.network(
-                          item['imagePath'] ?? '',
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Image.asset(
-                              'assets/catcul_w.jpg',
-                              fit: BoxFit.contain,
-                            );
-                          },
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        ref['boothName'] ?? '부스명 없음',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ),
+                      const SizedBox(height: 4),
+                      Text(
+                        ref['location'] ?? '위치 정보 없음',
+                        style:
+                            const TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  // 상품 종류
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(
-                      '상품 종류: ${item['itemType'] ?? '정보 없음'}',
-                      style: const TextStyle(fontSize: 18),
-                    ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
                   ),
-                  const SizedBox(height: 8),
-                  // 상품명
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(
-                      item['itemName'] ?? '상품명 없음',
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  // 작가명
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(
-                      '작가명: ${item['artist'] ?? '정보 없음'}',
-                      style: const TextStyle(fontSize: 18),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  // 판매가
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(
-                      '판매가: ${item['sellingPrice'] ?? '가격 없음'}원',
-                      style: const TextStyle(fontSize: 18, color: Colors.green),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
                 ],
+              ),
+              content: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.7,
+                height: MediaQuery.of(context).size.height * 0.55,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          border:
+                              Border.all(color: Color(0xFFD1D1D1), width: 1),
+                        ),
+
+                        // 사진
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: Image.network(
+                            item['imagePath'] ?? '',
+                            width: double.infinity,
+                            height: 250,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Image.asset(
+                                'assets/catcul_w.jpg',
+                                width: double.infinity,
+                                height: 250,
+                                fit: BoxFit.cover,
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+
+
+                      const SizedBox(height: 20),
+                      Text(
+                        item['itemName'] ?? '상품명 없음',
+                        style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),textAlign: TextAlign.center,),
+                      const SizedBox(height: 8),
+                      Text(
+                          '작가: ${item['sellingPrice'] ?? '가격 없음'}원',
+                          style: TextStyle(fontSize: 18, color: Colors.grey, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 4),
+                      Text(
+                          '상품 종류: ${item['itemType'] ?? '정보 없음'}',
+                          style: TextStyle(fontSize: 18, color: Colors.grey, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 16),
+                      Text(
+                          '${item['sellingPrice'] ?? '가격 없음'}원',
+                          style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold, color: Colors.green)),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
+                ),
               ),
             );
           },
@@ -629,7 +654,4 @@ class _BoothListScreenState extends State<BoothListScreen> with SingleTickerProv
       },
     );
   }
-
-
-
 }

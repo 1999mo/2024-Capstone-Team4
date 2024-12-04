@@ -134,7 +134,7 @@ class _BoothItemsListState extends State<BoothItemsList> {
                             ),
                             content: SizedBox(
                               width: MediaQuery.of(context).size.width * 0.7,
-                              height: MediaQuery.of(context).size.height * 0.6,
+                              height: MediaQuery.of(context).size.height * 0.55,
                               //insetPadding: const EdgeInsets.all(16.0),
                               child: ListView(children: [
                                 Column(
@@ -167,43 +167,27 @@ class _BoothItemsListState extends State<BoothItemsList> {
                                       ),
                                     ),
 
-                                    // 상품명
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(
-                                        item['itemName'] ?? 'Unknown',
-                                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                    // 상품타입
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                                      child: Text(
-                                        '상품 타입: ${item['itemType'] ?? 'Unknown'}',
-                                        style: const TextStyle(fontSize: 16),
-                                      ),
-                                    ),
-                                    // 작가명
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                                      child: Text(
+                                    const SizedBox(height: 10),
+                                    Text(
+                                      item['itemName'] ?? 'Unknown',
+                                      style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),textAlign: TextAlign.center,),
+                                    const SizedBox(height: 8),
+                                    Text(
                                         '작가: ${item['artist'] ?? 'Unknown'}',
-                                        style: const TextStyle(fontSize: 16),
-                                      ),
+                                        style: TextStyle(fontSize: 18, color: Colors.grey, fontWeight: FontWeight.bold)),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                        '상품 종류: ${item['itemType'] ?? 'Unknown'}',
+                                        style: TextStyle(fontSize: 18, color: Colors.grey, fontWeight: FontWeight.bold)),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                        stockQuantity > 0 ? '재고: ${stockQuantity}' : '품절',
+                                        style: TextStyle(fontSize: 18,  color: stockQuantity > 0 ? Colors.grey : Colors.red, fontWeight: FontWeight.bold),
                                     ),
-                                    // 재고수
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                                      child: Text(
-                                        stockQuantity > 0 ? '재고 수: ${stockQuantity}' : '품절',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: stockQuantity > 0 ? Colors.black : Colors.red,
-                                        ),
-                                      ),
-                                    ),
-                                    Text('판매가: ${sellingPrice}'),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                        '${item['sellingPrice'] ?? 0}원',
+                                        style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold, color: Colors.green)),
                                     const SizedBox(height: 16),
                                   ],
                                 ),
@@ -261,7 +245,7 @@ class _BoothItemsListState extends State<BoothItemsList> {
                                         color: Colors.black.withOpacity(0.5),
                                         alignment: Alignment.center,
                                         child: const Text(
-                                          '품절',
+                                          '',
                                           style: TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.w500,
@@ -276,12 +260,12 @@ class _BoothItemsListState extends State<BoothItemsList> {
                             const SizedBox(height: 8),
                             Text(
                               itemName,
-                              style: const TextStyle(fontWeight: FontWeight.bold),
+                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                               textAlign: TextAlign.center,
                             ),
-                            const SizedBox(height: 4),
+                            // const SizedBox(height: 4),
                             Text('$sellingPrice원'),
-                            const SizedBox(height: 4),
+                            // const SizedBox(height: 4),
                             Text(
                               stockQuantity > 0 ? '수량: $stockQuantity' : '품절',
                               style: TextStyle(color: stockQuantity > 0 ? Colors.black : Colors.red),
@@ -290,7 +274,7 @@ class _BoothItemsListState extends State<BoothItemsList> {
                             if (isOnlineSelling)
                               const Text(
                                 '현재 온라인 판매중!',
-                                style: TextStyle(color: Colors.green),
+                                style: TextStyle(color: Colors.green, fontWeight: FontWeight.w600),
                               )
                             else if (stockQuantity == 0 && expect != null)
                               FutureBuilder<DocumentSnapshot>(

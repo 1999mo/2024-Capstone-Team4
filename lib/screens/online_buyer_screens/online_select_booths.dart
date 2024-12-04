@@ -150,10 +150,7 @@ class _OnlineSelectBoothsState extends State<OnlineSelectBooths> {
                                     softWrap: false,
                                     overflow: TextOverflow.ellipsis,
                                     maxLines: 2,
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                                   ),
                                   const SizedBox(height: 4),
                                   // 작가 목록
@@ -163,7 +160,7 @@ class _OnlineSelectBoothsState extends State<OnlineSelectBooths> {
                                     softWrap: true,
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(fontSize: 14),
+                                    style: const TextStyle(color: Colors.grey),
                                   ),
                                 ],
                               ),
