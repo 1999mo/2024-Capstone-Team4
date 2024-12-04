@@ -382,12 +382,7 @@ class _BuyerMainScreenState extends State<BuyerMainScreen> {
                       if (selection == '') {
                         //this is where nothing selected, such as cancel, or selecting nothing and continue;
                       } else {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => BuyerNavigationScreen(),
-                          ),
-                        );
+                        Navigator.pushNamed(context, '/buyer_screens/buyer_navigation_screen', arguments: selection);
                       }
                     },
                   ),

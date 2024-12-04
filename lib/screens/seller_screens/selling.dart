@@ -337,7 +337,6 @@ class _SellingState extends State<Selling> {
                     Expanded(
                       child: TextButton(
                         onPressed: () {
-                          // 사전구매 로직
                           Navigator.pushNamed(
                                   context, '/seller_screens/pre_order',
                                   arguments: boothId)

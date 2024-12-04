@@ -24,7 +24,12 @@ class _BoothItemsListState extends State<BoothItemsList> {
   }
 
   Future<String> _fetchBoothName() async {
-    final doc = await FirebaseFirestore.instance.collection('Users').doc(sellerUid).collection('booths').doc(festivalName).get();
+    final doc = await FirebaseFirestore.instance
+        .collection('Users')
+        .doc(sellerUid)
+        .collection('booths')
+        .doc(festivalName)
+        .get();
 
     return doc.data()?['boothName'] ?? 'Unknown Booth';
   }
@@ -45,7 +50,8 @@ class _BoothItemsListState extends State<BoothItemsList> {
   }
 
   Future<bool> _isOnlineSelling(String itemId) async {
-    final docRef = FirebaseFirestore.instance.collection('OnlineStore').doc(festivalName).collection(sellerUid).doc(itemId);
+    final docRef =
+        FirebaseFirestore.instance.collection('OnlineStore').doc(festivalName).collection(sellerUid).doc(itemId);
 
     final docSnapshot = await docRef.get();
     return docSnapshot.exists;
@@ -119,91 +125,90 @@ class _BoothItemsListState extends State<BoothItemsList> {
                               children: [
                                 const Text('상품 정보'),
                                 IconButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
                                   icon: const Icon(Icons.close),
                                 ),
                               ],
                             ),
-                              content: SizedBox(
+                            content: SizedBox(
                               width: MediaQuery.of(context).size.width * 0.7,
-                          height: MediaQuery.of(context).size.height * 0.6,
-                            //insetPadding: const EdgeInsets.all(16.0),
-                            child: ListView(children: [
-                              Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  // 이미지
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius:
-                                        BorderRadius.circular(8),
-                                        border: Border.all(
-                                            color: Color(0xFFD1D1D1),
-                                            width: 1),
-                                      ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(8.0),
-                                      child: SizedBox(
-                                        width: double.infinity,
-                                        height: 250,
-                                        child: CachedNetworkImage(
-                                          imageUrl: item['imagePath'] ?? 'assets/catcul_w.jpg',
-                                          placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-                                          errorWidget: (context, url, error) => Container(width: double.infinity, child: Image.asset('assets/catcul_w.jpg', fit: BoxFit.cover)),
-                                          fit: BoxFit.cover,
+                              height: MediaQuery.of(context).size.height * 0.6,
+                              //insetPadding: const EdgeInsets.all(16.0),
+                              child: ListView(children: [
+                                Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    // 이미지
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(8),
+                                          border: Border.all(color: Color(0xFFD1D1D1), width: 1),
+                                        ),
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(8.0),
+                                          child: SizedBox(
+                                            width: double.infinity,
+                                            height: 250,
+                                            child: CachedNetworkImage(
+                                              imageUrl: item['imagePath'] ?? 'assets/catcul_w.jpg',
+                                              placeholder: (context, url) =>
+                                                  const Center(child: CircularProgressIndicator()),
+                                              errorWidget: (context, url, error) => Container(
+                                                  width: double.infinity,
+                                                  child: Image.asset('assets/catcul_w.jpg', fit: BoxFit.cover)),
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
-                                    ),
-                                  ),
 
-                                  // 상품명
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                      item['itemName'] ?? 'Unknown',
-                                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                  // 상품타입
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                                    child: Text(
-                                      '상품 타입: ${item['itemType'] ?? 'Unknown'}',
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                  ),
-                                  // 작가명
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                                    child: Text(
-                                      '작가: ${item['artist'] ?? 'Unknown'}',
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                  ),
-                                  // 재고수
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                                    child: Text(
-                                      stockQuantity > 0 ? '재고 수: ${stockQuantity}' : '품절',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: stockQuantity > 0 ? Colors.black : Colors.red,
+                                    // 상품명
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(
+                                        item['itemName'] ?? 'Unknown',
+                                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                                        textAlign: TextAlign.center,
                                       ),
                                     ),
-                                  ),
-                                  Text('판매가: ${sellingPrice}'),
-                                  const SizedBox(height: 16),
-                                ],
-                              ),
-                            ]
-                          ),
-                          ),
+                                    // 상품타입
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                                      child: Text(
+                                        '상품 타입: ${item['itemType'] ?? 'Unknown'}',
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ),
+                                    // 작가명
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                                      child: Text(
+                                        '작가: ${item['artist'] ?? 'Unknown'}',
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ),
+                                    // 재고수
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                                      child: Text(
+                                        stockQuantity > 0 ? '재고 수: ${stockQuantity}' : '품절',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: stockQuantity > 0 ? Colors.black : Colors.red,
+                                        ),
+                                      ),
+                                    ),
+                                    Text('판매가: ${sellingPrice}'),
+                                    const SizedBox(height: 16),
+                                  ],
+                                ),
+                              ]),
+                            ),
                           );
                         },
                       );
@@ -215,133 +220,135 @@ class _BoothItemsListState extends State<BoothItemsList> {
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(8),
-                          child: Column(
-                            children: [
-                              Expanded(
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Stack(
-                                    children: [
-                                      FutureBuilder<String>(
-                                        future: _getImageUrl(imagePath),
-                                        builder: (context, imageSnapshot) {
-                                          if (imageSnapshot.connectionState == ConnectionState.waiting) {
-                                            return const Center(child: CircularProgressIndicator());
-                                          }
-                                          final imageUrl = imageSnapshot.data ?? 'assets/catcul_w.jpg';
-                                          return Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                              BorderRadius.circular(8),
-                                              border: Border.all(
-                                                  color: Color(0xFFD1D1D1),
-                                                  width: 1),
-                                            ),
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Stack(
+                                  children: [
+                                    FutureBuilder<String>(
+                                      future: _getImageUrl(imagePath),
+                                      builder: (context, imageSnapshot) {
+                                        if (imageSnapshot.connectionState == ConnectionState.waiting) {
+                                          return const Center(child: CircularProgressIndicator());
+                                        }
+                                        final imageUrl = imageSnapshot.data ?? 'assets/catcul_w.jpg';
+                                        return Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(8),
+                                            border: Border.all(color: Color(0xFFD1D1D1), width: 1),
+                                          ),
                                           child: CachedNetworkImage(
                                             imageUrl: imageUrl,
-                                            placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-                                            errorWidget: (context, url, error) => Container(width: double.infinity, child: Image.asset('assets/catcul_w.jpg',fit: BoxFit.cover,)),
+                                            placeholder: (context, url) =>
+                                                const Center(child: CircularProgressIndicator()),
+                                            errorWidget: (context, url, error) => Container(
+                                                width: double.infinity,
+                                                child: Image.asset(
+                                                  'assets/catcul_w.jpg',
+                                                  fit: BoxFit.cover,
+                                                )),
                                             width: double.infinity,
                                             height: 250,
                                             fit: BoxFit.cover,
                                           ),
-                                          );
-                                        },
+                                        );
+                                      },
+                                    ),
+                                    if (stockQuantity == 0)
+                                      Container(
+                                        color: Colors.black.withOpacity(0.5),
+                                        alignment: Alignment.center,
+                                        child: const Text(
+                                          '품절',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 20,
+                                          ),
+                                        ),
                                       ),
-                                      if (stockQuantity == 0)
-                                        Container(
-                                          color: Colors.black.withOpacity(0.5),
-                                          alignment: Alignment.center,
-                                          child: const Text(
-                                            '품절',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w500,
-                                              fontSize: 20,
-                                            ),
-                                          ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              itemName,
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 4),
+                            Text('$sellingPrice원'),
+                            const SizedBox(height: 4),
+                            Text(
+                              stockQuantity > 0 ? '수량: $stockQuantity' : '품절',
+                              style: TextStyle(color: stockQuantity > 0 ? Colors.black : Colors.red),
+                            ),
+                            const SizedBox(height: 8),
+                            if (isOnlineSelling)
+                              const Text(
+                                '현재 온라인 판매중!',
+                                style: TextStyle(color: Colors.green),
+                              )
+                            else if (stockQuantity == 0 && expect != null)
+                              FutureBuilder<DocumentSnapshot>(
+                                future: FirebaseFirestore.instance
+                                    .collection('Users')
+                                    .doc(sellerUid)
+                                    .collection('booths')
+                                    .doc(festivalName)
+                                    .collection('items')
+                                    .doc(itemId)
+                                    .get(),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState == ConnectionState.waiting) {
+                                    return const Center(child: CircularProgressIndicator());
+                                  }
+                                  if (!snapshot.hasData) {
+                                    return const SizedBox.shrink();
+                                  }
+
+                                  final data = snapshot.data!.data() as Map<String, dynamic>? ?? {};
+                                  final clicks = List<String>.from(data['clicks'] ?? []);
+
+                                  final hasClicked = clicks.contains(userId);
+
+                                  return Column(
+                                    children: [
+                                      Text('구매 희망자 수: $expect'),
+                                      ElevatedButton(
+                                        onPressed: hasClicked
+                                            ? null
+                                            : () async {
+                                                final docRef = FirebaseFirestore.instance
+                                                    .collection('Users')
+                                                    .doc(sellerUid)
+                                                    .collection('booths')
+                                                    .doc(festivalName)
+                                                    .collection('items')
+                                                    .doc(itemId);
+
+                                                await docRef.update({
+                                                  'expect': FieldValue.increment(1),
+                                                  'clicks': FieldValue.arrayUnion([userId]),
+                                                });
+                                              },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: hasClicked ? Colors.grey : Color(0xFFFDBE85),
                                         ),
+                                        child: Text(
+                                          hasClicked ? '신청 완료' : '구매 희망하기',
+                                          style: TextStyle(color: Colors.black),
+                                        ),
+                                      ),
                                     ],
-                                  ),
-                                ),
+                                  );
+                                },
                               ),
-
-                              const SizedBox(height: 8),
-                              Text(
-                                itemName,
-                                style: const TextStyle(fontWeight: FontWeight.bold),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 4),
-                              Text('$sellingPrice원'),
-                              const SizedBox(height: 4),
-                              Text(
-                                stockQuantity > 0 ? '수량: $stockQuantity' : '품절',
-                                style: TextStyle(color: stockQuantity > 0 ? Colors.black : Colors.red),
-                              ),
-                              const SizedBox(height: 8),
-                              if (isOnlineSelling)
-                                const Text(
-                                  '현재 온라인 판매중!',
-                                  style: TextStyle(color: Colors.green),
-                                )
-                              else if (stockQuantity == 0 && expect != null)
-                                FutureBuilder<DocumentSnapshot>(
-                                  future: FirebaseFirestore.instance
-                                      .collection('Users')
-                                      .doc(sellerUid)
-                                      .collection('booths')
-                                      .doc(festivalName)
-                                      .collection('items')
-                                      .doc(itemId)
-                                      .get(),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.connectionState == ConnectionState.waiting) {
-                                      return const Center(child: CircularProgressIndicator());
-                                    }
-                                    if (!snapshot.hasData) {
-                                      return const SizedBox.shrink();
-                                    }
-
-                                    final data = snapshot.data!.data() as Map<String, dynamic>? ?? {};
-                                    final clicks = List<String>.from(data['clicks'] ?? []);
-
-                                    final hasClicked = clicks.contains(userId);
-
-                                    return Column(
-                                      children: [
-                                        Text('구매 희망자 수: $expect'),
-                                        ElevatedButton(
-                                          onPressed: hasClicked
-                                              ? null
-                                              : () async {
-                                                  final docRef = FirebaseFirestore.instance
-                                                      .collection('Users')
-                                                      .doc(sellerUid)
-                                                      .collection('booths')
-                                                      .doc(festivalName)
-                                                      .collection('items')
-                                                      .doc(itemId);
-
-                                                  await docRef.update({
-                                                    'expect': FieldValue.increment(1),
-                                                    'clicks': FieldValue.arrayUnion([userId]),
-                                                  });
-                                                },
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: hasClicked ? Colors.grey : Color(0xFFFDBE85),
-                                          ),
-                                          child: Text(
-                                            hasClicked ? '신청 완료' : '구매 희망하기',
-                                            style: TextStyle(color: Colors.black),
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                ),
-                            ],
-                          ),
+                          ],
+                        ),
                       ),
                     ),
                   );

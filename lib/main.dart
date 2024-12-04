@@ -65,6 +65,7 @@ class MyApp extends StatelessWidget {
         '/buyer_screens/preBooth_list_screen':(context)=>const PreboothListScreen(),
         '/buyer_screens/preBooth_item_list':(context)=>const PreboothItemsList(),
         '/buyer_screens/bag_list_screen':(context)=>const BagListScreen(),
+        '/buyer_screens/order_list':(context)=>const OrderList(),
 
 
         //online_seller_screens 시작
