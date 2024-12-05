@@ -633,17 +633,16 @@ class _BoothListScreenState extends State<BoothListScreen>
                         style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),textAlign: TextAlign.center,),
                       const SizedBox(height: 8),
                       Text(
-                          '작가: ${item['sellingPrice'] ?? '가격 없음'}원',
+                          '작가: ${item['artist'] ?? '정보 없음'}',
                           style: TextStyle(fontSize: 18, color: Colors.grey, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 4),
                       Text(
                           '상품 종류: ${item['itemType'] ?? '정보 없음'}',
                           style: TextStyle(fontSize: 18, color: Colors.grey, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 25),
                       Text(
                           '${item['sellingPrice'] ?? '가격 없음'}원',
                           style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold, color: Colors.green)),
-                      const SizedBox(height: 16),
                     ],
                   ),
                 ),

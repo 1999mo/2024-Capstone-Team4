@@ -432,7 +432,7 @@ class _BuyerMainScreenState extends State<BuyerMainScreen> {
           onPressed: () {
             Navigator.pushNamed(context, '/main_screens/setting');
           },
-          child: const Icon(Icons.settings),
+          child: const Icon(Icons.settings, color: Colors.black,),
         ));
   }
 }

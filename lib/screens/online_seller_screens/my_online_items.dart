@@ -230,19 +230,24 @@ class _MyOnlineItemsState extends State<MyOnlineItems> {
                                           Row(
                                             children: [
                                               Container(
-                                                  width: 80,
+                                                width: 80,
                                                   child: const Text('상품명',
                                                       style: TextStyle(
                                                           color: Colors.grey,
                                                           fontSize: 16,
                                                           fontWeight: FontWeight
                                                               .w600))),
-                                              Text(
-                                                  '${itemData['itemName'] ?? 'N/A'}',
-                                                  style: TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.w600)),
+                                              Flexible(
+                                                child: Text(
+                                                    '${itemData['itemName'] ?? 'N/A'}',
+                                                    softWrap: true,
+                                                    overflow: TextOverflow.ellipsis,
+                                                    maxLines: 2,
+                                                    style: TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.w600)),
+                                              ),
                                             ],
                                           ),
                                           const SizedBox(height: 4),
@@ -256,12 +261,17 @@ class _MyOnlineItemsState extends State<MyOnlineItems> {
                                                           fontSize: 16,
                                                           fontWeight: FontWeight
                                                               .w600))),
-                                              Text(
-                                                  '${itemData['artist'] ?? 'N/A'}',
-                                                  style: TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.w600)),
+                                              Flexible(
+                                                child: Text(
+                                                    '${itemData['artist'] ?? 'N/A'}',
+                                                    softWrap: true,
+                                                    overflow: TextOverflow.ellipsis,
+                                                    maxLines: 2,
+                                                    style: TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.w600)),
+                                              ),
                                             ],
                                           ),
                                           const SizedBox(height: 4),
@@ -495,7 +505,7 @@ class _MyOnlineItemsState extends State<MyOnlineItems> {
           Navigator.pushNamed(context, '/online_seller_screens/online_item_add',
               arguments: boothId);
         },
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add, color: Colors.black,),
       ),
     );
   }

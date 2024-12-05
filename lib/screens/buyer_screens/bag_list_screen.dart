@@ -327,7 +327,7 @@ class _BagListScreenState extends State<BagListScreen> {
                                               border: Border.all(
                                                   color: Color(0xFFD1D1D1)),
                                               shape: BoxShape.circle,
-                                              color: item['quantity'] == 0
+                                              color: item['quantity'] == 1
                                                   ? Color(0x91D1D1D1)
                                                   : null,
                                             ),
