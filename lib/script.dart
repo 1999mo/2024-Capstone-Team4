@@ -7,7 +7,7 @@ import 'dart:math';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
 import 'package:flutter/material.dart';
-import 'package:uni_links/uni_links.dart';
+import 'package:uni_links5/uni_links.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 

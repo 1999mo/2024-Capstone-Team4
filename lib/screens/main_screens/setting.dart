@@ -99,6 +99,8 @@ class _SettingState extends State<Setting> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError || !snapshot.hasData) {
+            FirebaseAuth.instance.signOut();
+            Navigator.pushReplacementNamed(context, '/splash');
             return Center(child: Text('사용자 데이터를 가져올 수 없습니다: ${snapshot.error}'));
           }
 
@@ -111,8 +113,7 @@ class _SettingState extends State<Setting> {
             children: [
               Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Column(
                   children: [
                     Row(
                       children: [
@@ -170,7 +171,7 @@ class _SettingState extends State<Setting> {
                     ),
                     ElevatedButton(
                       onPressed: _updateProfileImage, // 새 이미지 저장
-                      child: const Text('저장', style: TextStyle(color: Colors.black),),
+                      child: const Text('변경사항 저장', style: TextStyle(color: Colors.black),),
                     ),
                   ],
                 ),
@@ -189,6 +190,7 @@ class _SettingState extends State<Setting> {
                       child: TextButton(
                         onPressed: () {
                           FirebaseAuth.instance.signOut();
+                          Navigator.pop(context);
                           Navigator.pushReplacementNamed(context, '/splash');
                         },
                         child: const Row(
@@ -220,6 +222,7 @@ class _SettingState extends State<Setting> {
                   ],
                 ),
               ),
+
             ],
           );
         },

@@ -17,6 +17,9 @@ class _SignupState extends State<Signup> {
 
   bool? emailDuplicate;
   bool? passwordSame;
+  bool authProgress = false;
+  bool checkProgress=false;
+  bool confirmProgress=false;
 
   String email = '';
   String emailAuthCorrect = '';
@@ -25,6 +28,13 @@ class _SignupState extends State<Signup> {
   String confirmPassword = '';
 
   Scripts script = Scripts();
+
+  bool isEmailValid(String email) {
+    final emailRegex = RegExp(
+      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
+    );
+    return emailRegex.hasMatch(email);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,16 +85,27 @@ class _SignupState extends State<Signup> {
                     ),
                     child: TextButton(
                       onPressed: () async {
+                        setState(() {
+                          authProgress = true;
+                        });
                         _formKey.currentState!.save();
+                        if (!isEmailValid(email.trim())) {
+                          setState(() {
+                            emailDuplicate = true;
+                          });
+                          authProgress = false;
+                          return;
+                        }
                         bool check = await script.checkEmailDuplicate(email);
                         if (check) {
                           setState(() {
                             emailDuplicate = true;
                           });
+                          authProgress = false;
                           return;
                         }
-                        emailAuthCorrect =
-                        await script.sendEmailVerification(email);
+
+                        emailAuthCorrect = await script.sendEmailVerification(email);
                         setState(() {
                           emailDuplicate = false;
                         });
@@ -105,11 +126,16 @@ class _SignupState extends State<Signup> {
                             );
                           },
                         );
+                        setState(() {
+                          authProgress = false;
+                        });
                       },
-                      child: const Text(
-                        '인증하기',
-                        style: TextStyle(fontSize: 14, color: Colors.black),
-                      ),
+                      child: authProgress
+                          ? const CircularProgressIndicator()
+                          : const Text(
+                              '인증하기',
+                              style: TextStyle(fontSize: 14, color: Colors.black),
+                            ),
                     ),
                   ),
                 ],
@@ -122,12 +148,13 @@ class _SignupState extends State<Signup> {
                     style: TextStyle(color: Colors.green),
                   ),
                 ),
-              if (emailDuplicate == true || email.trim().isEmpty)
+              if (emailDuplicate == true)
                 const Padding(
                   padding: EdgeInsets.only(bottom: 16),
                   child: Text(
-                    '유효하지 않거나 이미 가입된 이메일 주소입니다.',
+                    '이메일 형식이 유효하지 않거나 이미 가입된 이메일 주소입니다.',
                     style: TextStyle(color: Colors.red),
+                    maxLines: 2,
                   ),
                 ),
 
@@ -165,15 +192,21 @@ class _SignupState extends State<Signup> {
                     ),
                     child: TextButton(
                       onPressed: () {
+                        setState(() {
+                          checkProgress = true;
+                        });
                         _formKey.currentState!.save();
                         setState(() {
                           emailAuth = (emailAuthCorrect == emailAuthNum);
+                          checkProgress = false;
                         });
                       },
-                      child: const Text(
-                        '인증 확인',
-                        style: TextStyle(fontSize: 14, color: Colors.black),
-                      ),
+                      child: checkProgress
+                          ? const CircularProgressIndicator()
+                          : const Text(
+                              '인증 확인',
+                              style: TextStyle(fontSize: 14, color: Colors.black),
+                            ),
                     ),
                   ),
                 ],
@@ -249,7 +282,6 @@ class _SignupState extends State<Signup> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
@@ -267,7 +299,9 @@ class _SignupState extends State<Signup> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 10,),
+                  SizedBox(
+                    width: 10,
+                  ),
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
@@ -276,6 +310,9 @@ class _SignupState extends State<Signup> {
                       ),
                       child: TextButton(
                         onPressed: () async {
+                          setState(() {
+                            confirmProgress = true;
+                          });
                           _formKey.currentState!.save();
                           final authentication = FirebaseAuth.instance;
                           try {
@@ -290,12 +327,10 @@ class _SignupState extends State<Signup> {
                               });
                             }
 
-                            if(emailDuplicate==true) return;
-                            if(emailAuth==false) return;
+                            if (emailDuplicate == true) return;
+                            if (emailAuth == false) return;
+                            Navigator.of(context).pop();
 
-                            final newUser = await authentication
-                                .createUserWithEmailAndPassword(
-                                email: email, password: password);
                             showDialog(
                               context: context,
                               builder: (BuildContext context) {
@@ -313,20 +348,27 @@ class _SignupState extends State<Signup> {
                                 );
                               },
                             );
-                            Navigator.pop(context);
+
+                            final newUser =
+                            await authentication.createUserWithEmailAndPassword(email: email, password: password);
                           } catch (e) {
+                            setState(() {
+                              confirmProgress=false;
+                            });
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text('오류 : $e'),
+                                content: const Text('비밀번호는 최소 6자 이상이어야 합니다.'),
                                 duration: const Duration(seconds: 2), // 표시 시간
                               ),
                             );
                           }
                         },
-                        child: const Text(
-                          '완료',
-                          style: TextStyle(fontSize: 14, color: Colors.black),
-                        ),
+                        child: confirmProgress
+                            ? const CircularProgressIndicator()
+                            : const Text(
+                                '완료',
+                                style: TextStyle(fontSize: 14, color: Colors.black),
+                              ),
                       ),
                     ),
                   ),
