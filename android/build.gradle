@@ -5,8 +5,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.0.0' // Example version
-        classpath 'com.google.gms:google-services:4.3.10' // Check for the latest version
+        classpath 'com.android.tools.build:gradle:8.0.2' // 최신 Gradle 버전 사용
     }
 }
 

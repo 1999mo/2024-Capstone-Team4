@@ -313,8 +313,13 @@ class _OnlineBuyerShoppingCartState extends State<OnlineBuyerShoppingCart> {
                                             children: [
                                               Text(
                                                 item['itemName'] ?? '',
-                                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                                               ),
+                                              Text(
+                                                '₩${numberFormat.format(item['sellingPrice'])}',
+                                                style: const TextStyle(fontSize: 14, color: Colors.grey),
+                                              ),
+                                              const SizedBox(height: 4,),
                                               Text(
                                                 '작가: ${item['artist']}',
                                                 style: const TextStyle(fontSize: 14, color: Colors.grey),
@@ -323,52 +328,60 @@ class _OnlineBuyerShoppingCartState extends State<OnlineBuyerShoppingCart> {
                                                 '상품 종류: ${item['itemType']}',
                                                 style: const TextStyle(fontSize: 14, color: Colors.grey),
                                               ),
-                                              const SizedBox(height: 8),
-                                              Text(
-                                                '₩${numberFormat.format(item['sellingPrice']*item['quantity'])}',
-                                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                                              ),
                                             ],
                                           ),
                                         ),
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          children: [
+                                            Stack(
+                                              alignment: Alignment.topRight,
+                                              children: [
+                                                IconButton(
+                                                  icon: const Icon(Icons.close, color: Colors.grey),
+                                                  iconSize: 20,
+                                                  padding: EdgeInsets.zero,
+                                                  constraints: BoxConstraints(),
+                                                  visualDensity: VisualDensity.compact,
+                                                  onPressed: () {
+                                                    showDialog(
+                                                      context: context,
+                                                      builder: (BuildContext context) {
+                                                        return AlertDialog(
+                                                          title: const Text('삭제 확인'),
+                                                          content: const Text('이 상품을 장바구니에서 삭제하시겠습니까?'),
+                                                          actions: [
+                                                            TextButton(
+                                                              onPressed: () => Navigator.pop(context), // 팝업 닫기
+                                                              child: const Text('취소'),
+                                                            ),
+                                                            TextButton(
+                                                              onPressed: () async {
+                                                                // Firestore에서 삭제
+                                                                await _deleteItemFromCart(sellerId, item);
+                                                                Navigator.pop(context); // 팝업 닫기
+                                                              },
+                                                              child: const Text('삭제'),
+                                                            ),
+                                                          ],
+                                                        );
+                                                      },
+                                                    );
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 20), // 아래 요소와 간격 유지
+                                            Container(
+                                              padding: EdgeInsets.symmetric(horizontal: 16),
+                                              child: Text(
+                                                '₩${numberFormat.format(item['sellingPrice'] * item['quantity'])}',
+                                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ],
-                                    ),
-                                    // 오른쪽 상단 X 버튼
-                                    Positioned(
-                                      top: 0,
-                                      right: 0,
-                                      child: IconButton(
-                                        icon: const Icon(Icons.close, color: Colors.grey),
-                                        iconSize: 20,
-                                        padding: EdgeInsets.zero,
-                                        constraints: BoxConstraints(),
-                                        visualDensity: VisualDensity.compact,
-                                        onPressed: () {
-                                          showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return AlertDialog(
-                                                title: const Text('삭제 확인'),
-                                                content: const Text('이 상품을 장바구니에서 삭제하시겠습니까?'),
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed: () => Navigator.pop(context), // 팝업 닫기
-                                                    child: const Text('취소'),
-                                                  ),
-                                                  TextButton(
-                                                    onPressed: () async {
-                                                      // Firestore에서 삭제
-                                                      await _deleteItemFromCart(sellerId, item);
-                                                      Navigator.pop(context); // 팝업 닫기
-                                                    },
-                                                    child: const Text('삭제'),
-                                                  ),
-                                                ],
-                                              );
-                                            },
-                                          );
-                                        },
-                                      ),
                                     ),
                                   ],
                                 ),
@@ -398,7 +411,7 @@ class _OnlineBuyerShoppingCartState extends State<OnlineBuyerShoppingCart> {
                   child: Column(
                     children: [
                       Text(
-                        '총 금액: ₩${numberFormat.format(totalCost)}',
+                        '총 금액 ₩${numberFormat.format(totalCost)}',
                       ),
                       const Text(
                         '구매하기',

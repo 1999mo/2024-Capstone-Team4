@@ -79,6 +79,7 @@ class _AdjustmentDetailState extends State<AdjustmentDetail> {
         types.add(itemType);
       }
     }
+    itemTypes=types.toList();
   }
 
 

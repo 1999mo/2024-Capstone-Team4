@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:catculator/script.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FindId extends StatefulWidget {
   const FindId({super.key});
@@ -12,7 +13,6 @@ class _FindIdState extends State<FindId> {
   final _findIdKey = GlobalKey<FormState>();
 
   String phone = '';
-  String phone_auth = '';
 
   @override
   Widget build(BuildContext context) {
@@ -40,13 +40,15 @@ class _FindPasswordState extends State<FindPassword> {
 
   bool? emailAuth; // 이메일 인증 여부
   bool phoneAuth = false; // 전화번호 인증 여부
-
+  bool progress = false;
+  bool isExist = false;
   String email = '';
   String emailAuthCorrect = '';
   String emailAuthNum = '';
   String newPassword = '';
 
   Scripts script = Scripts();
+
 
   @override
   Widget build(BuildContext context) {
@@ -70,8 +72,13 @@ class _FindPasswordState extends State<FindPassword> {
                   ),
                 ),
                 TextButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    setState(() {
+                      progress = true;
+                    });
                     _findPwKey.currentState!.save();
+
+                    Navigator.pop(context);
                     // 이메일 발송 로직
                     showDialog(
                       context: context,
@@ -92,48 +99,10 @@ class _FindPasswordState extends State<FindPassword> {
                       },
                     );
                   },
-                  child: const Text('비밀번호 변경하기'),
+                  child: progress ? const CircularProgressIndicator() : const Text('비밀번호 변경하기'),
                 ),
               ],
             ),
-            /*
-            const SizedBox(height: 20),
-
-            // 전화번호 입력란과 인증번호 보내기 버튼
-            const Text('이메일 인증번호'),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: '인증번호를 입력하세요',
-                    ),
-                    onSaved: (newValue) => newPassword = newValue ?? '',
-                  ),
-                ),
-                const SizedBox(width: 10),
-                TextButton(
-                  onPressed: () async {
-                    _findPwKey.currentState!.save();
-                    // 이메일 인증 확인 로직
-                    script.resetPasswordByLink(context, email, newPassword);
-                    setState(() {
-                      emailAuth = (emailAuthCorrect == emailAuthNum);
-                    });
-                  },
-                  child: const Text('인증 확인'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            */
-            TextButton(
-                onPressed: () {
-                  // 완료 버튼
-                },
-                child: const Text('완료'))
           ],
         ),
       ),

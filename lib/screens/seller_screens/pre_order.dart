@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 
 class PreOrder extends StatefulWidget {
   const PreOrder({super.key});
@@ -120,6 +121,51 @@ class _PreOrderState extends State<PreOrder> {
     await _deleteOrder(orderId);
   }
 
+  void _scanQrCode() {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+        child: SizedBox(
+          height: 400,
+          child: Column(
+            children: [
+              AppBar(
+                title: const Text('QR 코드 스캔'),
+                automaticallyImplyLeading: false,
+                centerTitle: true,
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              Expanded(
+                child: MobileScanner(
+                  onDetect: (BarcodeCapture capture) {
+                    if (capture.barcodes.isNotEmpty) {
+                      final String? code = capture.barcodes.first.rawValue;
+                      if (code != null) {
+                        setState(() {
+                          searchQuery = code.toLowerCase();
+                          if (_searchController.text != code) {
+                            _searchController.text = code;
+                          }
+                        });
+                        Navigator.pop(context); // QR 코드 스캔 화면 닫기
+                      }
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
 
 
   @override
@@ -131,7 +177,7 @@ class _PreOrderState extends State<PreOrder> {
         actions: [
           IconButton(
             icon: const Icon(Icons.qr_code_scanner),
-            onPressed: null,
+            onPressed: _scanQrCode,
           ),
         ],
       ),
@@ -275,4 +321,3 @@ class _PreOrderState extends State<PreOrder> {
     );
   }
 }
-

@@ -58,8 +58,12 @@ Future<Map<String, dynamic>?> showCalculatorBottomSheet({
                           });
                         },
                         style: ElevatedButton.styleFrom(
-                          fixedSize: const Size(112,33),
-                          backgroundColor: const Color(0xFFD1D1D1),
+                          backgroundColor: Colors.transparent, // 채우기색 없음
+                          shadowColor: Colors.transparent, // 그림자 제거
+                          side: const BorderSide(
+                            color: Colors.black, // 테두리 색상
+                            width: 2.0, // 테두리 두께
+                          ),
                         ),
                         child: Text(numberFormat.format(totalAmount), style: const TextStyle(color: Colors.black),),
                       ),
@@ -70,8 +74,12 @@ Future<Map<String, dynamic>?> showCalculatorBottomSheet({
                           });
                         },
                         style: ElevatedButton.styleFrom(
-                          fixedSize: const Size(112,33),
-                          backgroundColor: const Color(0xFFD1D1D1),
+                          backgroundColor: Colors.transparent, // 채우기색 없음
+                          shadowColor: Colors.transparent, // 그림자 제거
+                          side: const BorderSide(
+                            color: Colors.black, // 테두리 색상
+                            width: 2.0, // 테두리 두께
+                          ),
                         ),
                         child: Text(numberFormat.format(next5000), style: const TextStyle(color: Colors.black),),
                       ),
@@ -82,8 +90,12 @@ Future<Map<String, dynamic>?> showCalculatorBottomSheet({
                           });
                         },
                         style: ElevatedButton.styleFrom(
-                          fixedSize: const Size(112,33),
-                          backgroundColor: const Color(0xFFD1D1D1),
+                          backgroundColor: Colors.transparent, // 채우기색 없음
+                          shadowColor: Colors.transparent, // 그림자 제거
+                          side: const BorderSide(
+                            color: Colors.black, // 테두리 색상
+                            width: 2.0, // 테두리 두께
+                          ),
                         ),
                         child: Text(numberFormat.format(next10000), style: const TextStyle(color: Colors.black),),
                       ),

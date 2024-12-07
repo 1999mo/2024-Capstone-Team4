@@ -19,6 +19,7 @@ class _MakeProfileState extends State<MakeProfile> {
   File? _profileImage; // 선택된 이미지 파일
   String userName = ''; // 입력받은 사용자 이름
   bool _isLoading = true;
+  bool progress = false;
 
   // 이미지 선택
   Future<void> _pickImage() async {
@@ -121,6 +122,9 @@ class _MakeProfileState extends State<MakeProfile> {
 
   // 완료 버튼 동작
   Future<void> _onComplete() async {
+    setState(() {
+      progress = true;
+    });
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       _showSnackbar('로그인된 사용자가 없습니다.');
@@ -146,14 +150,13 @@ class _MakeProfileState extends State<MakeProfile> {
   }
 
   @override
-  void initState()  {
+  void initState() {
     super.initState();
     _checkUserDocument(); // initState에서 비동기 작업 시작
   }
 
   @override
   Widget build(BuildContext context) {
-
     if (_isLoading) {
       // 로딩 상태일 때 로딩 화면 표시
       return const Scaffold(
@@ -179,12 +182,10 @@ class _MakeProfileState extends State<MakeProfile> {
                   ),
                   TextButton(
                     onPressed: _pickImage, // 이미지 선택
-                    child: const Text(
-                        '프로필 사진 업로드',
-                      style: TextStyle(
-                        color: Colors.black,
-                      )
-                    ),
+                    child: const Text('프로필 사진 업로드',
+                        style: TextStyle(
+                          color: Colors.black,
+                        )),
                   ),
                   const SizedBox(height: 24), // 프로필 사진과 텍스트 필드 사이 간격
                   Container(
@@ -242,19 +243,18 @@ class _MakeProfileState extends State<MakeProfile> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             child: TextButton(
-              onPressed: _onComplete, // 완료 버튼 동작
-              child: const Text(
-                '완료',
-                style: TextStyle(
-                    fontSize: 14, color: Colors.black
-                ),
-              ),
+              onPressed: progress ? null : _onComplete, // 완료 버튼 동작
+              child: progress
+                  ? const CircularProgressIndicator()
+                  : const Text(
+                      '완료',
+                      style: TextStyle(fontSize: 14, color: Colors.black),
+                    ),
             ),
           ),
           const SizedBox(height: 24), // 하단 여백
         ],
       ),
     );
-
   }
 }

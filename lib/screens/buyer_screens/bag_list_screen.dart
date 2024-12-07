@@ -36,7 +36,11 @@ class _BagListScreenState extends State<BagListScreen> {
     if (uid == null || festivalName == null) return;
 
     try {
-      final basketRef = FirebaseFirestore.instance.collection('Users').doc(uid).collection('basket').doc(festivalName);
+      final basketRef = FirebaseFirestore.instance
+          .collection('Users')
+          .doc(uid)
+          .collection('basket')
+          .doc(festivalName);
       final basketSnapshot = await basketRef.get();
 
       if (basketSnapshot.exists) {
@@ -44,7 +48,8 @@ class _BagListScreenState extends State<BagListScreen> {
         final fetchedData = <String, List<Map<String, dynamic>>>{};
 
         for (var sellerUid in data.keys) {
-          final items = (data[sellerUid] as List<dynamic>).cast<Map<String, dynamic>>();
+          final items =
+              (data[sellerUid] as List<dynamic>).cast<Map<String, dynamic>>();
           fetchedData[sellerUid] = items;
         }
 
@@ -59,13 +64,15 @@ class _BagListScreenState extends State<BagListScreen> {
   }
 
   void _calculateTotalCost() {
-    totalCost = basketData.values
-        .expand((items) => items)
-        .fold(0, (sum, item) => sum + (item['sellingPrice'] as int) * (item['quantity'] as int));
+    totalCost = basketData.values.expand((items) => items).fold(
+        0,
+        (sum, item) =>
+            sum + (item['sellingPrice'] as int) * (item['quantity'] as int));
     setState(() {});
   }
 
-  Future<void> _updateQuantity(String sellerUid, int index, int quantity) async {
+  Future<void> _updateQuantity(
+      String sellerUid, int index, int quantity) async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null || festivalName == null) return;
 
@@ -112,8 +119,11 @@ class _BagListScreenState extends State<BagListScreen> {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
 
-    final basketRef =
-    FirebaseFirestore.instance.collection('Users').doc(uid).collection('basket').doc(festivalName);
+    final basketRef = FirebaseFirestore.instance
+        .collection('Users')
+        .doc(uid)
+        .collection('basket')
+        .doc(festivalName);
     final basketSnapshot = await basketRef.get();
 
     if (!basketSnapshot.exists) return;
@@ -183,9 +193,7 @@ class _BagListScreenState extends State<BagListScreen> {
         ),
       );
 
-      setState(() {
-
-      });
+      setState(() {});
     } catch (e) {
       // Handle errors
       ScaffoldMessenger.of(context).showSnackBar(
@@ -197,8 +205,8 @@ class _BagListScreenState extends State<BagListScreen> {
     }
   }
 
-
-  Future<String> _generateAndUploadQrCode(String uid, String preOrderCode) async {
+  Future<String> _generateAndUploadQrCode(
+      String uid, String preOrderCode) async {
     try {
       // Generate QR code as an image
       final qrPainter = QrPainter(
@@ -212,7 +220,8 @@ class _BagListScreenState extends State<BagListScreen> {
       final tempPath = '${tempDir.path}/pre_$preOrderCode.jpg';
 
       final file = File(tempPath);
-      final byteData = await qrPainter.toImageData(300); // Generate a 300x300 image
+      final byteData =
+          await qrPainter.toImageData(300); // Generate a 300x300 image
       await file.writeAsBytes(byteData!.buffer.asUint8List());
 
       // Upload to Firebase Storage
@@ -278,7 +287,8 @@ class _BagListScreenState extends State<BagListScreen> {
                         padding: const EdgeInsets.all(12.0),
                         child: Text(
                           '$boothName',
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 18),
                         ),
                       ),
                       ...items.asMap().entries.map((entry) {
@@ -286,9 +296,10 @@ class _BagListScreenState extends State<BagListScreen> {
                         final item = entry.value;
 
                         return Card(
-                          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 8),
                           child: Padding(
-                              padding: const EdgeInsets.all(12.0),
+                              padding: const EdgeInsets.all(8.0),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -298,47 +309,99 @@ class _BagListScreenState extends State<BagListScreen> {
                                         borderRadius: BorderRadius.circular(8),
                                         child: CachedNetworkImage(
                                           imageUrl: item['imagePath'] ?? '',
-                                          placeholder: (context, url) => const CircularProgressIndicator(),
-                                          errorWidget: (context, url, error) => Image.asset('assets/catcul_w.jpg'),
+                                          placeholder: (context, url) =>
+                                              const CircularProgressIndicator(),
+                                          errorWidget: (context, url, error) =>
+                                              Image.asset(
+                                                  'assets/catcul_w.jpg'),
                                           width: 60,
                                           height: 60,
                                           fit: BoxFit.cover,
                                         ),
                                       ),
+                                      const SizedBox(height: 8),
                                       Row(
                                         children: [
-                                          IconButton(
-                                            icon: const Icon(Icons.remove),
-                                            onPressed: item['quantity'] > 1
-                                                ? () {
-                                                    _updateQuantity(sellerUid, index, item['quantity'] - 1);
-                                                  }
-                                                : null,
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                  color: Color(0xFFD1D1D1)),
+                                              shape: BoxShape.circle,
+                                              color: item['quantity'] == 1
+                                                  ? Color(0x91D1D1D1)
+                                                  : null,
+                                            ),
+                                            height: 30,
+                                            width: 30,
+                                            child: IconButton(
+                                              icon: const Icon(Icons.remove,
+                                                  color: Colors.blue),
+                                              iconSize: 18,
+                                              padding: EdgeInsets.zero,
+                                              constraints: BoxConstraints(),
+                                              visualDensity:
+                                                  VisualDensity.compact,
+                                              onPressed: item['quantity'] > 1
+                                                  ? () {
+                                                      _updateQuantity(
+                                                          sellerUid,
+                                                          index,
+                                                          item['quantity'] - 1);
+                                                    }
+                                                  : null,
+                                            ),
                                           ),
+                                          const SizedBox(width: 4),
                                           Text('${item['quantity']}'),
-                                          IconButton(
-                                            icon: const Icon(Icons.add),
-                                            onPressed: () {
-                                              _updateQuantity(sellerUid, index, item['quantity'] + 1);
-                                            },
+                                          const SizedBox(width: 4),
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                  color: Color(0xFFD1D1D1)),
+                                              shape: BoxShape.circle,
+                                            ),
+                                            height: 30,
+                                            width: 30,
+                                            child: IconButton(
+                                              icon: const Icon(Icons.add,
+                                                  color: Colors.red),
+                                              iconSize: 18,
+                                              padding: EdgeInsets.zero,
+                                              constraints: BoxConstraints(),
+                                              visualDensity:
+                                                  VisualDensity.compact,
+                                              onPressed: () {
+                                                _updateQuantity(
+                                                    sellerUid,
+                                                    index,
+                                                    item['quantity'] + 1);
+                                              },
+                                            ),
                                           ),
                                         ],
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(width: 12),
+                                  const SizedBox(width: 20),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
+                                        const SizedBox(
+                                          height: 4,
+                                        ),
                                         Text(
                                           item['itemName'] ?? '',
-                                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                          style: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold),
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
                                           '₩${numberFormat.format(item['sellingPrice'])}', // 상품 가격 표시
-                                          style: const TextStyle(fontSize: 14, color: Colors.grey),
+                                          style: const TextStyle(
+                                              fontSize: 14, color: Colors.grey),
                                         ),
                                       ],
                                     ),
@@ -350,17 +413,30 @@ class _BagListScreenState extends State<BagListScreen> {
                                         alignment: Alignment.topRight,
                                         children: [
                                           IconButton(
-                                            icon: const Icon(Icons.close, color: Colors.grey),
+                                            icon: const Icon(Icons.close,
+                                                color: Colors.grey),
+                                            iconSize: 20,
+                                            padding: EdgeInsets.zero,
+                                            constraints: BoxConstraints(),
+                                            visualDensity:
+                                                VisualDensity.compact,
                                             onPressed: () {
                                               _removeItem(sellerUid, index);
                                             },
                                           ),
                                         ],
                                       ),
-                                      const SizedBox(height: 20), // 아래 요소와 간격 유지
-                                      Text(
-                                        '₩${numberFormat.format(item['sellingPrice'] * item['quantity'])}',
-                                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                      const SizedBox(
+                                          height: 20), // 아래 요소와 간격 유지
+                                      Container(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 16),
+                                        child: Text(
+                                          '₩${numberFormat.format(item['sellingPrice'] * item['quantity'])}',
+                                          style: const TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold),
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -381,7 +457,9 @@ class _BagListScreenState extends State<BagListScreen> {
             child: Material(
               elevation: 3,
               borderRadius: BorderRadius.circular(10),
-              color: isLoading ? Colors.grey[300] : const Color(0xfffdbe85), // 로딩 중일 때 흐릿한 색상
+              color: isLoading
+                  ? Colors.grey[300]
+                  : const Color(0xfffdbe85), // 로딩 중일 때 흐릿한 색상
               child: InkWell(
                 onTap: isLoading
                     ? null // 로딩 중에는 클릭 불가
@@ -389,7 +467,7 @@ class _BagListScreenState extends State<BagListScreen> {
                         await _handlePayment(context); // 결제 처리 호출
                       },
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(10.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -399,13 +477,24 @@ class _BagListScreenState extends State<BagListScreen> {
                           width: 24,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
                         )
                       else
-                        Text(
-                          '₩${NumberFormat('#,###').format(totalCost)} 결제하기',
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        Center(
+                          child: Column(
+                            children: [
+                              Text(
+                                '총 금액 ₩${numberFormat.format(totalCost)}',
+                              ),
+                              const Text(
+                                '구매하기',
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
                         ),
                     ],
                   ),

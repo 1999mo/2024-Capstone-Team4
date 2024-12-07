@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // 날짜 형식 변환용
+import 'package:intl/intl.dart';
 
 class SaleRecord extends StatefulWidget {
   const SaleRecord({super.key});
@@ -13,7 +13,8 @@ class SaleRecord extends StatefulWidget {
 class _SaleRecordState extends State<SaleRecord> {
   String? boothId;
   late CollectionReference salesCollection;
-  List<DocumentSnapshot> saleDocs = []; // 판매 기록 저장
+  List<DocumentSnapshot> saleDocs = [];
+  bool isLoading = true;
 
   @override
   void didChangeDependencies() {
@@ -29,24 +30,45 @@ class _SaleRecordState extends State<SaleRecord> {
           .collection('booths')
           .doc(boothId!)
           .collection('sales');
-      _loadSalesData(); // 초기 데이터 로드
+      _loadSalesData();
     } else {
-      throw StateError('User is not authenticated or boothId is missing.');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('사용자 인증 또는 boothId가 필요합니다.')),
+      );
+      Navigator.pop(context);
     }
   }
 
-  /// 판매 기록 삭제 함수
-  Future<void> _deleteSaleRecord(String documentId, Map<String, dynamic> itemSold) async {
+  Future<void> _loadSalesData() async {
+    setState(() {
+      isLoading = true;
+    });
     try {
-      // 1. 판매 기록 문서 삭제
-      await salesCollection.doc(documentId).delete();
+      final snapshot = await salesCollection.orderBy('time', descending: true).get();
+      setState(() {
+        saleDocs = snapshot.docs;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('판매 기록 로드 중 오류가 발생했습니다: $e')),
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
-      // 2. 삭제된 판매 기록을 기반으로 다른 컬렉션 데이터 업데이트
+  Future<void> _deleteSaleRecord(String documentId, Map<String, dynamic> itemSold) async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      await salesCollection.doc(documentId).delete();
       for (var entry in itemSold.entries) {
         final itemName = entry.key;
         final itemCount = entry.value;
 
-        // 판매된 상품의 데이터를 가져옴
         final itemsSnapshot = await FirebaseFirestore.instance
             .collection('Users')
             .doc(FirebaseAuth.instance.currentUser?.uid)
@@ -62,7 +84,6 @@ class _SaleRecordState extends State<SaleRecord> {
           final sellingPrice = itemData['sellingPrice'];
           final costPrice = itemData['costPrice'];
 
-          // Artist 문서 참조
           final artistDocRef = FirebaseFirestore.instance
               .collection('Users')
               .doc(FirebaseAuth.instance.currentUser?.uid)
@@ -73,7 +94,6 @@ class _SaleRecordState extends State<SaleRecord> {
               .collection('artist')
               .doc(artistName);
 
-          // Artist 문서 업데이트
           final artistDocSnapshot = await artistDocRef.get();
           if (artistDocSnapshot.exists) {
             final artistData = artistDocSnapshot.data() as Map<String, dynamic>;
@@ -82,17 +102,14 @@ class _SaleRecordState extends State<SaleRecord> {
             final totalProfit = artistData['totalProfit'] ?? 0;
             final totalSales = artistData['totalSales'] ?? 0;
 
-            // 판매된 상품 수량 감소
             if (soldItems.containsKey(itemName)) {
               soldItems[itemName] = (soldItems[itemName] ?? 0) - itemCount;
-              if (soldItems[itemName] <= 0) soldItems.remove(itemName); // 수량이 0 이하라면 제거
+              if (soldItems[itemName] <= 0) soldItems.remove(itemName);
             }
 
-            // 총 판매 금액 및 총 수익 업데이트
             final updatedTotalSales = totalSales - (sellingPrice * itemCount);
             final updatedTotalProfit = totalProfit - ((sellingPrice - costPrice) * itemCount);
 
-            // Artist 문서 업데이트
             await artistDocRef.update({
               'soldItems': soldItems,
               'totalProfit': updatedTotalProfit,
@@ -101,28 +118,19 @@ class _SaleRecordState extends State<SaleRecord> {
           }
         }
       }
-
-      // 3. UI 데이터 다시 로드
       await _loadSalesData();
-
-      // 삭제 완료 메시지 표시
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('판매 기록이 삭제되었습니다.')),
       );
     } catch (e) {
-      // 오류 처리
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('삭제 중 오류가 발생했습니다: $e')),
       );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
-  }
-
-  /// 판매 기록 로드 함수
-  Future<void> _loadSalesData() async {
-    final snapshot = await salesCollection.orderBy('time', descending: true).get();
-    setState(() {
-      saleDocs = snapshot.docs; // 판매 기록 저장
-    });
   }
 
   @override
@@ -134,8 +142,15 @@ class _SaleRecordState extends State<SaleRecord> {
         title: const Text('판매 기록'),
         centerTitle: true,
       ),
-      body: saleDocs.isEmpty
+      body: isLoading
           ? const Center(child: CircularProgressIndicator())
+          : saleDocs.isEmpty
+          ? const Center(
+        child: Text(
+          '판매 기록이 없습니다.',
+          style: TextStyle(fontSize: 16, color: Colors.grey),
+        ),
+      )
           : ListView.builder(
         itemCount: saleDocs.length,
         itemBuilder: (context, index) {
@@ -202,7 +217,7 @@ class _SaleRecordState extends State<SaleRecord> {
                               ),
                               TextButton(
                                 onPressed: () {
-                                  _deleteSaleRecord(saleDoc.id, itemSold); // 삭제 로직 호출
+                                  _deleteSaleRecord(saleDoc.id, itemSold);
                                   Navigator.pop(context);
                                 },
                                 child: const Text('확인'),
@@ -222,4 +237,3 @@ class _SaleRecordState extends State<SaleRecord> {
     );
   }
 }
-

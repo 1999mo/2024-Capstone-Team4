@@ -63,6 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 44,
                 margin: const EdgeInsets.only(left: 10, right: 10, top: 5, bottom: 5),
                 child: TextFormField(
+                  obscureText: true,
                   decoration: const InputDecoration(
                     labelText: '비밀번호',
                     border: OutlineInputBorder(),

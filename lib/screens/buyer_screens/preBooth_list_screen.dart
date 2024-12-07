@@ -129,6 +129,7 @@ class _PreboothListScreenState extends State<PreboothListScreen> {
                     crossAxisCount: 2, // 한 줄에 2개씩 배치
                     crossAxisSpacing: 8, // 카드 간의 가로 간격
                     mainAxisSpacing: 8, // 카드 간의 세로 간격
+                    childAspectRatio: 0.9,
                   ),
                   itemCount: filteredSellers.length,
                   itemBuilder: (context, index) {
@@ -150,7 +151,9 @@ class _PreboothListScreenState extends State<PreboothListScreen> {
                       child: Card(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12.0),
+                          side: BorderSide(color: const Color(0xFFD1D1D1), width: 1),
                         ),
+                        elevation: 4,
                         child: Stack(alignment: Alignment.center, children: [
                           Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -189,7 +192,7 @@ class _PreboothListScreenState extends State<PreboothListScreen> {
                           if (!isClickable)
                             Container(
                               decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.5),
+                                color: Colors.black.withOpacity(0.6),
                                 borderRadius: BorderRadius.circular(12.0),
                               ),
                               child: const Center(
@@ -198,6 +201,7 @@ class _PreboothListScreenState extends State<PreboothListScreen> {
                                   style: TextStyle(
                                     color: Colors.red,
                                     fontWeight: FontWeight.bold,
+                                    fontSize: 16,
                                   ),
                                   textAlign: TextAlign.center,
                                 ),

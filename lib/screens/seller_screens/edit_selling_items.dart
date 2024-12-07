@@ -121,7 +121,7 @@ class _EditSellingItemsState extends State<EditSellingItems> {
           ),
           content: SizedBox(
             width: MediaQuery.of(context).size.width * 0.65,
-            height: MediaQuery.of(context).size.height * 0.53,
+            height: MediaQuery.of(context).size.height * 0.7,
             child: SingleChildScrollView(
               //padding: const EdgeInsets.all(16.0),
               child: Column(

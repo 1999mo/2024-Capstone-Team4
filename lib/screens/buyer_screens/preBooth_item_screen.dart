@@ -71,29 +71,32 @@ class _PreboothItemScreenState extends State<PreboothItemScreen> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Center(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: imagePath.isNotEmpty
-                      ? Image.network(
-                    imagePath,
-                    fit: BoxFit.cover,
-                    height: 350.0,
-                    width: double.infinity,
-                    errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
-                      return Image.asset(
-                        'assets/catcul_w.jpg',
-                        fit: BoxFit.cover,
-                        height: 350.0,
-                        width: double.infinity,
-                      );
-                    },
-                  )
-                      : Image.asset(
-                    'assets/catcul_w.jpg',
-                    fit: BoxFit.cover,
-                    height: 350.0,
-                    width: double.infinity,
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Center(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8.0),
+                    child: imagePath.isNotEmpty
+                        ? Image.network(
+                      imagePath,
+                      fit: BoxFit.cover,
+                      height: 350.0,
+                      width: double.infinity,
+                      errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                        return Image.asset(
+                          'assets/catcul_w.jpg',
+                          fit: BoxFit.cover,
+                          height: 350.0,
+                          width: double.infinity,
+                        );
+                      },
+                    )
+                        : Image.asset(
+                      'assets/catcul_w.jpg',
+                      fit: BoxFit.cover,
+                      height: 350.0,
+                      width: double.infinity,
+                    ),
                   ),
                 ),
               ),
