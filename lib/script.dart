@@ -32,7 +32,7 @@ class Scripts {
       }
     } catch (e) {
       print("Error checking email: $e");
-      return false;
+      return true;
     }
   }
 
@@ -83,8 +83,18 @@ class Scripts {
     final message = Message()
       ..from = Address(username)
       ..recipients.add(email)
-      ..subject = 'Email Verification Code'
-      ..text = 'Your verification code is: $verificationCode';
+      ..subject = '[CatCulator] 이메일 인증번호를 확인해주세요'
+      ..text =  '''
+  안녕하세요, CatCulator입니다.
+
+  회원가입을 위해 아래 인증번호를 입력해주세요:
+
+  인증번호: $verificationCode
+
+  감사합니다.
+
+  - CatCulator 앱 개발자
+  ''';
 
     try {
       final sendReport = await send(message, smtpServer);

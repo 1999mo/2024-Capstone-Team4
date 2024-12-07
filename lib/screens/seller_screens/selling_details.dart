@@ -77,6 +77,7 @@ class _SellingDetailsState extends State<SellingDetails> {
       appBar: AppBar(
         title: const Text('주문 상세 정보'),
         centerTitle: true,
+        automaticallyImplyLeading: false,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

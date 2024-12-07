@@ -114,7 +114,7 @@ class _SignupState extends State<Signup> {
                   ),
                 ],
               ),
-              if (emailDuplicate == false)
+              if (emailDuplicate == false && email != '')
                 const Padding(
                   padding: EdgeInsets.only(bottom: 16),
                   child: Text(
@@ -122,7 +122,7 @@ class _SignupState extends State<Signup> {
                     style: TextStyle(color: Colors.green),
                   ),
                 ),
-              if (emailDuplicate == true || email.trim().isEmpty)
+              if ((emailDuplicate == true || email.trim().isEmpty) && email != '')
                 const Padding(
                   padding: EdgeInsets.only(bottom: 16),
                   child: Text(
@@ -292,6 +292,7 @@ class _SignupState extends State<Signup> {
 
                             if(emailDuplicate==true) return;
                             if(emailAuth==false) return;
+                            if(email == '' || password == '') return;
 
                             final newUser = await authentication
                                 .createUserWithEmailAndPassword(
