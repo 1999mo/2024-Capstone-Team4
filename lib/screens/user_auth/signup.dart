@@ -47,8 +47,7 @@ class _SignupState extends State<Signup> {
         key: _formKey,
         child: Padding(
           padding: const EdgeInsets.all(16.0), // 전체 화면 여백 추가
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: ListView(
             children: [
               const SizedBox(height: 20),
               // 이메일
@@ -197,14 +196,14 @@ class _SignupState extends State<Signup> {
                         });
                         _formKey.currentState!.save();
                         setState(() {
-                          emailAuth = (emailAuthCorrect == emailAuthNum);
+                          emailAuth = (emailAuthNum!='' && emailAuthCorrect == emailAuthNum);
                           checkProgress = false;
                         });
                       },
                       child: checkProgress
                           ? const CircularProgressIndicator()
                           : const Text(
-                              '인증 확인',
+                              '인증확인',
                               style: TextStyle(fontSize: 14, color: Colors.black),
                             ),
                     ),
@@ -327,8 +326,19 @@ class _SignupState extends State<Signup> {
                               });
                             }
 
-                            if (emailDuplicate == true) return;
-                            if (emailAuth == false) return;
+                            if (emailDuplicate == true || emailDuplicate == null) {
+                              setState(() {
+                                confirmProgress = false;
+                              });
+                              return;
+                            }
+                            if (emailAuth == false || emailAuth == null) {
+                              setState(() {
+                                confirmProgress = false;
+                              });
+                              return;
+                            }
+
                             Navigator.of(context).pop();
 
                             showDialog(

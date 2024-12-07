@@ -14,6 +14,7 @@ class Setting extends StatefulWidget {
 }
 
 class _SettingState extends State<Setting> {
+  bool progress = false;
   late Future<Map<String, dynamic>> userData;
   File? _newProfileImage;
 
@@ -55,6 +56,10 @@ class _SettingState extends State<Setting> {
   Future<void> _updateProfileImage() async {
     if (_newProfileImage == null) return;
 
+    setState(() {
+      progress = true;
+    });
+
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) throw Exception('로그인된 사용자가 없습니다.');
 
@@ -65,20 +70,24 @@ class _SettingState extends State<Setting> {
 
       // Firestore에 이미지 URL 업데이트
       final imageUrl = await storageRef.getDownloadURL();
-      await FirebaseFirestore.instance
-          .collection('Users')
-          .doc(user.uid)
-          .update({'profileImage': imageUrl});
+      await FirebaseFirestore.instance.collection('Users').doc(user.uid).update({'profileImage': imageUrl});
 
       setState(() {
         userData = _fetchUserData(); // 데이터 새로고침
         _newProfileImage = null; // 새 이미지 초기화
       });
 
+      setState(() {
+        progress = false;
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('프로필 이미지가 성공적으로 업데이트되었습니다.')),
       );
     } catch (e) {
+      setState(() {
+        progress = false;
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('프로필 이미지 업데이트 실패: $e')),
       );
@@ -124,8 +133,8 @@ class _SettingState extends State<Setting> {
                               backgroundImage: _newProfileImage != null
                                   ? FileImage(_newProfileImage!) // 새 이미지 미리보기
                                   : (imageUrl != null
-                                  ? CachedNetworkImageProvider(imageUrl)
-                                  : const AssetImage('assets/profile_placeholder.png')) as ImageProvider,
+                                      ? CachedNetworkImageProvider(imageUrl)
+                                      : const AssetImage('assets/profile_placeholder.png')) as ImageProvider,
                             ),
                             Positioned(
                               bottom: 0,
@@ -157,13 +166,13 @@ class _SettingState extends State<Setting> {
                           children: [
                             Text(
                               userName,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 20),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                             ),
                             const SizedBox(height: 2),
                             Text(
                               email,
                               style: const TextStyle(color: Colors.grey),
+                              maxLines: 2,
                             ),
                           ],
                         ),
@@ -171,7 +180,12 @@ class _SettingState extends State<Setting> {
                     ),
                     ElevatedButton(
                       onPressed: _updateProfileImage, // 새 이미지 저장
-                      child: const Text('변경사항 저장', style: TextStyle(color: Colors.black),),
+                      child: progress
+                          ? const CircularProgressIndicator()
+                          : const Text(
+                              '변경사항 저장',
+                              style: TextStyle(color: Colors.black),
+                            ),
                     ),
                   ],
                 ),
@@ -199,11 +213,13 @@ class _SettingState extends State<Setting> {
                             Row(
                               children: [
                                 Icon(
-                                    Icons.logout,
-                                    size: 20,
+                                  Icons.logout,
+                                  size: 20,
                                   color: Colors.black,
                                 ),
-                                const SizedBox(width: 8,),
+                                const SizedBox(
+                                  width: 8,
+                                ),
                                 Text(
                                   '로그아웃',
                                   style: TextStyle(color: Colors.black),
@@ -222,7 +238,6 @@ class _SettingState extends State<Setting> {
                   ],
                 ),
               ),
-
             ],
           );
         },

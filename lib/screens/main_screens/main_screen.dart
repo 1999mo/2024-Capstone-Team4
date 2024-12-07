@@ -224,7 +224,8 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
                               children: [
                                 Text(
                                   '온라인 상품 둘러보기',
-                                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+                                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 13),
+                                  textAlign: TextAlign.center,
                                 ),
                                 //Icon(Icons.chevron_right),
                               ],
@@ -253,7 +254,8 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
                               children: [
                                 Text(
                                   '온라인 상품 판매하기',
-                                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+                                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 13),
+                                  textAlign: TextAlign.center,
                                 ),
                                 //Icon(Icons.chevron_right),
                               ],
@@ -407,6 +409,7 @@ class _BuyerMainScreenState extends State<BuyerMainScreen> {
                                 Text(
                                   '온라인 상품 둘러보기',
                                   style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+                                  textAlign: TextAlign.center,
                                 ),
                                 //Icon(Icons.chevron_right),
                               ],
