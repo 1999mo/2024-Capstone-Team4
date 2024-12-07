@@ -309,21 +309,25 @@ class _BoothListScreenState extends State<BoothListScreen>
                   children: [
                     avatar,
                     const SizedBox(height: 8),
-                    Text(
-                      boothName,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 18),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                      child: Text(
+                        boothName,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 18),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      painters,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(color: Colors.grey),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                      child: Text(
+                        painters,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Colors.grey),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
@@ -578,6 +582,8 @@ class _BoothListScreenState extends State<BoothListScreen>
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -595,7 +601,7 @@ class _BoothListScreenState extends State<BoothListScreen>
               ),
               content: SizedBox(
                 width: MediaQuery.of(context).size.width * 0.7,
-                height: MediaQuery.of(context).size.height * 0.55,
+                height: MediaQuery.of(context).size.height * 0.68,
                 child: SingleChildScrollView(
                   child: Column(
                     children: [

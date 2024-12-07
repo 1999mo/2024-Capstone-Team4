@@ -115,7 +115,7 @@ class _OnlineLookBoothItemsState extends State<OnlineLookBoothItems> {
                                     ),
                                     content: SizedBox(
                                       width: MediaQuery.of(context).size.width * 0.65,
-                                      height: MediaQuery.of(context).size.height * 0.5,
+                                      height: MediaQuery.of(context).size.height * 0.7,
                                       child: SingleChildScrollView(
                                         child: Column(
                                           crossAxisAlignment:

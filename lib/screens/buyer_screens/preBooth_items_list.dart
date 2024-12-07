@@ -202,7 +202,7 @@ class _PreboothItemsListState extends State<PreboothItemsList> {
           // insetPadding: const EdgeInsets.all(16.0),
           content: SizedBox(
             width: MediaQuery.of(context).size.width * 0.7,
-            height: MediaQuery.of(context).size.height * 0.6,
+            height: MediaQuery.of(context).size.height * 0.7,
             child: SingleChildScrollView(
               child: StatefulBuilder(
                 builder: (BuildContext context, StateSetter setState) {

@@ -144,23 +144,27 @@ class _OnlineSelectBoothsState extends State<OnlineSelectBooths> {
                                   ),
                                   const SizedBox(height: 8),
                                   // 부스 이름
-                                  Text(
-                                    boothName,
-                                    textAlign: TextAlign.center,
-                                    softWrap: false,
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 2,
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                                    child: Text(
+                                      boothName,
+                                      textAlign: TextAlign.center,
+                                      softWrap: false,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                                    ),
                                   ),
                                   const SizedBox(height: 4),
                                   // 작가 목록
-                                  Text(
-                                    painterList,
-                                    textAlign: TextAlign.center,
-                                    softWrap: true,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(color: Colors.grey),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                                    child: Text(
+                                      painterList,
+                                      textAlign: TextAlign.center,
+                                      softWrap: true,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(color: Colors.grey),
+                                    ),
                                   ),
                                 ],
                               ),

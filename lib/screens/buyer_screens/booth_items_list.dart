@@ -134,7 +134,7 @@ class _BoothItemsListState extends State<BoothItemsList> {
                             ),
                             content: SizedBox(
                               width: MediaQuery.of(context).size.width * 0.7,
-                              height: MediaQuery.of(context).size.height * 0.55,
+                              height: MediaQuery.of(context).size.height * 0.7,
                               //insetPadding: const EdgeInsets.all(16.0),
                               child: ListView(children: [
                                 Column(
