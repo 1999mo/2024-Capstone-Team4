@@ -24,7 +24,7 @@ class _OrderListState extends State<OrderList> {
     if (uid == null || festivalName == null) return {};
 
     final docRef =
-    FirebaseFirestore.instance.collection('Users').doc(uid).collection('pre_order_list').doc(festivalName);
+        FirebaseFirestore.instance.collection('Users').doc(uid).collection('pre_order_list').doc(festivalName);
 
     final snapshot = await docRef.get();
     if (!snapshot.exists) return {};
@@ -75,11 +75,11 @@ class _OrderListState extends State<OrderList> {
                     const SizedBox(height: 16),
                     buyerInfo['qr_path'] != null
                         ? Image.network(
-                      buyerInfo['qr_path'],
-                      height: 150,
-                      width: 150,
-                      fit: BoxFit.contain,
-                    )
+                            buyerInfo['qr_path'],
+                            height: 150,
+                            width: 150,
+                            fit: BoxFit.contain,
+                          )
                         : const Icon(Icons.qr_code, size: 150, color: Colors.grey),
                     const SizedBox(height: 16),
                     Text(
@@ -160,27 +160,22 @@ class _OrderListState extends State<OrderList> {
                             padding: const EdgeInsets.symmetric(vertical: 8.0),
                             child: Row(
                               children: [
-                                FutureBuilder<String?>(
-                                  future: _getImageUrl(orderItems[i]['imagePath']),
-                                  builder: (context, imageSnapshot) {
-                                    final imageUrl = imageSnapshot.data;
-                                    return ClipRRect(
-                                      borderRadius: BorderRadius.circular(8),
-                                      child: imageUrl != null
-                                          ? Image.network(
-                                        imageUrl,
-                                        height: 80,
-                                        width: 80,
-                                        fit: BoxFit.cover,
-                                      )
-                                          : Image.asset(
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.network(
+                                    orderItems[i]['imagePath'],
+                                    height: 80,
+                                    width: 80,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Image.asset(
                                         'assets/catcul_w.jpg',
                                         height: 80,
                                         width: 80,
                                         fit: BoxFit.cover,
-                                      ),
-                                    );
-                                  },
+                                      );
+                                    },
+                                  ),
                                 ),
                                 const SizedBox(width: 10),
                                 Column(
