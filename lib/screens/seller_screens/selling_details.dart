@@ -130,13 +130,16 @@ class _SellingDetailsState extends State<SellingDetails> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    productName.length > 10
-                                        ? '${productName.substring(0, 15)}...' // 10글자 초과 시 잘라내기
-                                        : productName,
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
+
+                                  SizedBox(
+                                    width: 100,
+                                    child: Text(
+                                      productName,
+                                      style: TextStyle(
+                                        fontSize: productName.length > 10 ?  12 : 18,
+                                        fontWeight:FontWeight.bold,
+                                      ),
+                                      maxLines: 2,
                                     ),
                                   ),
                                   Row(
@@ -163,7 +166,7 @@ class _SellingDetailsState extends State<SellingDetails> {
                                               width: 30,
                                               child: IconButton(
                                                 icon: const Icon(
-                                                    Icons.remove,
+                                                  Icons.remove,
                                                   color: Colors.blue,
                                                 ),
                                                 iconSize: 18,
@@ -181,12 +184,10 @@ class _SellingDetailsState extends State<SellingDetails> {
                                                 },
                                               ),
                                             ),
-
                                             Container(
                                               padding: const EdgeInsets.symmetric(horizontal: 8),
                                               child: Text('$quantity', style: const TextStyle(fontSize: 16)),
                                             ),
-
                                             Container(
                                               decoration: BoxDecoration(
                                                 border: Border.all(color: Color(0xFFD1D1D1)),
@@ -196,8 +197,8 @@ class _SellingDetailsState extends State<SellingDetails> {
                                               width: 30,
                                               child: IconButton(
                                                 icon: const Icon(
-                                                    Icons.add,
-                                                    color: Colors.red,
+                                                  Icons.add,
+                                                  color: Colors.red,
                                                 ),
                                                 iconSize: 18,
                                                 padding: EdgeInsets.zero,
@@ -233,7 +234,6 @@ class _SellingDetailsState extends State<SellingDetails> {
                                                 },
                                               ),
                                             ),
-
                                           ],
                                         ),
                                       ),

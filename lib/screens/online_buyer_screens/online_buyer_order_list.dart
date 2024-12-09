@@ -176,13 +176,6 @@ class _OnlineBuyerOrderListState extends State<OnlineBuyerOrderList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        actions: [
-          IconButton(
-              onPressed: () {
-                //실험용 실험용
-              },
-              icon: Icon(Icons.ac_unit_outlined))
-        ],
         title: Column(
           children: [
             const Text('주문 목록'),
@@ -230,7 +223,7 @@ class _OnlineBuyerOrderListState extends State<OnlineBuyerOrderList> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                buyerInfo['boothName']??'이름 없는 부스',
+                                buyerInfo['boothName']??'부스 이름 불러 오기 실패',
                                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                               ),
                               TextButton(
@@ -285,9 +278,14 @@ class _OnlineBuyerOrderListState extends State<OnlineBuyerOrderList> {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      '${orderItems[i]['itemName'] ?? ''}',
-                                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                                    SizedBox(
+                                      width: 220,
+                                      child: Text(
+                                        '${orderItems[i]['itemName'] ?? ''}',
+                                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
                                     Text('${orderItems[i]['sellingPrice'] ?? 0}원',
                                         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
