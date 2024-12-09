@@ -107,7 +107,7 @@ class _OnlineBuyerOrderListState extends State<OnlineBuyerOrderList> {
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          Container(
+                          SizedBox(
                               width: 70,
                               child: const Text('연락처',
                                   style: TextStyle(
@@ -141,7 +141,7 @@ class _OnlineBuyerOrderListState extends State<OnlineBuyerOrderList> {
                                       fontWeight: FontWeight.w600
                                   ))),
                           Container(
-                            width: 200,
+                            width: 170,
                             child: Text(
                               '${buyerInfo['address'] ?? ''}',
                               softWrap: true, // 텍스트가 줄 바꿈되도록 설정

@@ -288,9 +288,14 @@ class _PreOrderState extends State<PreOrder> {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      orderItems[i]['itemName'] ?? '',
-                                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                    SizedBox(
+                                      width: 220,
+                                      child: Text(
+                                        orderItems[i]['itemName'] ?? '',
+                                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
                                     Text(
                                       '${orderItems[i]['sellingPrice'] ?? 0}원',

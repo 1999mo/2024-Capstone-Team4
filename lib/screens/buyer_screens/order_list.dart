@@ -181,9 +181,14 @@ class _OrderListState extends State<OrderList> {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      '${orderItems[i]['itemName'] ?? ''}',
-                                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                                    SizedBox(
+                                      width: 220,
+                                      child: Text(
+                                        '${orderItems[i]['itemName'] ?? ''}',
+                                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
                                     Text(
                                       '${orderItems[i]['sellingPrice'] ?? 0}원',

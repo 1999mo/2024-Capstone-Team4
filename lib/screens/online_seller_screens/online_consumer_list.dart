@@ -127,7 +127,7 @@ class _OnlineConsumerListState extends State<OnlineConsumerList> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 SizedBox(
-                                  width: 220,
+                                  width: 190,
                                     child: Text(
                                   '$itemName',
                                   style: TextStyle(fontSize: 16),
