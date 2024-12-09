@@ -224,11 +224,11 @@ class _BoothListScreenState extends State<BoothListScreen>
                   return GridView.builder(
                     padding: const EdgeInsets.all(8.0),
                     gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 8,
-                      mainAxisSpacing: 8,
-                      childAspectRatio: 0.9,
+                    const SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 200, // 각 카드의 최대 가로 길이
+                      crossAxisSpacing: 8, // 그리드 간의 가로 간격
+                      mainAxisSpacing: 8, // 그리드 간의 세로 간격
+                      childAspectRatio: 0.85, // 카드의 세로 비율
                     ),
                     itemCount: filteredData.length,
                     itemBuilder: (context, index) {
@@ -426,10 +426,11 @@ class _BoothListScreenState extends State<BoothListScreen>
                       physics: const ClampingScrollPhysics(),
                       padding: const EdgeInsets.all(8.0),
                       gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 8,
-                        mainAxisSpacing: 8,
+                      const SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 200, // 각 카드의 최대 가로 길이
+                        crossAxisSpacing: 8, // 그리드 간의 가로 간격
+                        mainAxisSpacing: 8, // 그리드 간의 세로 간격
+                        childAspectRatio: 0.85, // 카드의 세로 비율
                       ),
                       itemCount: filteredItems.length > visibleCharacterCount
                           ? visibleCharacterCount
