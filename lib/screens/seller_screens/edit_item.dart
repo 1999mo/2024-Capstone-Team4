@@ -16,6 +16,7 @@ class _EditItemState extends State<EditItem> {
   final _formKey = GlobalKey<FormState>();
   String? boothId;
   String? itemId;
+  bool isDataLoaded=false;
 
   late TextEditingController itemNameController;
   late TextEditingController costPriceController;
@@ -38,6 +39,7 @@ class _EditItemState extends State<EditItem> {
     sellingPriceController = TextEditingController();
     stockQuantityController = TextEditingController();
     itemTypeController = TextEditingController();
+
   }
 
   @override
@@ -48,11 +50,16 @@ class _EditItemState extends State<EditItem> {
     if (args != null && args.length >= 2) {
       boothId = args[0];
       itemId = args[1];
-      _loadPaintersAndItemData();
+
     }
+    _loadPaintersAndItemData();
   }
 
+
+
   Future<void> _loadPaintersAndItemData() async {
+    if(isDataLoaded) return;
+
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null || boothId == null || itemId == null) return;
 
@@ -89,6 +96,7 @@ class _EditItemState extends State<EditItem> {
         });
       }
     }
+    isDataLoaded=true;
   }
 
   Future<void> _deletePreviousImage(String? previousImagePath) async {
@@ -157,6 +165,11 @@ class _EditItemState extends State<EditItem> {
       appBar: AppBar(
         title: const Text('상품 수정'),
         centerTitle: true,
+        actions: [
+          IconButton(onPressed: () {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(selectedPainter)));
+          }, icon: Icon(Icons.abc))
+        ],
       ),
       body: Form(
         key: _formKey,
@@ -187,6 +200,7 @@ class _EditItemState extends State<EditItem> {
                 value: selectedPainter,
                 items: painters.map((painter) => DropdownMenuItem(value: painter, child: Text(painter))).toList(),
                 onChanged: (value) {
+
                   setState(() {
                     selectedPainter = value!;
                   });
