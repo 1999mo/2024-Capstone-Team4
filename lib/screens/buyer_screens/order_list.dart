@@ -144,7 +144,7 @@ class _OrderListState extends State<OrderList> {
                                 children: [
                                   Text(
                                     '교환권 보기',
-                                    style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
+                                    style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
                                   ),
                                   Icon(
                                     Icons.chevron_right,

@@ -46,12 +46,30 @@ class _PreboothItemsListState extends State<PreboothItemsList> {
       return [];
     }
   }
+  Future<String> _fetchBoothName() async {
+    final doc = await FirebaseFirestore.instance
+        .collection('Users')
+        .doc(sellerUid)
+        .collection('booths')
+        .doc(festivalName)
+        .get();
+
+    return doc.data()?['boothName'] ?? 'Unknown Booth';
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('$festivalName - Items'),
+        title: FutureBuilder<String>(
+          future: _fetchBoothName(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator();
+            }
+            return Text(snapshot.data ?? 'Booth');
+          },
+        ),
       ),
       body: Column(
         children: [

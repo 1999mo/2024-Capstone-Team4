@@ -283,7 +283,7 @@ class _SellingState extends State<Selling> {
             },
             child: const Text(
               '판매기록',
-              style: TextStyle(color: Colors.grey),
+              style: TextStyle(color: Colors.blue),
             ),
           ),
         ],
