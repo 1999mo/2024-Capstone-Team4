@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart'; // 숫자 포맷팅
+import 'package:catculator/script.dart';
 
 class OnlineBuyerPay extends StatefulWidget {
   const OnlineBuyerPay({super.key});
@@ -76,6 +77,35 @@ class _OnlineBuyerPayState extends State<OnlineBuyerPay> {
         'address': addressController.text.trim(),
         'zipcode': zipcodeController.text.trim(),
       };
+
+      {
+        // 0. 결제가 완료 되었는지 확인하는 부분
+        Scripts script = new Scripts();
+        int totalCost = 0;
+
+        final futures = basketData.keys.map((sellerId) async {
+          final items = List<Map<String, dynamic>>.from(basketData[sellerId]);
+
+          totalCost += items.fold(
+            0,
+                (sum, item) =>
+            sum + (((item['sellingPrice'] as num?)?.toInt() ?? 0) * ((item['quantity'] as num?)?.toInt() ?? 0)),
+          );
+        }).toList();
+        await Future.wait(futures);
+
+        String result = await script.sendPaymentCheck(totalCost, uid);
+        //uid 부문에 추후 사용자의 계좌 입력 필요
+        //결제 금액과 계좌 번호로 확인
+        //true 이외의 경우 오류 메시지를 받아서 팝업으로 띄움
+
+        if (result != 'true') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(result)),
+          );
+          return;
+        }
+      }
 
       // Step 1: Copy data to `online_order_list`
       for (var sellerId in basketData.keys) {

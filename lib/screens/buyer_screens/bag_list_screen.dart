@@ -8,6 +8,7 @@ import 'dart:io';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart'; // UUID 생성용
+import 'package:catculator/script.dart';
 
 class BagListScreen extends StatefulWidget {
   const BagListScreen({super.key});
@@ -132,6 +133,35 @@ class _BagListScreenState extends State<BagListScreen> {
     final uuid = Uuid();
 
     try {
+      {
+        // 0. 결제가 완료 되었는지 확인하는 부분
+        Scripts script = new Scripts();
+        int totalCost = 0;
+
+        final futures = data.keys.map((sellerId) async {
+          final items = List<Map<String, dynamic>>.from(data[sellerId]);
+
+          totalCost += items.fold(
+            0,
+                (sum, item) =>
+            sum + (((item['sellingPrice'] as num?)?.toInt() ?? 0) * ((item['quantity'] as num?)?.toInt() ?? 0)),
+          );
+        }).toList();
+        await Future.wait(futures);
+
+        String result = await script.sendPaymentCheck(totalCost, uid);
+        //uid 부문에 추후 사용자의 계좌 입력 필요
+        //결제 금액과 계좌 번호로 확인
+        //true 이외의 경우 오류 메시지를 받아서 팝업으로 띄움
+
+        if (result != 'true') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(result)),
+          );
+          return;
+        }
+      }
+
       for (String sellerUid in data.keys) {
         final sellerItems = List<Map<String, dynamic>>.from(data[sellerUid]);
         final boothDoc = await FirebaseFirestore.instance

@@ -8,6 +8,8 @@ import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
 import 'package:flutter/material.dart';
 import 'package:uni_links5/uni_links.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -426,7 +428,52 @@ class Scripts {
       print("Error handling deep link: $e");
     }
   }
+
+  Future<String> sendPaymentCheck (int totalCost, String accountNumber) async
+  {
+    /*
+    클라이언트에서 보내는
+    1. 결제 처리가 완료 되었는지 확인 하는 코드
+    - 이는 클라이언트에서 특정 결제 번호를 서버에 보내고
+    - 서버가 결제가 완료 되었는지를 확인하고 firebase에 결제가 완료 됨을 기록
+    - 이를 구분하는 방법?
+    2. 코드를 최대한 덜 고치는 방안
+    - 현재 사용자가 일정 금액을 앱 계좌에 보냈는지 확인
+    - 만약 들어왔을 시에 서버에서 이에 대해 true를 보내서
+    - 결제 코드쪽에서 문제가 없도록 바로 처리,
+    - 만약 돈이 들어오지 않았을 경우에는 거부
+    - 결과는 일단 true, false이긴 하지만 여러 케이스를 감당해야 할 수 있으므로 String
+    - 추후에 변경 가능
+     */
+    try {
+      Map<String, dynamic> data = {
+        'totalCost': totalCost,
+        'accountNumber': accountNumber,
+      };
+
+      var url = Uri.parse("http://서버 ip 주소:5000");
+      var response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(data),
+      );
+
+      String result;
+      if (response.statusCode == 200) {
+        result = 'true';
+      } else if (response.statusCode == 100) {
+        result = '아직 결제가 완료되지 않았습니다, 먼저 결제가 되었는지 다시 확인해 주세요';
+      } else {
+        result = '결제 과정 확인에 문제가 있었습니다, 다시 시도해 주세요';
+      }
+
+      return result;
+    } catch (e) {
+      print("Error of payment check : $e");
+      return '결제 과정 확인에 문제가 있었습니다, 다시 시도해 주세요';
+    }
   }
+}
 
 Future<void> resetPassword(Uri link, String email, String newPassword, BuildContext context) async {
   try {
