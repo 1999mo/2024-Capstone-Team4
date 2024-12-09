@@ -113,7 +113,7 @@ class _MyOnlineItemsState extends State<MyOnlineItems> {
               },
               child: Text(
                 '주문 목록',
-                style: TextStyle(color: Colors.grey),
+                style: TextStyle(color: Colors.blue),
               ))
         ],
       ),

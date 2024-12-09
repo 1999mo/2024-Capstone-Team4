@@ -23,11 +23,8 @@ class _OnlineConsumerListState extends State<OnlineConsumerList> {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null || festivalName == null) return {};
 
-    final docRef = FirebaseFirestore.instance
-        .collection('Users')
-        .doc(uid)
-        .collection('online_consumer_list')
-        .doc(festivalName);
+    final docRef =
+        FirebaseFirestore.instance.collection('Users').doc(uid).collection('online_consumer_list').doc(festivalName);
 
     final docSnapshot = await docRef.get();
     if (!docSnapshot.exists) return {};
@@ -63,11 +60,8 @@ class _OnlineConsumerListState extends State<OnlineConsumerList> {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null || festivalName == null) return {};
 
-    final docRef = FirebaseFirestore.instance
-        .collection('Users')
-        .doc(uid)
-        .collection('online_consumer_list')
-        .doc(festivalName);
+    final docRef =
+        FirebaseFirestore.instance.collection('Users').doc(uid).collection('online_consumer_list').doc(festivalName);
 
     final docSnapshot = await docRef.get();
     if (!docSnapshot.exists) return {};
@@ -105,8 +99,7 @@ class _OnlineConsumerListState extends State<OnlineConsumerList> {
       context: context,
       builder: (context) {
         return Dialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
           child: Stack(
             children: [
               Padding(
@@ -116,8 +109,7 @@ class _OnlineConsumerListState extends State<OnlineConsumerList> {
                   children: [
                     const Text(
                       '총 주문 물품',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 16),
                     SizedBox(
@@ -130,13 +122,22 @@ class _OnlineConsumerListState extends State<OnlineConsumerList> {
                           final itemName = totalOrders.keys.elementAt(index);
                           final quantity = totalOrders[itemName]!;
                           return Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 4.0), // 간격 조정
+                            padding: const EdgeInsets.symmetric(vertical: 4.0), // 간격 조정
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text('$itemName', style: TextStyle(fontSize: 16),),
-                                Text('$quantity개', style: TextStyle(fontSize: 16),),
+                                SizedBox(
+                                  width: 190,
+                                    child: Text(
+                                  '$itemName',
+                                  style: TextStyle(fontSize: 16),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                )),
+                                Text(
+                                  '$quantity개',
+                                  style: TextStyle(fontSize: 16),
+                                ),
                               ],
                             ),
                           );
@@ -187,8 +188,7 @@ class _OnlineConsumerListState extends State<OnlineConsumerList> {
           return Column(
             children: [
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFFDBE85),
@@ -212,19 +212,15 @@ class _OnlineConsumerListState extends State<OnlineConsumerList> {
                       itemBuilder: (context, index) {
                         final consumerId = consumerData.keys.elementAt(index);
                         final List<dynamic> orders = consumerData[consumerId]!;
-                        final Map<String, dynamic> consumerInfo =
-                            orders.first as Map<String, dynamic>;
+                        final Map<String, dynamic> consumerInfo = orders.first as Map<String, dynamic>;
                         final String name = consumerInfo['name'] ?? '';
-                        final String phone =
-                            _formatPhone(consumerInfo['phone'] ?? '');
+                        final String phone = _formatPhone(consumerInfo['phone'] ?? '');
                         final String zipcode = consumerInfo['zipcode'] ?? '';
                         final String address = consumerInfo['address'] ?? '';
 
                         return Card(
-                          margin: const EdgeInsets.symmetric(
-                              vertical: 8.0, horizontal: 16.0),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0)),
+                          margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
                           child: ExpansionTile(
                             title: Text(
                               '주문자 정보',
@@ -247,8 +243,7 @@ class _OnlineConsumerListState extends State<OnlineConsumerList> {
                             ),
                             children: [
                               Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16.0),
+                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [

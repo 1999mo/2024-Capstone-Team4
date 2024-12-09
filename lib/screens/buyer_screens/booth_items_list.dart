@@ -170,24 +170,29 @@ class _BoothItemsListState extends State<BoothItemsList> {
                                     const SizedBox(height: 10),
                                     Text(
                                       item['itemName'] ?? 'Unknown',
-                                      style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),textAlign: TextAlign.center,),
+                                      style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                                      textAlign: TextAlign.center,
+                                    ),
                                     const SizedBox(height: 8),
-                                    Text(
-                                        '작가: ${item['artist'] ?? 'Unknown'}',
-                                        style: TextStyle(fontSize: 18, color: Colors.grey, fontWeight: FontWeight.bold)),
+                                    Text('작가: ${item['artist'] ?? 'Unknown'}',
+                                        style:
+                                            TextStyle(fontSize: 18, color: Colors.grey, fontWeight: FontWeight.bold)),
+                                    const SizedBox(height: 4),
+                                    Text('상품 종류: ${item['itemType'] ?? 'Unknown'}',
+                                        style:
+                                            TextStyle(fontSize: 18, color: Colors.grey, fontWeight: FontWeight.bold)),
                                     const SizedBox(height: 4),
                                     Text(
-                                        '상품 종류: ${item['itemType'] ?? 'Unknown'}',
-                                        style: TextStyle(fontSize: 18, color: Colors.grey, fontWeight: FontWeight.bold)),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                        stockQuantity > 0 ? '재고: ${stockQuantity}' : '품절',
-                                        style: TextStyle(fontSize: 18,  color: stockQuantity > 0 ? Colors.grey : Colors.red, fontWeight: FontWeight.bold),
+                                      stockQuantity > 0 ? '재고: ${stockQuantity}' : '품절',
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          color: stockQuantity > 0 ? Colors.grey : Colors.red,
+                                          fontWeight: FontWeight.bold),
                                     ),
                                     const SizedBox(height: 16),
-                                    Text(
-                                        '${item['sellingPrice'] ?? 0}원',
-                                        style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold, color: Colors.green)),
+                                    Text('${item['sellingPrice'] ?? 0}원',
+                                        style:
+                                            TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.green)),
                                     const SizedBox(height: 16),
                                   ],
                                 ),
@@ -266,8 +271,12 @@ class _BoothItemsListState extends State<BoothItemsList> {
                             const SizedBox(height: 8),
                             Text(
                               itemName,
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              style: itemName.length > 10
+                                  ? const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)
+                                  : const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                               textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
                             // const SizedBox(height: 4),
                             Text('$sellingPrice원'),
