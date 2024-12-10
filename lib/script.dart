@@ -10,6 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:uni_links5/uni_links.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -25,7 +27,8 @@ class Scripts {
   Future<bool> checkEmailDuplicate(String email) async {
     try {
       // Fetch sign-in methods for the given email
-      List<String> signInMethods = await FirebaseAuth.instance.fetchSignInMethodsForEmail(email);
+      List<String> signInMethods = await FirebaseAuth.instance
+          .fetchSignInMethodsForEmail(email);
 
       if (signInMethods.isNotEmpty) {
         return true;
@@ -72,7 +75,8 @@ class Scripts {
     }
   }
 
-  Future<void> sendVerificationEmail(String email, String verificationCode) async {
+  Future<void> sendVerificationEmail(String email,
+      String verificationCode) async {
     String username = 'lapuliachloros@gmail.com';
     String password = 'mwje memm ogrt htqk';
 
@@ -86,7 +90,7 @@ class Scripts {
       ..from = Address(username)
       ..recipients.add(email)
       ..subject = '[CatCulator] 이메일 인증번호를 확인해주세요'
-      ..text =  '''
+      ..text = '''
   안녕하세요, CatCulator입니다.
 
   회원가입을 위해 아래 인증번호를 입력해주세요:
@@ -107,20 +111,22 @@ class Scripts {
   }
 
   Future<bool> verifyCode(String email, String codeEntered) async {
-    DocumentSnapshot userDoc = await _firestore.collection('email_verify').doc(email).get();
+    DocumentSnapshot userDoc = await _firestore.collection('email_verify').doc(
+        email).get();
     Map<String, dynamic>? userData = userDoc.data() as Map<String, dynamic>?;
 
     if (userData != null) {
       String? storedCode = userData['verificationCode'];
 
-      if(storedCode != null && storedCode == codeEntered) {
+      if (storedCode != null && storedCode == codeEntered) {
         return true;
       }
     }
     return false;
   }
 
-  Future<void> verifyPhone(String phoneNumber, Function(String) code, Function(String) error, ) async {
+  Future<void> verifyPhone(String phoneNumber, Function(String) code,
+      Function(String) error,) async {
     try {
       await _auth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
@@ -133,11 +139,11 @@ class Scripts {
         },
         codeSent: (String verificationId, int? resendToken) {
           code(verificationId);
-      },
-        codeAutoRetrievalTimeout:  (String verificationId) {
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {
           error('Verification time out');
           //when timed out
-      },
+        },
       );
     } catch (e) {
       error('Error: $e');
@@ -151,14 +157,14 @@ class Scripts {
         smsCode: smsCode, //The code we need from the user
       );
       await FirebaseAuth.instance.signInWithCredential(credential);
-    } catch(e) {
+    } catch (e) {
       print("Error phone verification: $e");
     }
   }
 
   //This can be used in the signup process to cancle it
   Future<void> deleteUser(String uid) async {
-    if(uid == '') {
+    if (uid == '') {
       return;
     }
     await FirebaseAuth.instance.currentUser?.delete();
@@ -174,7 +180,7 @@ class Scripts {
         password: password,
       );
       return userCredential;
-    } catch(e) {
+    } catch (e) {
       print("Error : $e");
       return null;
     }
@@ -262,7 +268,8 @@ class Scripts {
     }
   }
 
-  Future<void> uploadItem(String itemName, int itemPrice, int sellPrice, int quantity, String imageUrl) async {
+  Future<void> uploadItem(String itemName, int itemPrice, int sellPrice,
+      int quantity, String imageUrl) async {
     try {
       //user check, might not need this
       User? user = _auth.currentUser;
@@ -320,7 +327,8 @@ class Scripts {
     return imageUrl;
   }
 
-  Future<void> updateItem(String itemId, String itemName, int itemPrice, int sellPrice, int quantity, String imageUrl) async {
+  Future<void> updateItem(String itemId, String itemName, int itemPrice,
+      int sellPrice, int quantity, String imageUrl) async {
     try {
       User? user = _auth.currentUser;
       if (user == null) {
@@ -349,7 +357,7 @@ class Scripts {
         'itemImage': imageUrl,
         'updatedAt': FieldValue.serverTimestamp(),
       });
-    } catch(e) {
+    } catch (e) {
       print("Error : $e");
     }
   }
@@ -357,7 +365,7 @@ class Scripts {
   Future<void> deleteItem(String itemId) async {
     try {
       User? user = _auth.currentUser;
-      if(user == null) {
+      if (user == null) {
         throw 'no current user';
       }
 
@@ -377,7 +385,7 @@ class Scripts {
 
       await FirebaseFirestore.instance.collection('items').doc(itemId).delete();
       print("cleaned up items");
-    } catch(e) {
+    } catch (e) {
       print("Error : $e");
     }
   }
@@ -405,11 +413,11 @@ class Scripts {
   Future<void> sendPasswordResetEmail(String email) async {
     try {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
-  void resetPasswordByLink(BuildContext context, String email, String newPassword) async {
+  void resetPasswordByLink(BuildContext context, String email,
+      String newPassword) async {
     try {
       final initialLink = await getInitialLink();
 
@@ -417,7 +425,6 @@ class Scripts {
         Uri link = Uri.parse(initialLink);
 
         if (FirebaseAuth.instance.isSignInWithEmailLink(link.toString())) {
-
           // Call the password reset method
           await resetPassword(link, email, newPassword, context);
         } else {
@@ -429,7 +436,7 @@ class Scripts {
     }
   }
 
-  Future<String> sendPaymentCheck (int totalCost, String accountNumber) async
+  Future<String> sendPaymentCheck(BuildContext context, int totalCost, String accountNumber) async
   {
     /*
     클라이언트에서 보내는
@@ -445,6 +452,7 @@ class Scripts {
     - 결과는 일단 true, false이긴 하지만 여러 케이스를 감당해야 할 수 있으므로 String
     - 추후에 변경 가능
      */
+    /*
     try {
       Map<String, dynamic> data = {
         'totalCost': totalCost,
@@ -472,6 +480,80 @@ class Scripts {
       print("Error of payment check : $e");
       return '결제 과정 확인에 문제가 있었습니다, 다시 시도해 주세요';
     }
+  }
+     */
+    final url = Uri.parse(
+        'https://open-api.kakaopay.com/online/v1/payment/ready');
+    final header = {
+      'Authorization': 'SECRET_KEY DEV77ECB5ABFFC90F238F88B9B85ECA6D06EB8DF',
+      'Content-Type': 'application/json',
+    };
+    final body = jsonEncode({
+      'cid': 'TC0ONETIME',
+      'partner_order_id': 'ThisIsTest',
+      'partner_user_id': accountNumber,
+      'item_name': 'ThisIsTest2',
+      'quantity': 1,
+      'total_amount': totalCost,
+      'tax_free_amount': 0,
+      'approval_url': 'http://localhost:8080/success',
+      'cancel_url': 'http://localhost:8080/fail',
+      'fail_url': 'http://localhost:8080/cancel',
+    });
+
+    try {
+      final response = await http.post(
+        url,
+        headers: header,
+        body: body,
+      );
+      // 수동으로 UTF-8 디코딩
+      final decodedBody = utf8.decode(response.bodyBytes);
+      final data = jsonDecode(decodedBody);
+      final tid = data['tid'];
+      final next_url = Uri.parse(data['next_redirect_app_url']);
+      print('url: $next_url');
+
+      if (await canLaunchUrl(next_url)) {
+        await launchUrl(next_url);
+      } else {
+        throw 'Could not launch $next_url';
+      }
+
+    } catch (e) {
+      print("error while testing : $e");
+    }
+    return 'false';
+  }
+
+  Future<void> approvePayment(String accountNumber, String tid, String pgToken) async{
+    final url = Uri.parse(
+        'https://open-api.kakaopay.com/online/v1/payment/approve');
+    final header = {
+      'Authorization': 'SECRET_KEY DEV77ECB5ABFFC90F238F88B9B85ECA6D06EB8DF',
+      'Content-Type': 'application/json',
+    };
+    final body = jsonEncode({
+      'cid': 'TC0ONETIME',
+      'tid': tid,
+      'partner_order_id': 'ThisIsTest',
+      'partner_user_id': accountNumber,
+      'pg_token': pgToken,
+    });
+    //print(body);
+
+    try {
+      final response = await http.post(
+        url,
+        headers: header,
+        body: body,
+      );
+      print(response);
+    } catch (e) {
+      print("error while testing_2 : $e");
+    }
+
+    return;
   }
 }
 
