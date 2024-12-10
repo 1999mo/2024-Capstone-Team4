@@ -141,7 +141,7 @@ class _MyOnlineItemsState extends State<MyOnlineItems> {
                   physics: const NeverScrollableScrollPhysics(),
                   // ScrollView 내 독립 스크롤 비활성화
                   gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 200, // 각 카드의 최대 가로 길이
+                    maxCrossAxisExtent: 220, // 각 카드의 최대 가로 길이
                     crossAxisSpacing: 8, // 그리드 간의 가로 간격
                     mainAxisSpacing: 8, // 그리드 간의 세로 간격
                     childAspectRatio: 0.85, // 카드의 세로 비율

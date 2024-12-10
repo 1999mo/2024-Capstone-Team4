@@ -225,7 +225,7 @@ class _BoothListScreenState extends State<BoothListScreen>
                     padding: const EdgeInsets.all(8.0),
                     gridDelegate:
                     const SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: 200, // 각 카드의 최대 가로 길이
+                      maxCrossAxisExtent: 220, // 각 카드의 최대 가로 길이
                       crossAxisSpacing: 8, // 그리드 간의 가로 간격
                       mainAxisSpacing: 8, // 그리드 간의 세로 간격
                       childAspectRatio: 0.85, // 카드의 세로 비율
@@ -427,7 +427,7 @@ class _BoothListScreenState extends State<BoothListScreen>
                       padding: const EdgeInsets.all(8.0),
                       gridDelegate:
                       const SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: 200, // 각 카드의 최대 가로 길이
+                        maxCrossAxisExtent: 220, // 각 카드의 최대 가로 길이
                         crossAxisSpacing: 8, // 그리드 간의 가로 간격
                         mainAxisSpacing: 8, // 그리드 간의 세로 간격
                         childAspectRatio: 0.85, // 카드의 세로 비율

@@ -182,8 +182,16 @@ class _AddBoothState extends State<AddBooth> {
                 TextFormField(
                   decoration: InputDecoration(border: OutlineInputBorder()),
                   validator: (value) {
-                    if (value == null || value.trim().isEmpty)
+                    if (value == null || value.trim().isEmpty) {
                       return '부스 위치를 알려주세요';
+                    }
+
+                    // 첫 글자 확인
+                    String firstChar = value.trim()[0]; // 입력 값의 첫 글자
+                    if (!RegExp(r'^[a-zA-Z]$').hasMatch(firstChar)) {
+                      return 'a-1, a1과 같이 알파벳이 앞으로 오게 작성해주세요';
+                    }
+
                     return null;
                   },
                   onSaved: (newValue) {

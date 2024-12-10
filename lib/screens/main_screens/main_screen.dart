@@ -147,8 +147,7 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
                       decoration: ShapeDecoration(
                         color: Color(0xFFECECEC),
                         shape: RoundedRectangleBorder(
-                            side: BorderSide(width: 1, color: Color(0xFFD1D1D1)),
-                            borderRadius: BorderRadius.circular(8)),
+                            side: BorderSide(width: 1, color: Color(0xFFD1D1D1)), borderRadius: BorderRadius.circular(8)),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -174,8 +173,7 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
                       decoration: ShapeDecoration(
                         color: Color(0xFFECECEC),
                         shape: RoundedRectangleBorder(
-                            side: BorderSide(width: 1, color: Color(0xFFD1D1D1)),
-                            borderRadius: BorderRadius.circular(8)),
+                            side: BorderSide(width: 1, color: Color(0xFFD1D1D1)), borderRadius: BorderRadius.circular(8)),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -358,8 +356,7 @@ class _BuyerMainScreenState extends State<BuyerMainScreen> {
                       decoration: ShapeDecoration(
                         color: Color(0xFFECECEC),
                         shape: RoundedRectangleBorder(
-                            side: BorderSide(width: 1, color: Color(0xFFD1D1D1)),
-                            borderRadius: BorderRadius.circular(8)),
+                            side: BorderSide(width: 1, color: Color(0xFFD1D1D1)), borderRadius: BorderRadius.circular(8)),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -435,7 +432,10 @@ class _BuyerMainScreenState extends State<BuyerMainScreen> {
           onPressed: () {
             Navigator.pushNamed(context, '/main_screens/setting');
           },
-          child: const Icon(Icons.settings, color: Colors.black,),
+          child: const Icon(
+            Icons.settings,
+            color: Colors.black,
+          ),
         ));
   }
 }
