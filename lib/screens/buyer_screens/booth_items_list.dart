@@ -14,6 +14,9 @@ class BoothItemsList extends StatefulWidget {
 class _BoothItemsListState extends State<BoothItemsList> {
   late String sellerUid;
   late String festivalName;
+  String? mapImageUrl;
+  String? location;
+  bool isFetched = false;
 
   @override
   void didChangeDependencies() {
@@ -21,17 +24,30 @@ class _BoothItemsListState extends State<BoothItemsList> {
     final arguments = ModalRoute.of(context)?.settings.arguments as Map<String, String?>;
     sellerUid = arguments['sellerUid'] ?? '';
     festivalName = arguments['festivalName'] ?? '';
+    _fetchMapImage();
   }
 
-  Future<String> _fetchBoothName() async {
-    final doc = await FirebaseFirestore.instance
-        .collection('Users')
-        .doc(sellerUid)
-        .collection('booths')
-        .doc(festivalName)
-        .get();
+  Future<void> _fetchMapImage() async {
+    if (isFetched) return;
+    try {
+      final formattedName = festivalName!.replaceAll(' ', '_');
+      final ref = FirebaseStorage.instance.ref('maps/$formattedName.jpg');
+      final url = await ref.getDownloadURL();
+      setState(() {
+        mapImageUrl = url;
+        isFetched = true;
+      });
+    } catch (e) {
+      setState(() {
+        mapImageUrl = null;
+      });
+    }
+  }
 
-    return doc.data()?['boothName'] ?? 'Unknown Booth';
+  Future<List<String>> _fetchBoothName() async {
+    final doc = await FirebaseFirestore.instance.collection('Users').doc(sellerUid).collection('booths').doc(festivalName).get();
+
+    return [doc.data()?['boothName'] ?? 'Unknown Booth', doc.data()?['location'] ?? 'x'];
   }
 
   Future<String> _getImageUrl(String imagePath) async {
@@ -50,26 +66,140 @@ class _BoothItemsListState extends State<BoothItemsList> {
   }
 
   Future<bool> _isOnlineSelling(String itemId) async {
-    final docRef =
-        FirebaseFirestore.instance.collection('OnlineStore').doc(festivalName).collection(sellerUid).doc(itemId);
+    final docRef = FirebaseFirestore.instance.collection('OnlineStore').doc(festivalName).collection(sellerUid).doc(itemId);
 
     final docSnapshot = await docRef.get();
     return docSnapshot.exists;
+  }
+
+  void _showFullScreenImage(String imageUrl, String location) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          insetPadding: EdgeInsets.zero, // 화면 전체에 꽉 차게
+          child: Column(
+            children: [
+              Container(
+                color: Colors.black,
+                padding: const EdgeInsets.only(top: 16, right: 16),
+                alignment: Alignment.topRight,
+                child: IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ),
+              Expanded(
+                child: InteractiveViewer(
+                  maxScale: 10.0,
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      // 이미지의 원본 비율 계산
+                      double imageAspectRatio = 1.5; // 예: 가로:세로 비율이 3:2인 경우
+                      double imageWidth = constraints.maxWidth; // 이미지의 최대 너비
+                      double imageHeight = imageWidth / imageAspectRatio;
+
+                      // 이미지가 컨테이너보다 높거나 넓을 경우 처리
+                      if (imageHeight > constraints.maxHeight) {
+                        imageHeight = constraints.maxHeight;
+                        imageWidth = imageHeight * imageAspectRatio;
+                      }
+
+                      // 실제 이미지가 렌더링될 위치의 시작 좌표
+                      double imageLeft = (constraints.maxWidth - imageWidth) / 2;
+                      double imageTop = (constraints.maxHeight - imageHeight) / 2;
+
+                      // locationRatio 계산
+                      int locationRatio = 0;
+
+                      // 첫 글자 가져오기
+                      String firstLetter = location[0].toLowerCase();
+                      // 첫 글자의 알파벳 순서 계산
+                      int offset = firstLetter.codeUnitAt(0) - 'a'.codeUnitAt(0);
+
+                      // locationRatio 계산 (7과 4를 번갈아 더하기)
+                      for (int i = 1; i <= offset; i++) {
+                        // 'b'부터 시작하므로 i는 1부터
+                        locationRatio += (i % 2 == 1) ? 7 : 4; // 홀수 번째는 7, 짝수 번째는 4
+                      }
+
+                      // 위치 계산
+                      double leftPosition = imageLeft + (imageWidth / 320) * (8 + locationRatio);
+                      double topPosition = imageTop + (imageHeight / 3) * 1.01;
+
+                      return Stack(
+                        children: [
+                          // 이미지
+                          Center(
+                            child: Image.network(
+                              imageUrl,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                          // 빨간 사각형
+                          Positioned(
+                            left: leftPosition - 4.0, // 사각형 중심 맞추기
+                            top: topPosition - 40.0, // 사각형 중심 맞추기
+                            child: Container(
+                              width: 8.0,
+                              height: 85.0,
+                              decoration: BoxDecoration(
+                                color: Colors.transparent, // 투명한 배경
+                                border: Border.all(color: Colors.red, width: 2.0), // 빨간 테두리
+                                shape: BoxShape.rectangle, // 사각형 모양
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: FutureBuilder<String>(
+        title: FutureBuilder<List<String>>(
           future: _fetchBoothName(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const CircularProgressIndicator();
             }
-            return Text(snapshot.data ?? 'Booth');
+            location = snapshot.data?[1];
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(snapshot.data?[0].toUpperCase() ?? 'Booth'),
+                Text(
+                  '부스위치 : ${snapshot.data?[1]}' ?? 'x',
+                  style: TextStyle(fontSize: 15, color: Colors.blue),
+                  textAlign: TextAlign.start,
+                )
+              ],
+            );
           },
         ),
+        actions: [
+          Column(
+            children: [
+              IconButton(
+                  onPressed: () {
+                    _showFullScreenImage(mapImageUrl!, location!);
+                  },
+                  icon: Icon(Icons.map)),
+            ],
+          )
+        ],
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
@@ -92,11 +222,11 @@ class _BoothItemsListState extends State<BoothItemsList> {
 
           return GridView.builder(
             padding: const EdgeInsets.all(8.0),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 8.0,
-              mainAxisSpacing: 8.0,
-              childAspectRatio: 0.7,
+            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 220, // 각 카드의 최대 가로 길이
+              crossAxisSpacing: 8, // 그리드 간의 가로 간격
+              mainAxisSpacing: 8, // 그리드 간의 세로 간격
+              childAspectRatio: 0.85, // 카드의 세로 비율
             ),
             itemCount: items.length,
             itemBuilder: (context, index) {
@@ -155,8 +285,7 @@ class _BoothItemsListState extends State<BoothItemsList> {
                                             height: 250,
                                             child: CachedNetworkImage(
                                               imageUrl: item['imagePath'] ?? 'assets/catcul_w.jpg',
-                                              placeholder: (context, url) =>
-                                                  const Center(child: CircularProgressIndicator()),
+                                              placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
                                               errorWidget: (context, url, error) => Container(
                                                   width: double.infinity,
                                                   child: Image.asset('assets/catcul_w.jpg', fit: BoxFit.cover)),
@@ -175,12 +304,10 @@ class _BoothItemsListState extends State<BoothItemsList> {
                                     ),
                                     const SizedBox(height: 8),
                                     Text('작가: ${item['artist'] ?? 'Unknown'}',
-                                        style:
-                                            TextStyle(fontSize: 18, color: Colors.grey, fontWeight: FontWeight.bold)),
+                                        style: TextStyle(fontSize: 18, color: Colors.grey, fontWeight: FontWeight.bold)),
                                     const SizedBox(height: 4),
                                     Text('상품 종류: ${item['itemType'] ?? 'Unknown'}',
-                                        style:
-                                            TextStyle(fontSize: 18, color: Colors.grey, fontWeight: FontWeight.bold)),
+                                        style: TextStyle(fontSize: 18, color: Colors.grey, fontWeight: FontWeight.bold)),
                                     const SizedBox(height: 4),
                                     Text(
                                       stockQuantity > 0 ? '재고: ${stockQuantity}' : '품절',
@@ -191,8 +318,7 @@ class _BoothItemsListState extends State<BoothItemsList> {
                                     ),
                                     const SizedBox(height: 16),
                                     Text('${item['sellingPrice'] ?? 0}원',
-                                        style:
-                                            TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.green)),
+                                        style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.green)),
                                     const SizedBox(height: 16),
                                   ],
                                 ),
@@ -230,8 +356,7 @@ class _BoothItemsListState extends State<BoothItemsList> {
                                           ),
                                           child: CachedNetworkImage(
                                             imageUrl: imageUrl,
-                                            placeholder: (context, url) =>
-                                                const Center(child: CircularProgressIndicator()),
+                                            placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
                                             errorWidget: (context, url, error) => Container(
                                                 width: double.infinity,
                                                 child: Image.asset(

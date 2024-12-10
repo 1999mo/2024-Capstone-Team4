@@ -140,11 +140,11 @@ class _MyOnlineItemsState extends State<MyOnlineItems> {
                   // 부모 높이에 종속되도록 설정
                   physics: const NeverScrollableScrollPhysics(),
                   // ScrollView 내 독립 스크롤 비활성화
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2, // 그리드 뷰 열 개수
-                    crossAxisSpacing: 8, // 그리드 간격
-                    mainAxisSpacing: 8, // 그리드 간격
-                    childAspectRatio: 0.9,
+                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 220, // 각 카드의 최대 가로 길이
+                    crossAxisSpacing: 8, // 그리드 간의 가로 간격
+                    mainAxisSpacing: 8, // 그리드 간의 세로 간격
+                    childAspectRatio: 0.85, // 카드의 세로 비율
                   ),
                   itemCount: items.length,
                   itemBuilder: (context, index) {

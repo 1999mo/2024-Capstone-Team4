@@ -125,11 +125,11 @@ class _PreboothListScreenState extends State<PreboothListScreen> {
 
                 return GridView.builder(
                   padding: const EdgeInsets.all(8.0),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2, // 한 줄에 2개씩 배치
-                    crossAxisSpacing: 8, // 카드 간의 가로 간격
-                    mainAxisSpacing: 8, // 카드 간의 세로 간격
-                    childAspectRatio: 0.9,
+                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 220, // 각 카드의 최대 가로 길이
+                    crossAxisSpacing: 8, // 그리드 간의 가로 간격
+                    mainAxisSpacing: 8, // 그리드 간의 세로 간격
+                    childAspectRatio: 0.85, // 카드의 세로 비율
                   ),
                   itemCount: filteredSellers.length,
                   itemBuilder: (context, index) {
