@@ -102,257 +102,162 @@ class _OnlineLookBoothItemsState extends State<OnlineLookBoothItems> {
                                 builder: (context, setState) {
                                   return AlertDialog(
                                     title: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         const Text('상품 정보'),
                                         IconButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context),
+                                          onPressed: () => Navigator.pop(context),
                                           icon: const Icon(Icons.close),
                                         ),
                                       ],
                                     ),
                                     content: SizedBox(
                                       width: MediaQuery.of(context).size.width * 0.65,
-                                      height: MediaQuery.of(context).size.height * 0.7,
-                                      child: SingleChildScrollView(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            // 상품 이미지
-                                            Container(
-                                              height: 250,
-                                              width: double.infinity,
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                                border: Border.all(
-                                                    color: Color(0xFFD1D1D1),
-                                                    width: 1),
-                                              ),
-                                              child: imageUrl != null
-                                                  ? ClipRRect(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8),
+                                      height: MediaQuery.of(context).size.height * 0.6, // 세로 길이 조정
+                                      child: Column(
+                                        children: [
+                                          Expanded(
+                                            child: SingleChildScrollView(
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  // 상품 이미지
+                                                  Container(
+                                                    height: 270,
+                                                    width: double.infinity,
+                                                    decoration: BoxDecoration(
+                                                      borderRadius: BorderRadius.circular(8),
+                                                      border: Border.all(color: Color(0xFFD1D1D1), width: 1),
+                                                    ),
+                                                    child: imageUrl != null
+                                                        ? ClipRRect(
+                                                      borderRadius: BorderRadius.circular(8),
                                                       child: Image.network(
                                                         imageUrl,
                                                         fit: BoxFit.cover,
-                                                        errorBuilder: (context,
-                                                            error, stackTrace) {
-                                                          return Image.asset(
-                                                              'assets/catcul_w.jpg');
+                                                        errorBuilder: (context, error, stackTrace) {
+                                                          return Image.asset('assets/catcul_w.jpg');
                                                         },
                                                       ),
                                                     )
-                                                  : ClipRRect(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8),
+                                                        : ClipRRect(
+                                                      borderRadius: BorderRadius.circular(8),
                                                       child: Image.asset(
-                                                          'assets/catcul_w.jpg',
-                                                          fit: BoxFit.cover,
+                                                        'assets/catcul_w.jpg',
+                                                        fit: BoxFit.cover,
                                                       ),
                                                     ),
+                                                  ),
+                                                  const SizedBox(height: 16),
+                                                  Text(
+                                                    '${itemData['itemName'] ?? 'N/A'}',
+                                                    style: TextStyle(
+                                                        fontSize: 22, fontWeight: FontWeight.bold), // 폰트 크기 조정
+                                                  ),
+                                                  Text(
+                                                    '작가: ${itemData['artist'] ?? 'N/A'}',
+                                                    style: TextStyle(
+                                                        fontSize: 14,
+                                                        color: Colors.grey,
+                                                        fontWeight: FontWeight.bold),
+                                                  ),
+                                                  Text(
+                                                    '상품 종류: ${itemData['itemType'] ?? 'N/A'}',
+                                                    style: TextStyle(
+                                                        fontSize: 14,
+                                                        color: Colors.grey,
+                                                        fontWeight: FontWeight.bold),
+                                                  ),
+                                                  const SizedBox(height: 16),
+                                                  Text(
+                                                    '${itemData['sellingPrice'] ?? 'N/A'}원',
+                                                    style: TextStyle(
+                                                        fontSize: 22,
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Colors.green),
+                                                  ),
+                                                  const SizedBox(height: 16),
+                                                  Row(
+                                                    mainAxisAlignment: MainAxisAlignment.end,
+                                                    children: [
+                                                      // 수량 선택 위젯
+                                                      Container(
+                                                        decoration: BoxDecoration(
+                                                          border: Border.all(color: Color(0xFFD1D1D1)),
+                                                          shape: BoxShape.circle,
+                                                          color: quantity == 1 ? Color(0x91D1D1D1) : null,
+                                                        ),
+                                                        height: 30,
+                                                        width: 30,
+                                                        child: IconButton(
+                                                          onPressed: () {
+                                                            if (quantity > 1) {
+                                                              setState(() {
+                                                                quantity--;
+                                                              });
+                                                            }
+                                                          },
+                                                          icon: const Icon(Icons.remove, color: Colors.blue),
+                                                          iconSize: 18,
+                                                          padding: EdgeInsets.zero,
+                                                          constraints: BoxConstraints(),
+                                                          visualDensity: VisualDensity.compact,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 8),
+                                                      Text('$quantity', style: const TextStyle(fontSize: 16)),
+                                                      const SizedBox(width: 8),
+                                                      Container(
+                                                        decoration: BoxDecoration(
+                                                          border: Border.all(color: Color(0xFFD1D1D1)),
+                                                          shape: BoxShape.circle,
+                                                        ),
+                                                        height: 30,
+                                                        width: 30,
+                                                        child: IconButton(
+                                                          onPressed: () {
+                                                            setState(() {
+                                                              quantity++;
+                                                            });
+                                                          },
+                                                          icon: const Icon(Icons.add, color: Colors.red),
+                                                          iconSize: 18,
+                                                          padding: EdgeInsets.zero,
+                                                          constraints: BoxConstraints(),
+                                                          visualDensity: VisualDensity.compact,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
                                             ),
-                                            const SizedBox(height: 16),
-                                            Text(
-                                                '${itemData['itemName'] ?? 'N/A'}',
-                                                style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
-                                            Text(
-                                                '작가: ${itemData['artist'] ?? 'N/A'}',
-                                                style: TextStyle(fontSize: 16, color: Colors.grey, fontWeight: FontWeight.bold)),
-                                            Text(
-                                                '상품 종류: ${itemData['itemType'] ?? 'N/A'}',
-                                                style: TextStyle(fontSize: 16, color: Colors.grey, fontWeight: FontWeight.bold)),
-                                            const SizedBox(height: 16),
-                                            Text(
-                                                '${itemData['sellingPrice'] ?? 'N/A'}원',
-                                                style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold, color: Colors.green,)),
-                                            const SizedBox(height: 16),
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.end,
-                                              children: [
-                                                // 수량 선택 위젯
-                                                Container(
-                                                  decoration: BoxDecoration(
-                                                    border: Border.all(
-                                                        color: Color(0xFFD1D1D1)),
-                                                    shape: BoxShape.circle,
-                                                    color: quantity == 1 ? Color(0x91D1D1D1) : null,
-                                                  ),
-                                                  height: 30,
-                                                  width: 30,
-                                                  child: IconButton(
-                                                    onPressed: () {
-                                                      if (quantity > 1) {
-                                                        setState(() {
-                                                          quantity--;
-                                                        });
-                                                      }
-                                                    },
-                                                    icon: const Icon(
-                                                        Icons.remove,
-                                                        color: Colors.blue),
-                                                    iconSize: 18,
-                                                    padding: EdgeInsets.zero,
-                                                    constraints:
-                                                        BoxConstraints(),
-                                                    visualDensity:
-                                                        VisualDensity.compact,
-                                                  ),
+                                          ),
+                                          const SizedBox(height: 16),
+                                          GestureDetector(
+                                            onTap: () async {
+                                              // 장바구니 추가 로직
+                                            },
+                                            child: Container(
+                                             width: double.infinity,
+                                              padding: const EdgeInsets.all(12),
+                                              decoration: BoxDecoration(
+                                                color: Color(0xFFFDBE85),
+                                                borderRadius: BorderRadius.circular(8),
+                                              ),
+                                              child: const Center(
+                                                child: Text(
+                                                  '장바구니에 추가',
+                                                  style: TextStyle(color: Colors.black, fontSize: 16),
                                                 ),
-                                                const SizedBox(width: 8),
-                                                Text('$quantity',
-                                                    style: const TextStyle(
-                                                        fontSize: 16)),
-                                                const SizedBox(width: 8),
-                                                Container(
-                                                  decoration: BoxDecoration(
-                                                    border: Border.all(
-                                                        color: Color(0xFFD1D1D1)),
-                                                    shape: BoxShape.circle,
-                                                  ),
-                                                  height: 30,
-                                                  width: 30,
-                                                  child: IconButton(
-                                                    onPressed: () {
-                                                      setState(() {
-                                                        quantity++;
-                                                      });
-                                                    },
-                                                    icon: const Icon(Icons.add, color: Colors.red),
-                                                    iconSize: 18,
-                                                    padding: EdgeInsets.zero,
-                                                    constraints:
-                                                        BoxConstraints(),
-                                                    visualDensity:
-                                                        VisualDensity.compact,
-                                                  ),
-                                                ),
-                                              ],
+                                              ),
                                             ),
-                                          ],
-                                        ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    actions: [
-                                      GestureDetector(
-                                        onTap: () async {
-                                          final uid = FirebaseAuth
-                                              .instance.currentUser?.uid;
-                                          if (uid == null) {
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                              const SnackBar(
-                                                  content: Text('로그인이 필요합니다.')),
-                                            );
-                                            return;
-                                          }
-
-                                          try {
-                                            Navigator.pop(context);
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                              const SnackBar(
-                                                content:
-                                                    Text('상품이 장바구니에 추가되었습니다.'),
-                                                duration: Duration(seconds: 1),
-                                              ),
-                                            );
-
-                                            final basketRef = FirebaseFirestore
-                                                .instance
-                                                .collection('Users')
-                                                .doc(uid)
-                                                .collection('online_basket')
-                                                .doc(
-                                                    festivalName); // 축제 이름에 해당하는 문서
-
-                                            // 새로 추가할 상품 정보
-                                            final newItem = {
-                                              'itemName': itemData['itemName'],
-                                              'artist': itemData['artist'],
-                                              'quantity': quantity, // 선택된 수량
-                                              'sellingPrice':
-                                                  itemData['sellingPrice'],
-                                              'itemType': itemData['itemType'],
-                                              'imagePath':
-                                                  '${sellerUid}/${itemId.replaceAll(' ', '_')}.jpg',
-                                            };
-
-                                            // 기존 데이터 확인
-                                            final snapshot =
-                                                await basketRef.get();
-                                            if (snapshot.exists) {
-                                              // 문서가 존재할 경우
-                                              final currentData =
-                                                  snapshot.data() as Map<String,
-                                                          dynamic>? ??
-                                                      {};
-
-                                              if (currentData
-                                                  .containsKey(sellerUid)) {
-                                                // 해당 sellerId 필드가 존재하면 기존 배열에서 itemName 비교
-                                                final List<dynamic>
-                                                    currentItems =
-                                                    currentData[sellerUid]
-                                                        as List<dynamic>;
-
-                                                // 동일한 itemName을 가진 항목이 있는지 확인
-                                                currentItems.removeWhere(
-                                                    (item) =>
-                                                        item['itemName'] ==
-                                                        itemData['itemName']);
-
-                                                // 새로운 항목 추가
-                                                currentItems.add(newItem);
-
-                                                // 업데이트
-                                                await basketRef.update({
-                                                  sellerUid!: currentItems,
-                                                });
-                                              } else {
-                                                // 해당 sellerId 필드가 없으면 새 필드 생성
-                                                await basketRef.update({
-                                                  sellerUid!: [newItem],
-                                                });
-                                              }
-                                            } else {
-                                              // 문서가 존재하지 않을 경우 새로 생성
-                                              await basketRef.set({
-                                                sellerUid!: [newItem],
-                                              });
-                                            }
-                                          } catch (e) {
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                              SnackBar(
-                                                  content: Text(
-                                                      '장바구니 추가 중 오류가 발생했습니다: $e')),
-                                            );
-                                          }
-                                        },
-                                        child: Container(
-                                          padding: const EdgeInsets.all(12),
-                                          decoration: BoxDecoration(
-                                            color: Color(0xFFFDBE85),
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                          ),
-                                          child: const Text(
-                                            '장바구니에 추가',
-                                            style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 16),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
                                   );
+
                                 },
                               );
                             },
