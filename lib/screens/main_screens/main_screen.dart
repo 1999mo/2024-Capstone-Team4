@@ -130,99 +130,113 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
                         style: TextStyle(fontSize: 18, color: Colors.pinkAccent),
                       ),
                       Text('좋은 앱 이름 추천 받아요... \n아이디어 있으면 연락주세요 (제발)'),
-                      Text('\n판매화면 모두 구성 완료!')
+                      Text('\n판매화면 모두 구성 완료!'),
                     ])
                   ],
                 )),
-            const SizedBox(height: 50),
+            const SizedBox(height: 30),
+            const Divider(
+              color: Color(0x81D1D1D1),
+              thickness: 6,
+            ),
+            const SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Column(
                 children: [
-                  GestureDetector(
-                    child: Container(
-                      width: double.infinity,
-                      height: 56,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      decoration: ShapeDecoration(
-                        color: Color(0xFFECECEC),
-                        shape: RoundedRectangleBorder(
-                            side: BorderSide(width: 1, color: Color(0xFFD1D1D1)), borderRadius: BorderRadius.circular(8)),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            '부스 판매하기',
-                            style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
-                          ),
-                          const Icon(Icons.chevron_right)
-                        ],
-                      ),
-                    ),
-                    onTap: () {
-                      Navigator.pushNamed(context, '/seller_screens/my_booth');
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  GestureDetector(
-                    child: Container(
-                      width: double.infinity,
-                      height: 56,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      decoration: ShapeDecoration(
-                        color: Color(0xFFECECEC),
-                        shape: RoundedRectangleBorder(
-                            side: BorderSide(width: 1, color: Color(0xFFD1D1D1)), borderRadius: BorderRadius.circular(8)),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            child: Text(
-                              '부스 둘러보기',
-                              style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
-                            ),
-                          ),
-                          Icon(Icons.chevron_right)
-                        ],
-                      ),
-                    ),
-                    onTap: () async {
-                      String? selection = await showDialog<String>(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return MyDropdownDialog();
-                          });
-
-                      if (selection == '') {
-                        //this is where nothing selected, such as cancel, or selecting nothing and continue;
-                      } else {
-                        Navigator.pushNamed(context, '/buyer_screens/buyer_navigation_screen', arguments: selection);
-                      }
-                    },
-                  ),
+                  Text('판매하기', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),),
+                      // const Icon(Icons.chevron_right)
+                  Text('내가 만든 상품을 판매해보세요!', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.grey),),
+                  // GestureDetector(
+                  //   child: Container(
+                  //     width: double.infinity,
+                  //     height: 56,
+                  //     padding: const EdgeInsets.symmetric(horizontal: 16),
+                  //     decoration: ShapeDecoration(
+                  //       color: Color(0xFFECECEC),
+                  //       shape: RoundedRectangleBorder(
+                  //           side: BorderSide(width: 1, color: Color(0xFFD1D1D1)), borderRadius: BorderRadius.circular(8)),
+                  //     ),
+                  //     child: Row(
+                  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //       children: [
+                  //         const Text(
+                  //           '부스 판매하기',
+                  //           style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+                  //         ),
+                  //         const Icon(Icons.chevron_right)
+                  //       ],
+                  //     ),
+                  //   ),
+                  //   onTap: () {
+                  //     Navigator.pushNamed(context, '/seller_screens/my_booth');
+                  //   },
+                  // ),
+                  // const SizedBox(height: 20),
+                  // GestureDetector(
+                  //   child: Container(
+                  //     width: double.infinity,
+                  //     height: 56,
+                  //     padding: const EdgeInsets.symmetric(horizontal: 16),
+                  //     decoration: ShapeDecoration(
+                  //       color: Color(0xFFECECEC),
+                  //       shape: RoundedRectangleBorder(
+                  //           side: BorderSide(width: 1, color: Color(0xFFD1D1D1)), borderRadius: BorderRadius.circular(8)),
+                  //     ),
+                  //     child: Row(
+                  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //       children: [
+                  //         Container(
+                  //           child: Text(
+                  //             '부스 둘러보기',
+                  //             style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+                  //           ),
+                  //         ),
+                  //         Icon(Icons.chevron_right)
+                  //       ],
+                  //     ),
+                  //   ),
+                  //   onTap: () async {
+                  //     String? selection = await showDialog<String>(
+                  //         context: context,
+                  //         builder: (BuildContext context) {
+                  //           return MyDropdownDialog();
+                  //         });
+                  //
+                  //     if (selection == '') {
+                  //       //this is where nothing selected, such as cancel, or selecting nothing and continue;
+                  //     } else {
+                  //       Navigator.pushNamed(context, '/buyer_screens/buyer_navigation_screen', arguments: selection);
+                  //     }
+                  //   },
+                  // ),
                   const SizedBox(height: 20),
                   Row(
                     children: [
                       Expanded(
                         child: GestureDetector(
                           child: Container(
-                            height: 56,
+                           height: 200,
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             decoration: ShapeDecoration(
-                              color: Color(0xFFD1D1D1),
+                              color: Color(0xFF6FCD65),
                               shape: RoundedRectangleBorder(
                                 // side: BorderSide(width: 1, color: Color(0xFFD1D1D1)),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                            child: const Row(
+                            child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text(
-                                  '온라인 상품 둘러보기',
-                                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 13),
+                                Image.asset(
+                                  'assets/offline_sale.png',
+                                  width: 105,
+                                  height: 105,
+                                ),
+                                const SizedBox(height: 25),
+                                const Text(
+                                  '현장 판매',
+                                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 16),
                                   textAlign: TextAlign.center,
                                 ),
                                 //Icon(Icons.chevron_right),
@@ -230,7 +244,7 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
                             ),
                           ),
                           onTap: () {
-                            Navigator.pushNamed(context, '/online_buyer_screens/online_select_festival');
+                            Navigator.pushNamed(context, '/seller_screens/my_booth');
                           },
                         ),
                       ),
@@ -238,7 +252,7 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
                       Expanded(
                         child: GestureDetector(
                           child: Container(
-                            height: 56,
+                            height: 200,
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             decoration: ShapeDecoration(
                               color: Color(0xFFFDBE85),
@@ -247,12 +261,18 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                            child: const Row(
+                            child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text(
-                                  '온라인 상품 판매하기',
-                                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 13),
+                                Image.asset(
+                                  'assets/online_sale.png',
+                                  width: 105,
+                                  height: 105,
+                                ),
+                                const SizedBox(height: 25),
+                                const Text(
+                                  '온라인 판매',
+                                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 16),
                                   textAlign: TextAlign.center,
                                 ),
                                 //Icon(Icons.chevron_right),
@@ -343,69 +363,161 @@ class _BuyerMainScreenState extends State<BuyerMainScreen> {
                     ])
                   ],
                 )),
-            const SizedBox(height: 50),
+            const SizedBox(height: 30),
+            const Divider(
+              color: Color(0x81D1D1D1),
+              thickness: 6,
+            ),
+            const SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Column(
                 children: [
-                  GestureDetector(
-                    child: Container(
-                      width: double.infinity,
-                      height: 56,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      decoration: ShapeDecoration(
-                        color: Color(0xFFECECEC),
-                        shape: RoundedRectangleBorder(
-                            side: BorderSide(width: 1, color: Color(0xFFD1D1D1)), borderRadius: BorderRadius.circular(8)),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            child: Text(
-                              '부스 둘러보기',
-                              style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
-                            ),
-                          ),
-                          Icon(Icons.chevron_right)
-                        ],
-                      ),
-                    ),
-                    onTap: () async {
-                      String? selection = await showDialog<String>(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return MyDropdownDialog();
-                          });
-
-                      if (selection == '') {
-                        //this is where nothing selected, such as cancel, or selecting nothing and continue;
-                      } else {
-                        Navigator.pushNamed(context, '/buyer_screens/buyer_navigation_screen', arguments: selection);
-                      }
-                    },
-                  ),
+                  Text('구매하기', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),),
+                  // const Icon(Icons.chevron_right)
+                  Text('다양한 상품을 구경하러 가볼까요?', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.grey),),
+                  // GestureDetector(
+                  //   child: Container(
+                  //     width: double.infinity,
+                  //     height: 56,
+                  //     padding: const EdgeInsets.symmetric(horizontal: 16),
+                  //     decoration: ShapeDecoration(
+                  //       color: Color(0xFFECECEC),
+                  //       shape: RoundedRectangleBorder(
+                  //           side: BorderSide(width: 1, color: Color(0xFFD1D1D1)), borderRadius: BorderRadius.circular(8)),
+                  //     ),
+                  //     child: Row(
+                  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //       children: [
+                  //         const Text(
+                  //           '부스 판매하기',
+                  //           style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+                  //         ),
+                  //         const Icon(Icons.chevron_right)
+                  //       ],
+                  //     ),
+                  //   ),
+                  //   onTap: () {
+                  //     Navigator.pushNamed(context, '/seller_screens/my_booth');
+                  //   },
+                  // ),
+                  // const SizedBox(height: 20),
+                  // GestureDetector(
+                  //   child: Container(
+                  //     width: double.infinity,
+                  //     height: 56,
+                  //     padding: const EdgeInsets.symmetric(horizontal: 16),
+                  //     decoration: ShapeDecoration(
+                  //       color: Color(0xFFECECEC),
+                  //       shape: RoundedRectangleBorder(
+                  //           side: BorderSide(width: 1, color: Color(0xFFD1D1D1)), borderRadius: BorderRadius.circular(8)),
+                  //     ),
+                  //     child: Row(
+                  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //       children: [
+                  //         Container(
+                  //           child: Text(
+                  //             '부스 둘러보기',
+                  //             style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+                  //           ),
+                  //         ),
+                  //         Icon(Icons.chevron_right)
+                  //       ],
+                  //     ),
+                  //   ),
+                  //   onTap: () async {
+                  //     String? selection = await showDialog<String>(
+                  //         context: context,
+                  //         builder: (BuildContext context) {
+                  //           return MyDropdownDialog();
+                  //         });
+                  //
+                  //     if (selection == '') {
+                  //       //this is where nothing selected, such as cancel, or selecting nothing and continue;
+                  //     } else {
+                  //       Navigator.pushNamed(context, '/buyer_screens/buyer_navigation_screen', arguments: selection);
+                  //     }
+                  //   },
+                  // ),
                   const SizedBox(height: 20),
                   Row(
                     children: [
                       Expanded(
                         child: GestureDetector(
                           child: Container(
-                            height: 56,
+                            height: 200,
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             decoration: ShapeDecoration(
-                              color: Color(0xFFD1D1D1),
+                              color: Color(0xFF6FCD65),
                               shape: RoundedRectangleBorder(
                                 // side: BorderSide(width: 1, color: Color(0xFFD1D1D1)),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                            child: const Row(
+                            child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text(
-                                  '온라인 상품 둘러보기',
-                                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+                                Transform.scale(
+                                  scale: 1.1,
+                                  child: Image.asset(
+                                    'assets/offline_buy.png',
+                                    width: 105,
+                                    height: 105,
+                                  ),
+                                ),
+                                const SizedBox(height: 25),
+                                const Text(
+                                  '현장 구매',
+                                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 16),
+                                  textAlign: TextAlign.center,
+                                ),
+                                //Icon(Icons.chevron_right),
+                              ],
+                            ),
+                          ),
+                          onTap: () async {
+                            String? selection = await showDialog<String>(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return MyDropdownDialog();
+                                });
+
+                            if (selection == '') {
+                              //this is where nothing selected, such as cancel, or selecting nothing and continue;
+                            } else {
+                              Navigator.pushNamed(context, '/buyer_screens/buyer_navigation_screen', arguments: selection);
+                            }
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 10), // 버튼 사이 간격
+                      Expanded(
+                        child: GestureDetector(
+                          child: Container(
+                            height: 200,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            decoration: ShapeDecoration(
+                              color: Color(0xFFFDBE85),
+                              shape: RoundedRectangleBorder(
+                                // side: BorderSide(width: 1, color: Color(0xFFD1D1D1)),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Transform.scale(
+                                  scale: 1.2,
+                                  child: Image.asset(
+                                    'assets/online_buy2.png',
+                                    width: 105,
+                                    height: 105,
+                                  ),
+                                ),
+                                const SizedBox(height: 25),
+                                const Text(
+                                  '온라인 구매',
+                                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 16),
                                   textAlign: TextAlign.center,
                                 ),
                                 //Icon(Icons.chevron_right),
@@ -422,6 +534,93 @@ class _BuyerMainScreenState extends State<BuyerMainScreen> {
                 ],
               ),
             ),
+
+            //
+            //
+            // const SizedBox(height: 50),
+            // Padding(
+            //   padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            //   child: Column(
+            //     children: [
+            //       GestureDetector(
+            //         child: Container(
+            //           width: double.infinity,
+            //           height: 150,
+            //           padding: const EdgeInsets.symmetric(horizontal: 16),
+            //           decoration: ShapeDecoration(
+            //             color: Color(0xFFECECEC),
+            //             shape: RoundedRectangleBorder(
+            //                 side: BorderSide(width: 1, color: Color(0xFFD1D1D1)), borderRadius: BorderRadius.circular(8)),
+            //           ),
+            //           child: Row(
+            //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //             children: [
+            //               Container(
+            //                 child: Text(
+            //                   '부스 둘러보기',
+            //                   style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+            //                 ),
+            //               ),
+            //               Icon(Icons.chevron_right)
+            //             ],
+            //           ),
+            //         ),
+            //         onTap: () async {
+            //           String? selection = await showDialog<String>(
+            //               context: context,
+            //               builder: (BuildContext context) {
+            //                 return MyDropdownDialog();
+            //               });
+            //
+            //           if (selection == '') {
+            //             //this is where nothing selected, such as cancel, or selecting nothing and continue;
+            //           } else {
+            //             Navigator.pushNamed(context, '/buyer_screens/buyer_navigation_screen', arguments: selection);
+            //           }
+            //         },
+            //       ),
+            //       const SizedBox(height: 20),
+            //       Row(
+            //         children: [
+            //           Expanded(
+            //             child: GestureDetector(
+            //               child: Container(
+            //                 height: 150,
+            //                 padding: const EdgeInsets.symmetric(horizontal: 16),
+            //                 decoration: ShapeDecoration(
+            //                   color: Color(0xFFD1D1D1),
+            //                   shape: RoundedRectangleBorder(
+            //                     // side: BorderSide(width: 1, color: Color(0xFFD1D1D1)),
+            //                     borderRadius: BorderRadius.circular(8),
+            //                   ),
+            //                 ),
+            //                 child: Column(
+            //                   mainAxisAlignment: MainAxisAlignment.center,
+            //                   children: [
+            //                     Image.asset(
+            //                       'assets/online_buy.png',
+            //                       width: 100,
+            //                       height: 100,
+            //                     ),
+            //                     const Text(
+            //                       '온라인 상품 둘러보기',
+            //                       style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+            //                       textAlign: TextAlign.center,
+            //                     ),
+            //                     //Icon(Icons.chevron_right),
+            //                   ],
+            //                 ),
+            //               ),
+            //               onTap: () {
+            //                 Navigator.pushNamed(context, '/online_buyer_screens/online_select_festival');
+            //               },
+            //             ),
+            //           ),
+            //         ],
+            //       ),
+            //     ],
+            //   ),
+            // ),
           ],
         )),
         floatingActionButton: FloatingActionButton(
