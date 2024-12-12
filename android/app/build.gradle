@@ -10,11 +10,12 @@ plugins {
 
 android {
     namespace = 'com.clk.team4.catculator'
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 34
     ndkVersion = flutter.ndkVersion
 
 
     compileOptions {
+        coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
@@ -24,8 +25,9 @@ android {
     }
 
     defaultConfig {
+        multiDexEnabled true
         applicationId 'com.clk.team4.catculator'
-        minSdk = 23
+        minSdk = 33
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -43,5 +45,11 @@ android {
 
 flutter {
     source = '../..'
+}
+
+dependencies {
+    implementation platform('com.google.firebase:firebase-bom:32.1.1') // 최신 버전 확인
+    implementation 'com.google.firebase:firebase-messaging'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.2'
 }
 

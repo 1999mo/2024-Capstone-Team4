@@ -602,7 +602,7 @@ class _BoothListScreenState extends State<BoothListScreen>
               ),
               content: SizedBox(
                 width: MediaQuery.of(context).size.width * 0.7,
-                height: MediaQuery.of(context).size.height * 0.68,
+                height: MediaQuery.of(context).size.height * 0.55,
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
@@ -619,13 +619,13 @@ class _BoothListScreenState extends State<BoothListScreen>
                           child: Image.network(
                             item['imagePath'] ?? '',
                             width: double.infinity,
-                            height: 250,
+                            height: 270,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
                               return Image.asset(
                                 'assets/catcul_w.jpg',
                                 width: double.infinity,
-                                height: 250,
+                                height: 270,
                                 fit: BoxFit.cover,
                               );
                             },
@@ -634,7 +634,7 @@ class _BoothListScreenState extends State<BoothListScreen>
                       ),
 
 
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 25),
                       Text(
                         item['itemName'] ?? '상품명 없음',
                         style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),textAlign: TextAlign.center,),
@@ -646,7 +646,7 @@ class _BoothListScreenState extends State<BoothListScreen>
                       Text(
                           '상품 종류: ${item['itemType'] ?? '정보 없음'}',
                           style: TextStyle(fontSize: 18, color: Colors.grey, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 25),
+                      const SizedBox(height: 30),
                       Text(
                           '${item['sellingPrice'] ?? '가격 없음'}원',
                           style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold, color: Colors.green)),

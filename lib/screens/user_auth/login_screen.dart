@@ -2,6 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:catculator/script.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -155,8 +159,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 onTap: () async {
                   // 구글 간편 로그인 구현 로직
                   final user = await script.signInWithGoogle();
-                  print("Try logging in with google");
-                  print(user);
                   if (user != null) {
                     Navigator.pushReplacementNamed(
                         context, '/main_screens/make_profile');

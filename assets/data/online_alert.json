@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "capstone-team4",
+  "private_key_id": "aa6048bef8359a0935cf99b06240debde12cdc50",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDHZf2Dk3Yqn0S9\nM+TDMjywGEEsU7tYQUdggL9XHMWtlTzs9Vr0rT+GjfgQJG2Hqx62RqfEf/TH0Cb0\nzLTiy88dOhDTM0EURtL/2s9tlRXIlGIuMErphiUnxmI412dhOjkKqpkoBTYlKXLT\nYVFrmxRJh1s2Ma64Hn0JhpQfKUSjyF0twtYSoo8yZ7+yoBi4Ev/uxD2yMTylGRTz\nfWTnS4JXPlSBDsJJO2NeS2VgsnUO3zk1tosIv/kdwtgmixuvrFmWo17fJCjOAyOL\n7J6E+v7GNm29DCJJzV09LtmCdrEnmcaN57ybONpFffLgeLhjO81QjPMLJE1Dfmbq\nrLO3HRmjAgMBAAECggEABH9/4V2wDTf6cGAyzrpxOM4pfG6q5KENr8GrT1AJyjXs\nBWu8m0BHsaITO0/EZBjPgJsFwmIvclshxPMo/+SEGID3Nk8gZ2zcBqcwzM76UW6h\nssztiCGdYmZ7FxScbDxzRqEnylDTVgbwZFdRuNL5eVmYflCH0mjm/i6g8qgeKjfa\n72waUBKn7RlUi61DFHNTddAqkVoGtzshLqiBPocjC5HxMgR2aZ0JcbEle21FnxCk\nDoHMUW16hmAyTgIa/7fic5m1MdDWqPQIoMZL/VGTnK1k6A4er6sfewDOJyJP5svz\np2ehkBambA8fshdol56krVP6lbCWA/bzWsRs8sCGYQKBgQDyDkMl3Rg+U0Wv/qlh\nI7z+sHHpnqzCOi64F6XSkaxATpV6qAmUV264s6ITHPuDxW/jdhg803KxFck9xQ3R\nHdxcLHkS+JdRfEFZKUms9JITWRAmbRJsiBCrhqvAPAA3TLmR4hjnDM+brydA6HDL\nT/G2EnZTu76wTiBOoEJJT+OSQwKBgQDS4qK0BGMYUbFT0lHNvuvOFDixOXFcbQA+\ng+k2ZjfUVDy0QmtbW36Ugqyep45RdUupb9XX+g7iVWg9wIg6Y+gHqaY/jc8M+k5H\nHS7SbFK1kVHpDdK8WD9Y+/yo8UOIEHJS+GlRr0ZhJRVF43H3HSNY8WsNuqaISSeb\n8649Bf1VIQKBgGDRv54Xj6juWgOJk2qdhu1A2m+d3nBaIXHVU6ikSAf45uWG7T3+\nsvUCNSP8BcaxZI3RIOTDly6qDjK87Ufl78yWpV8nPC+FygXF9AhQU1WV3FXibuom\nirRxS6W62kNEVz24+EkC4M/fAY5+6w8HzSEMxXO8twuCVH3esGTupZJNAoGAN70j\nWAVY09Kz1f3fFUyDMwLxQRZ3ugAtcliXSYOW+g4RxWtQyOLUABjR21VaLnmcN/qR\nQPac/IGqfbfnydciOvRCNsYalcmK6wzxlTiAW/E+/yRiMNn6VGC2FUk/mjUOopN5\n8tcq+P4+Myy8sJ4I+7dDnmtZHOiJCZVM1mBA50ECgYBtZqBsUErkK2I3FRiGjLNL\n1MWK6afDTeM+c7s1MPlNG1oKsiyIgT2LJrzS4Wig8QiItf42cICF9/c4G6UTrYhj\n1jKM72K8ybuinWvmrwqLp9A7MjvcTAS6A+KdNBTyC4sQcLe7/gdWL2zEgifFvnmF\ns+g5KxNRJQrS0ErUeENG8g==\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-21hkt@capstone-team4.iam.gserviceaccount.com",
+  "client_id": "111598574525876566095",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-21hkt%40capstone-team4.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
