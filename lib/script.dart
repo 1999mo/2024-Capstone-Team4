@@ -541,7 +541,7 @@ class Scripts {
       print("error while testing : $e");
     }
 
-    return '결제 도중에 오류가 있었습니다, 개발자에게 연락 후 다시 시도해주세요';
+    return '결제 도중에 오류가 있었습니다, 다시 시도해주세요';
   }
 
   Future<String> approvePayment(String accountNumber, String tid, String pgToken) async{

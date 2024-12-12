@@ -170,7 +170,7 @@ class _OnlineLookBoothItemsState extends State<OnlineLookBoothItems> {
                                                   ),
                                                   const SizedBox(height: 16),
                                                   Text(
-                                                    '${itemData['sellingPrice'] ?? 'N/A'}원',
+                                                    '${itemData['sellingPrice'] * quantity ?? 'N/A'}원',
                                                     style: TextStyle(
                                                         fontSize: 22,
                                                         fontWeight: FontWeight.bold,
@@ -236,7 +236,99 @@ class _OnlineLookBoothItemsState extends State<OnlineLookBoothItems> {
                                           const SizedBox(height: 16),
                                           GestureDetector(
                                             onTap: () async {
-                                              // 장바구니 추가 로직
+                                              final uid = FirebaseAuth
+                                                  .instance.currentUser?.uid;
+                                              if (uid == null) {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                      content: Text('로그인이 필요합니다.')),
+                                                );
+                                                return;
+                                              }
+
+                                              try {
+                                                Navigator.pop(context);
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    content:
+                                                    Text('상품이 장바구니에 추가되었습니다.'),
+                                                    duration: Duration(seconds: 1),
+                                                  ),
+                                                );
+
+                                                final basketRef = FirebaseFirestore
+                                                    .instance
+                                                    .collection('Users')
+                                                    .doc(uid)
+                                                    .collection('online_basket')
+                                                    .doc(
+                                                    festivalName); // 축제 이름에 해당하는 문서
+
+                                                // 새로 추가할 상품 정보
+                                                final newItem = {
+                                                  'itemName': itemData['itemName'],
+                                                  'artist': itemData['artist'],
+                                                  'quantity': quantity, // 선택된 수량
+                                                  'sellingPrice':
+                                                  itemData['sellingPrice'],
+                                                  'itemType': itemData['itemType'],
+                                                  'imagePath':
+                                                  '${sellerUid}/${itemId.replaceAll(' ', '_')}.jpg',
+                                                };
+
+                                                // 기존 데이터 확인
+                                                final snapshot =
+                                                await basketRef.get();
+                                                if (snapshot.exists) {
+                                                  // 문서가 존재할 경우
+                                                  final currentData =
+                                                      snapshot.data() as Map<String,
+                                                          dynamic>? ??
+                                                          {};
+
+                                                  if (currentData
+                                                      .containsKey(sellerUid)) {
+                                                    // 해당 sellerId 필드가 존재하면 기존 배열에서 itemName 비교
+                                                    final List<dynamic>
+                                                    currentItems =
+                                                    currentData[sellerUid]
+                                                    as List<dynamic>;
+
+                                                    // 동일한 itemName을 가진 항목이 있는지 확인
+                                                    currentItems.removeWhere(
+                                                            (item) =>
+                                                        item['itemName'] ==
+                                                            itemData['itemName']);
+
+                                                    // 새로운 항목 추가
+                                                    currentItems.add(newItem);
+
+                                                    // 업데이트
+                                                    await basketRef.update({
+                                                      sellerUid!: currentItems,
+                                                    });
+                                                  } else {
+                                                    // 해당 sellerId 필드가 없으면 새 필드 생성
+                                                    await basketRef.update({
+                                                      sellerUid!: [newItem],
+                                                    });
+                                                  }
+                                                } else {
+                                                  // 문서가 존재하지 않을 경우 새로 생성
+                                                  await basketRef.set({
+                                                    sellerUid!: [newItem],
+                                                  });
+                                                }
+                                              } catch (e) {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  SnackBar(
+                                                      content: Text(
+                                                          '장바구니 추가 중 오류가 발생했습니다: $e')),
+                                                );
+                                              }
                                             },
                                             child: Container(
                                              width: double.infinity,
