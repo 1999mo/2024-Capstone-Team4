@@ -121,147 +121,150 @@ class _EditSellingItemsState extends State<EditSellingItems> {
           ),
           content: SizedBox(
             width: MediaQuery.of(context).size.width * 0.65,
-            height: MediaQuery.of(context).size.height * 0.7,
-            child: SingleChildScrollView(
-              //padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment:
-                    CrossAxisAlignment.start, // 텍스트의 기본 정렬을 왼쪽으로 설정
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius:
-                      BorderRadius.circular(8),
-                      border: Border.all(
-                          color: Color(0xFFD1D1D1),
-                          width: 1),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        itemData['imagePath'] ?? '',
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        height: 250,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Image.asset(
-                            'assets/catcul_w.jpg',
-                            fit: BoxFit.cover,
-                            height: 250,
-                            width: double.infinity,
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Container(
-                    padding: EdgeInsets.all(8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            height: MediaQuery.of(context).size.height * 0.55,
+            child: LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) {
+                return Column(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: Color(0xFFD1D1D1), width: 1),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.network(
+                                  itemData['imagePath'] ?? '',
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  height: 250,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Image.asset(
+                                      'assets/catcul_w.jpg',
+                                      fit: BoxFit.cover,
+                                      height: 250,
+                                      width: double.infinity,
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            Container(
+                              padding: EdgeInsets.all(8),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('상품종류: ${itemData['itemType'] ?? ''}',
-                                      style: const TextStyle(
-                                          fontSize: 14, color: Colors.grey)),
-                                  Text(
-                                    '상품명: ${itemData['itemName'] ?? ''}',
-                                    style: const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold),
-                                    softWrap: true,
-                                    maxLines: 5,
-                                    overflow: TextOverflow.ellipsis,
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text('상품종류: ${itemData['itemType'] ?? ''}',
+                                                style: const TextStyle(
+                                                    fontSize: 14, color: Colors.grey)),
+                                            Text(
+                                              '상품명: ${itemData['itemName'] ?? ''}',
+                                              style: const TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold),
+                                              softWrap: true,
+                                              maxLines: 5,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            Text(
+                                              '작가정보: ${itemData['artist'] ?? ''}',
+                                              style: const TextStyle(fontSize: 16),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                        children: [
+                                          Text('재고수: ${itemData['stockQuantity'] ?? ''}',
+                                              style: const TextStyle(fontSize: 14)),
+                                        ],
+                                      ),
+                                    ],
                                   ),
-                                  Text(
-                                    '작가정보: ${itemData['artist'] ?? ''}',
-                                    style: const TextStyle(fontSize: 16),
+                                  const SizedBox(height: 16),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text('원가: ${itemData['costPrice'] ?? ''}',
+                                          style: const TextStyle(
+                                              fontSize: 14, color: Colors.grey)),
+                                      Text('판매가: ${itemData['sellingPrice'] ?? ''}',
+                                          style: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: Color(0xFFFF5353))),
+                                    ],
                                   ),
                                 ],
                               ),
                             ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text('재고수: ${itemData['stockQuantity'] ?? ''}',
-                                    style: const TextStyle(fontSize: 14)),
-                              ],
-                            ),
                           ],
                         ),
-                        const SizedBox(height: 16),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('원가: ${itemData['costPrice'] ?? ''}',
-                                style: const TextStyle(
-                                    fontSize: 14, color: Colors.grey)),
-                            Text('판매가: ${itemData['sellingPrice'] ?? ''}',
-                                style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFFFF5353))),
-                          ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFD1D1D1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: TextButton(
+                              onPressed: () {
+                                _showDeleteConfirmation(itemId, itemData['imagePath']);
+                              },
+                              child: const Text('삭제',
+                                  style: TextStyle(fontSize: 14, color: Colors.black)),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFDBE85),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                Navigator.pushNamed(context, '/seller_screens/edit_item',
+                                    arguments: [boothId, itemId]);
+                              },
+                              child: const Text('수정',
+                                  style: TextStyle(fontSize: 14, color: Colors.black)),
+                            ),
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFD1D1D1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: TextButton(
-                            onPressed: () {
-                              _showDeleteConfirmation(
-                                  itemId, itemData['imagePath']);
-                            },
-                            child: const Text('삭제',
-                                style: TextStyle(
-                                    fontSize: 14, color: Colors.black)),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFDBE85),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: TextButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                              Navigator.pushNamed(
-                                  context, '/seller_screens/edit_item',
-                                  arguments: [boothId, itemId]);
-                            },
-                            child: const Text('수정',
-                                style: TextStyle(
-                                    fontSize: 14, color: Colors.black)),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                  ],
+                );
+              },
             ),
           ),
         );
+
       },
     );
   }

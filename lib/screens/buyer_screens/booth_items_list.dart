@@ -271,7 +271,7 @@ class _BoothItemsListState extends State<BoothItemsList> {
                             ),
                             content: SizedBox(
                               width: MediaQuery.of(context).size.width * 0.7,
-                              height: MediaQuery.of(context).size.height * 0.7,
+                              height: MediaQuery.of(context).size.height * 0.55,
                               //insetPadding: const EdgeInsets.all(16.0),
                               child: ListView(children: [
                                 Column(
@@ -289,7 +289,7 @@ class _BoothItemsListState extends State<BoothItemsList> {
                                           borderRadius: BorderRadius.circular(8.0),
                                           child: SizedBox(
                                             width: double.infinity,
-                                            height: 250,
+                                            height: 270,
                                             child: CachedNetworkImage(
                                               imageUrl: item['imagePath'] ?? 'assets/catcul_w.jpg',
                                               placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
@@ -323,7 +323,7 @@ class _BoothItemsListState extends State<BoothItemsList> {
                                           color: stockQuantity > 0 ? Colors.grey : Colors.red,
                                           fontWeight: FontWeight.bold),
                                     ),
-                                    const SizedBox(height: 16),
+                                    const SizedBox(height: 20),
                                     Text('${item['sellingPrice'] ?? 0}원',
                                         style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.green)),
                                     const SizedBox(height: 16),
