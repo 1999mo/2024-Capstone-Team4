@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'package:catculator/screens/splash.dart';
 import 'package:catculator/screens/user_auth/auth_screen_export.dart';
@@ -11,9 +12,18 @@ import 'package:catculator/screens/online_seller_screens/online_seller_screens_e
 import 'package:catculator/screens/online_buyer_screens/online_buyer_screens_export.dart';
 
 
+
+
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(); // Initialize Firebase
+  // FlutterLocalNotificationsPlugin 초기화
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+  FlutterLocalNotificationsPlugin();
+  flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+      AndroidFlutterLocalNotificationsPlugin>()?.requestNotificationsPermission();
+
   runApp(const MyApp());
 }
 

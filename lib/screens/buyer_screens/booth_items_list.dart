@@ -100,34 +100,41 @@ class _BoothItemsListState extends State<BoothItemsList> {
                       double imageAspectRatio = 1.5; // 예: 가로:세로 비율이 3:2인 경우
                       double imageWidth = constraints.maxWidth; // 이미지의 최대 너비
                       double imageHeight = imageWidth / imageAspectRatio;
+                      double imageLeft = (constraints.maxWidth - imageWidth) / 2;
+                      double imageTop = (constraints.maxHeight - imageHeight) / 2;
+
+                      //////////////////////////////
+                      double leftPosition = 0;
+                      double topPosition = 0;
+                      double recWidth=0;
+                      double recHeight=0;
+                      int recWidthRatio = 0;
+                      int recHeightRatio = 0;
+                      int xLocationRatio = 0;
+                      int yLocationRatio = 0;
 
                       // 이미지가 컨테이너보다 높거나 넓을 경우 처리
                       if (imageHeight > constraints.maxHeight) {
                         imageHeight = constraints.maxHeight;
                         imageWidth = imageHeight * imageAspectRatio;
                       }
-
-                      // 실제 이미지가 렌더링될 위치의 시작 좌표
-                      double imageLeft = (constraints.maxWidth - imageWidth) / 2;
-                      double imageTop = (constraints.maxHeight - imageHeight) / 2;
-
-                      // locationRatio 계산
-                      int locationRatio = 0;
-
-                      // 첫 글자 가져오기
                       String firstLetter = location[0].toLowerCase();
-                      // 첫 글자의 알파벳 순서 계산
                       int offset = firstLetter.codeUnitAt(0) - 'a'.codeUnitAt(0);
 
-                      // locationRatio 계산 (7과 4를 번갈아 더하기)
+                      xLocationRatio = 0;
+                      yLocationRatio = (firstLetter == 'x' || firstLetter == 'y') ? 112 : 70;
+
+                      recWidthRatio = 3;
+                      recHeightRatio = 45;
+
                       for (int i = 1; i <= offset; i++) {
-                        // 'b'부터 시작하므로 i는 1부터
-                        locationRatio += (i % 2 == 1) ? 7 : 4; // 홀수 번째는 7, 짝수 번째는 4
+                        xLocationRatio += (i % 2 == 1) ? 7 : 4;
                       }
 
-                      // 위치 계산
-                      double leftPosition = imageLeft + (imageWidth / 320) * (8 + locationRatio);
-                      double topPosition = imageTop + (imageHeight / 3) * 1.01;
+                      leftPosition = imageLeft + (imageWidth / 320) * (4.5 + xLocationRatio);
+                      topPosition = imageTop + (imageHeight / 360) * (yLocationRatio) * (1.01);
+                      recWidth=(imageWidth / 150) * recWidthRatio;
+                      recHeight= (imageHeight / 150) * recHeightRatio;
 
                       return Stack(
                         children: [
@@ -140,11 +147,11 @@ class _BoothItemsListState extends State<BoothItemsList> {
                           ),
                           // 빨간 사각형
                           Positioned(
-                            left: leftPosition - 4.0, // 사각형 중심 맞추기
-                            top: topPosition - 40.0, // 사각형 중심 맞추기
+                            left: leftPosition, // 사각형 중심 맞추기
+                            top: topPosition, // 사각형 중심 맞추기
                             child: Container(
-                              width: 8.0,
-                              height: 85.0,
+                              width: recWidth,
+                              height: recHeight,
                               decoration: BoxDecoration(
                                 color: Colors.transparent, // 투명한 배경
                                 border: Border.all(color: Colors.red, width: 2.0), // 빨간 테두리
