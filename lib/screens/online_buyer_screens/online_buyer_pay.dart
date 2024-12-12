@@ -61,6 +61,7 @@ class _OnlineBuyerPayState extends State<OnlineBuyerPay> {
         .collection('online_order_list')
         .doc(festivalName);
 
+    //결제 카카오톡 부문
     try {
       final basketSnapshot = await basketRef.get();
       if (!basketSnapshot.exists) {
@@ -94,10 +95,11 @@ class _OnlineBuyerPayState extends State<OnlineBuyerPay> {
         }).toList();
         await Future.wait(futures);
 
-        String result = await script.sendPaymentCheck(context, totalCost, uid);
+        String result = await script.sendPaymentCheck(context, totalCost, uid, 'CatCulator');
         //uid 부문에 추후 사용자의 계좌 입력 필요
         //결제 금액과 계좌 번호로 확인
         //true 이외의 경우 오류 메시지를 받아서 팝업으로 띄움
+        //'CatCulator' 부문에 결제 이름 추가 가능하면 추가
 
         if (result != 'true') {
           ScaffoldMessenger.of(context).showSnackBar(

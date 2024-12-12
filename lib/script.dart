@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -436,7 +437,7 @@ class Scripts {
     }
   }
 
-  Future<String> sendPaymentCheck(BuildContext context, int totalCost, String accountNumber) async
+  Future<String> sendPaymentCheck(BuildContext context, int totalCost, String accountNumber, String payName) async
   {
     /*
     클라이언트에서 보내는
@@ -492,7 +493,7 @@ class Scripts {
       'cid': 'TC0ONETIME',
       'partner_order_id': 'ThisIsTest',
       'partner_user_id': accountNumber,
-      'item_name': 'ThisIsTest2',
+      'item_name': payName,
       'quantity': 1,
       'total_amount': totalCost,
       'tax_free_amount': 0,
@@ -507,26 +508,43 @@ class Scripts {
         headers: header,
         body: body,
       );
-      // 수동으로 UTF-8 디코딩
+
       final decodedBody = utf8.decode(response.bodyBytes);
       final data = jsonDecode(decodedBody);
       final tid = data['tid'];
-      final next_url = Uri.parse(data['next_redirect_app_url']);
-      print('url: $next_url');
+      final next_url = data['next_redirect_app_url'];
 
-      if (await canLaunchUrl(next_url)) {
-        await launchUrl(next_url);
+      //launchUrl(Uri.parse(next_url));
+      //launchUrl(Uri.parse('kakaoPay://'));
+
+      if (await canLaunchUrl(Uri.parse(next_url))) {
+        await launchUrl(Uri.parse(next_url));
       } else {
         throw 'Could not launch $next_url';
       }
 
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => PaymentScreen(paymentUrl: next_url,)),
+      );
+
+      if(result['pg_token'] == 'cancel') {
+        return '결제가 도중에 취소되었습니다, 다시 시도해주세요';
+      }
+
+      if(result['pg_token'] == 'fail') {
+        return '결제 도중에 오류가 있었습니다, 다시 시도해주세요';
+      }
+
+      return approvePayment(accountNumber, tid, result['pg_token']);
     } catch (e) {
       print("error while testing : $e");
     }
-    return 'false';
+
+    return '결제 도중에 오류가 있었습니다, 다시 시도해주세요';
   }
 
-  Future<void> approvePayment(String accountNumber, String tid, String pgToken) async{
+  Future<String> approvePayment(String accountNumber, String tid, String pgToken) async{
     final url = Uri.parse(
         'https://open-api.kakaopay.com/online/v1/payment/approve');
     final header = {
@@ -540,7 +558,6 @@ class Scripts {
       'partner_user_id': accountNumber,
       'pg_token': pgToken,
     });
-    //print(body);
 
     try {
       final response = await http.post(
@@ -548,12 +565,15 @@ class Scripts {
         headers: header,
         body: body,
       );
-      print(response);
+
+      if(response.statusCode == 200) {
+        return 'true';
+      }
     } catch (e) {
       print("error while testing_2 : $e");
     }
 
-    return;
+    return '결제 결과 확인중 오류가 있었습니다, 다시 시도해주세요';
   }
 }
 
@@ -567,5 +587,78 @@ Future<void> resetPassword(Uri link, String email, String newPassword, BuildCont
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("비밀번호가 변경되었습니다.")));
     Navigator.pop(context);
   } catch (e) {
+  }
+}
+
+class PaymentScreen extends StatefulWidget {
+  final String paymentUrl;
+
+  PaymentScreen({required this.paymentUrl});
+
+  @override
+  _PaymentScreenState createState() => _PaymentScreenState();
+}
+
+class _PaymentScreenState extends State<PaymentScreen> {
+  late WebViewController _webViewController;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeWebView();
+  }
+
+  void _initializeWebView() {
+    _webViewController = WebViewController()
+    ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onPageStarted: (String url) {
+            print('Loading started: $url');
+          },
+          onPageFinished: (String url) {
+            print('Loading finished: $url');
+          },
+          onWebResourceError: (WebResourceError error) {
+            print('WebView Error: ${error.description}');
+          },
+          onNavigationRequest: (NavigationRequest request) async{
+            print("Change of navigation : ${request.url}");
+
+            if(request.url.startsWith('intent')){
+              return NavigationDecision.prevent;
+            }
+
+            if (request.url.startsWith('http://localhost:8080/success?pg_token=')){
+              final Uri uri = Uri.parse(request.url);
+              final String? pgToken = uri.queryParameters['pg_token'];
+              print('pg_token : $pgToken');
+
+              Navigator.pop(context, {'pg_token': pgToken});
+            }
+
+            if (request.url.startsWith('http://localhost:8080/fail')) {
+              Navigator.pop(context, {'pg_token' : 'fail'});
+            }
+
+            if (request.url.startsWith('http://localhost:8080/cancel')) {
+              Navigator.pop(context, {'pg_token' : 'cancel'});
+            }
+
+            return NavigationDecision.navigate;
+          },
+        ),
+      )
+      ..loadRequest(Uri.parse(widget.paymentUrl));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: WebViewWidget(
+        controller: _webViewController,
+      ),
+    );
   }
 }
