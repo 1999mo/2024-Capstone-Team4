@@ -1,3 +1,9 @@
+import 'dart:async';
+import 'firebase_options.dart';
+
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,18 +17,140 @@ import 'package:catculator/screens/buyer_screens/buyer_screens_export.dart';
 import 'package:catculator/screens/online_seller_screens/online_seller_screens_export.dart';
 import 'package:catculator/screens/online_buyer_screens/online_buyer_screens_export.dart';
 
+class AlarmHandler {
+  final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
+  FlutterLocalNotificationsPlugin();
+  StreamSubscription? _alarmSubscription;
 
+  Future<void> initialize() async {
+    await _initializeNotifications();
+    await _requestNotificationPermissions();
+    _startListeningToSubscribedPaths();
+  }
 
+  Future<void> _initializeNotifications() async {
+    const AndroidInitializationSettings initializationSettingsAndroid =
+    AndroidInitializationSettings('@mipmap/ic_launcher');
 
+    const InitializationSettings initializationSettings =
+    InitializationSettings(
+      android: initializationSettingsAndroid,
+    );
+
+    bool? initialized = await _flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) async {
+        if (response.payload != null && response.payload == '/main_screens/main_screen') {
+          navigatorKey.currentState?.pushNamed(response.payload!);
+        }
+      },
+    );
+
+    if (initialized == true) {
+      debugPrint('FlutterLocalNotificationsPlugin initialized successfully.');
+    } else {
+      debugPrint('Failed to initialize FlutterLocalNotificationsPlugin.');
+    }
+  }
+
+  Future<void> _requestNotificationPermissions() async {
+    final FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+    NotificationSettings settings = await messaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    debugPrint(
+        'Notification permission status: ${settings.authorizationStatus}');
+    if (settings.authorizationStatus != AuthorizationStatus.authorized) {
+      debugPrint('User declined or has not accepted notification permissions');
+    }
+  }
+
+  Future<void> _showNotification(String title, String body) async {
+    const AndroidNotificationDetails androidNotificationDetails =
+    AndroidNotificationDetails(
+      'alarm_channel',
+      'Alarm Notifications',
+      importance: Importance.high,
+      priority: Priority.high,
+    );
+
+    const NotificationDetails notificationDetails = NotificationDetails(
+      android: androidNotificationDetails,
+    );
+
+    await _flutterLocalNotificationsPlugin.show(
+      0,
+      title,
+      body,
+      notificationDetails,
+      payload: '/main_screens/main_screen',
+    );
+  }
+
+  void _startListeningToSubscribedPaths() {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) {
+      debugPrint('User is not logged in.');
+      return;
+    }
+
+    final userDocRef = FirebaseFirestore.instance.collection('Users').doc(userId);
+
+    userDocRef.snapshots().listen((userSnapshot) {
+      if (!userSnapshot.exists) return;
+
+      final subscribedPaths = List<String>.from(userSnapshot.data()?['subscribe'] ?? []);
+      for (final path in subscribedPaths) {
+        _listenToClicksInPath(path);
+      }
+    });
+  }
+
+  void _listenToClicksInPath(String path) {
+    FirebaseFirestore.instance.doc(path).snapshots().listen((docSnapshot) {
+      if (!docSnapshot.exists) return;
+
+      final clicks = List<String>.from(docSnapshot.data()?['clicks'] ?? []);
+      if (clicks.contains('start')) {
+        final itemName = docSnapshot.data()?['itemName'] ?? 'Unknown Item';
+        _showNotification('온라인 판매 시작!', '$itemName의 판매가 시작되었습니다!');
+      }
+    }, onError: (error) {
+      debugPrint('Error listening to path $path: $error');
+    });
+  }
+
+  void dispose() {
+    _alarmSubscription?.cancel();
+  }
+}
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(); // Initialize Firebase
-  // FlutterLocalNotificationsPlugin 초기화
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-  FlutterLocalNotificationsPlugin();
-  flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
-      AndroidFlutterLocalNotificationsPlugin>()?.requestNotificationsPermission();
+
+
+  try {
+    await AndroidAlarmManager.initialize();
+    debugPrint('AndroidAlarmManager initialized successfully.');
+  } catch (e) {
+    debugPrint('Failed to initialize AndroidAlarmManager: $e');
+  }
+
+  final AlarmHandler alarmHandler = AlarmHandler();
+  await alarmHandler.initialize();
+
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true,
+    cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+  );
+
 
   runApp(const MyApp());
 }
@@ -33,6 +161,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       title: "축제 도우미",
       debugShowCheckedModeBanner: false,
       home: StreamBuilder<User?>(

@@ -148,15 +148,6 @@ class _EditItemState extends State<EditItem> {
       'itemType': itemTypeController.text.trim(),
       'imagePath': updatedImageUrl,
     });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('상품 정보가 성공적으로 수정되었습니다.'),
-        duration: Duration(seconds: 1),
-      ),
-    );
-
-    Navigator.pop(context);
   }
 
   @override
@@ -355,7 +346,7 @@ class _EditItemState extends State<EditItem> {
                       child: TextButton(
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('상품정보가 수정되었습니다.')));
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('상품정보가 수정되었습니다.'), duration: Duration(seconds: 1),));
                             Navigator.pop(context);
                             _updateItem();
                           }

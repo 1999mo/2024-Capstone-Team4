@@ -465,6 +465,33 @@ class _BoothItemsListState extends State<BoothItemsList> {
                                                   'expect': FieldValue.increment(1),
                                                   'clicks': FieldValue.arrayUnion([userId]),
                                                 });
+                                                final subscribeRef=FirebaseFirestore.instance.collection('Users').doc(userId);
+
+                                                await FirebaseFirestore.instance.runTransaction((transaction) async {
+                                                  // 현재 subscribeRef 문서 가져오기
+                                                  final snapshot = await transaction.get(subscribeRef);
+
+                                                  if (snapshot.exists) {
+                                                    // 문서가 존재하는 경우
+                                                    final data = snapshot.data();
+                                                    if (data != null && data.containsKey('subscribe')) {
+                                                      // subscribe 필드가 있는 경우
+                                                      transaction.update(subscribeRef, {
+                                                        'subscribe': FieldValue.arrayUnion([docRef.path]),
+                                                      });
+                                                    } else {
+                                                      // subscribe 필드가 없는 경우 새 필드 생성
+                                                      transaction.update(subscribeRef, {
+                                                        'subscribe': [docRef.path],
+                                                      });
+                                                    }
+                                                  } else {
+                                                    // 문서가 없는 경우 새로 생성
+                                                    transaction.set(subscribeRef, {
+                                                      'subscribe': [docRef.path],
+                                                    });
+                                                  }
+                                                });
                                               },
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: hasClicked ? Colors.grey : Color(0xFFFDBE85),

@@ -225,12 +225,19 @@ class _SellingState extends State<Selling> {
     });
   }
 
-  void _startOnlineSale(Map<String, dynamic> itemData) async {
+  void _startOnlineSale(Map<String, dynamic> itemData, String itemId) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
     final String uid = user.uid; // 현재 사용자의 UID
     final String? email = user.email; // 현재 사용자의 이메일
+    final clickItemRef = FirebaseFirestore.instance
+        .collection('Users')
+        .doc(uid)
+        .collection('booths')
+        .doc(boothId)
+        .collection('items')
+        .doc(itemId);
 
     // itemData에서 문서 ID로 사용할 값을 가져옴 (예: 'itemName' 필드)
     final String? itemName = itemData['itemName'];
@@ -253,6 +260,10 @@ class _SellingState extends State<Selling> {
 
       final itemRef = onlineStoreRef.collection(uid).doc(itemName);
       await itemRef.set(itemData);
+
+      await clickItemRef.update({
+        'clicks': FieldValue.arrayUnion(['start']),
+      });
 
       // **2. 성공적으로 Firebase 작업 완료 후 로컬 상태 업데이트**
       setState(() {
@@ -675,7 +686,7 @@ class _SellingState extends State<Selling> {
                                                                                 onlineSaleStartedItems.add(itemId); // 클릭 상태 저장
                                                                               });
                                                                               Navigator.of(context).pop(); // 팝업 닫기
-                                                                              _startOnlineSale(itemData); // 온라인 판매 시작
+                                                                              _startOnlineSale(itemData, itemId); // 온라인 판매 시작
                                                                             },
                                                                       child:
                                                                           Text(
