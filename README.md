@@ -53,7 +53,7 @@
 
 - 부스 정산
   - 부스 정산 화면에서는 각 작가에게 얼마나 정산을 해야하는지 표기가 됩니다.
-  - 작가를 누르시면 그 작가의 상품들 판매 현황 자세히을 확인하실 수 있습니다
+  - 작가를 누르시면 그 작가의 상품들 판매 현황 자세히 확인하실 수 있습니다
 <img src="https://github.com/user-attachments/assets/67da8947-0a26-4271-85e2-82f1e6884e55" alt="정산 기능" width = "300" height = "600"/>
 <img src="https://github.com/user-attachments/assets/0410157a-5d89-4a76-ae24-4ed0a7346a95" alt="작가 매출" width = "300" height = "600"/>
 
