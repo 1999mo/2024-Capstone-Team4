@@ -404,6 +404,15 @@ class _OnlineBuyerShoppingCartState extends State<OnlineBuyerShoppingCart> {
             child: InkWell(
               onTap: () {
                 Navigator.pushNamed(context, '/online_buyer_screens/online_buyer_pay', arguments: [festivalName, totalCost]);
+                Navigator.pushNamed(
+                  context,
+                  '/online_buyer_screens/online_buyer_pay',
+                  arguments: [festivalName, totalCost],
+                ).then((_) {
+                  setState(() {
+                    didChangeDependencies();
+                  });
+                });
               },
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10.0),

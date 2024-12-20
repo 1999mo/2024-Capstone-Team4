@@ -1,7 +1,7 @@
 plugins {
     id "com.android.application"
     // START: FlutterFire Configuration
-    id 'com.google.gms.google-services'
+    //id 'com.google.gms.google-services'
     // END: FlutterFire Configuration
     id "kotlin-android"
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
@@ -10,7 +10,7 @@ plugins {
 
 android {
     namespace = 'com.clk.team4.catculator'
-    compileSdk = 34
+    compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
 
@@ -27,7 +27,7 @@ android {
     defaultConfig {
         multiDexEnabled true
         applicationId 'com.clk.team4.catculator'
-        minSdk = 33
+        minSdk = 23
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

@@ -225,7 +225,15 @@ class _BagListScreenState extends State<BagListScreen> {
         ),
       );
 
-      setState(() {});
+      setState(() {
+        basketData.clear(); // 데이터 초기화
+        totalCost = 0; // 총 금액 초기화
+      });
+      await _fetchBasketItems(); // Firebase에서 데이터 다시 로드
+
+
+
+
     } catch (e) {
       // Handle errors
       ScaffoldMessenger.of(context).showSnackBar(

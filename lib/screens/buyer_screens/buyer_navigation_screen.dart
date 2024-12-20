@@ -14,6 +14,7 @@ class BuyerNavigationScreen extends StatefulWidget {
 
 class _BuyerNavigationScreenState extends State<BuyerNavigationScreen> {
   int _selectedIndex = 0;
+  String? festivalName;
 
   // 탭에 표시될 위젯
   final List<Widget> _pages = [
